@@ -20,7 +20,7 @@ import {
   audioOptions, 
   closingOptions 
 } from "@/lib/prompt-templates";
-import { Copy, Save, Edit, Trash2, CircleCheck } from "lucide-react";
+import { Copy, Save, Edit, Trash2, CircleCheck, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
 
 export default function VeoPromptBuilder() {
   const { toast } = useToast();
@@ -40,6 +40,7 @@ export default function VeoPromptBuilder() {
   } = usePromptBuilder();
 
   const [isOnline] = useState(true); // For demo purposes, assuming always online
+  const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
   const handleCopyPrompt = async () => {
     if (!generatedPrompt.trim()) {
@@ -125,7 +126,22 @@ export default function VeoPromptBuilder() {
             <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
               Veo Prompt Builder
             </h1>
-
+            
+            {/* Sticky Arrow Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
+              className="fixed top-4 right-4 z-50 shadow-lg"
+              style={{ 
+                backgroundColor: 'var(--surface)', 
+                borderColor: 'var(--border-color)', 
+                color: 'var(--text-primary)' 
+              }}
+            >
+              <Bookmark className="w-4 h-4 mr-1" />
+              {isSidePanelOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </Button>
           </div>
           <p style={{ color: 'var(--text-secondary)' }}>
             Create compelling video prompts for AI video generation
@@ -538,6 +554,123 @@ export default function VeoPromptBuilder() {
             </Card>
           </div>
         </div>
+
+        {/* Sliding Side Panel for Saved Prompts */}
+        <div 
+          className={`fixed top-0 right-0 h-full w-96 z-40 transform transition-transform duration-300 ease-in-out ${
+            isSidePanelOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+          style={{ backgroundColor: 'var(--surface)', borderLeft: '1px solid var(--border-color)' }}
+        >
+          <div className="h-full flex flex-col">
+            {/* Side Panel Header */}
+            <div className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+              <div className="flex items-center justify-between">
+                <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+                  Saved Prompts ({savedPrompts.length})
+                </h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsSidePanelOpen(false)}
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Saved Prompts List */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {savedPrompts.length === 0 ? (
+                <div className="text-center py-8">
+                  <Bookmark className="w-12 h-12 mx-auto mb-4 opacity-50" style={{ color: 'var(--text-secondary)' }} />
+                  <p style={{ color: 'var(--text-secondary)' }}>
+                    No saved prompts yet. Save your first prompt to see it here!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {savedPrompts.map((prompt: any) => (
+                    <Card 
+                      key={prompt.id} 
+                      className="cursor-pointer hover:opacity-80 transition-opacity"
+                      style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}
+                    >
+                      <CardContent className="p-4">
+                        <div className="flex items-start justify-between mb-2">
+                          <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                            {formatDate(prompt.createdAt)}
+                          </span>
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleLoadPrompt(prompt.id);
+                              }}
+                              className="h-6 w-6 p-0"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeletePrompt(prompt.id);
+                              }}
+                              className="h-6 w-6 p-0"
+                              style={{ color: 'var(--text-secondary)' }}
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <p 
+                          className="text-sm line-clamp-3 cursor-pointer"
+                          style={{ color: 'var(--text-primary)' }}
+                          onClick={() => handleLoadPrompt(prompt.id)}
+                        >
+                          {prompt.text}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Side Panel Actions */}
+            {savedPrompts.length > 0 && (
+              <div className="p-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <Button
+                  variant="outline"
+                  onClick={clearAllSavedPrompts}
+                  className="w-full"
+                  style={{ 
+                    backgroundColor: 'var(--background-darker)', 
+                    borderColor: 'var(--border-color)', 
+                    color: 'var(--text-secondary)' 
+                  }}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear All Prompts
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Overlay */}
+        {isSidePanelOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+            onClick={() => setIsSidePanelOpen(false)}
+          />
+        )}
 
         {/* Mobile Bottom Actions */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)' }}>

@@ -18,14 +18,14 @@ This is a full-stack web application designed to help users create AI video prom
 ### Backend Architecture
 - **Runtime**: Node.js with Express
 - **Language**: TypeScript with ES modules
-- **Database**: PostgreSQL with Drizzle ORM (configured but not yet implemented)
-- **Session Management**: Prepared for PostgreSQL sessions
+- **Database**: PostgreSQL with Drizzle ORM (fully implemented)
+- **Session Management**: Demo user system for development
 - **Development**: Hot reload with Vite integration
 
 ### Data Storage Strategy
-- **Primary Storage**: Browser localStorage for offline-first functionality
-- **Database**: PostgreSQL ready for future server-side persistence
-- **Session Storage**: PostgreSQL sessions configured for user management
+- **Primary Storage**: PostgreSQL database for persistent storage
+- **Local Fallback**: Browser localStorage utilities available as backup
+- **API Integration**: RESTful endpoints for prompt CRUD operations
 
 ## Key Components
 

@@ -1,23 +1,50 @@
 import { useState, useEffect, useCallback } from "react";
 import { PromptElements, SavedPrompt } from "@shared/schema";
 import { constructPrompt } from "@/lib/prompt-templates";
-import { 
-  savePromptToStorage, 
-  getSavedPrompts, 
-  deletePromptFromStorage, 
-  clearAllPrompts,
-  copyToClipboard 
-} from "@/lib/local-storage";
+import { copyToClipboard } from "@/lib/local-storage";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 export const usePromptBuilder = () => {
   const [elements, setElements] = useState<PromptElements>({});
-  const [savedPrompts, setSavedPrompts] = useState<SavedPrompt[]>([]);
   const [generatedPrompt, setGeneratedPrompt] = useState("");
+  const queryClient = useQueryClient();
 
-  // Load saved prompts on mount
-  useEffect(() => {
-    setSavedPrompts(getSavedPrompts());
-  }, []);
+  // Fetch saved prompts from database
+  const { data: savedPrompts = [], refetch } = useQuery({
+    queryKey: ['/api/prompts'],
+    queryFn: ({ queryKey }) => fetch(queryKey[0]).then(res => res.json()),
+  });
+
+  // Save prompt mutation
+  const savePromptMutation = useMutation({
+    mutationFn: async ({ text, elements }: { text: string; elements: PromptElements }) => {
+      const response = await fetch('/api/prompts', {
+        method: 'POST',
+        body: JSON.stringify({ text, elements }),
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to save prompt');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prompts'] });
+    },
+  });
+
+  // Delete prompt mutation
+  const deletePromptMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`/api/prompts/${id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete prompt');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prompts'] });
+    },
+  });
 
   // Update generated prompt when elements change
   useEffect(() => {
@@ -45,24 +72,24 @@ export const usePromptBuilder = () => {
   const savePrompt = useCallback(() => {
     if (!generatedPrompt.trim()) return null;
     
-    const saved = savePromptToStorage(generatedPrompt, elements);
-    setSavedPrompts(getSavedPrompts());
-    return saved;
-  }, [generatedPrompt, elements]);
+    savePromptMutation.mutate({ text: generatedPrompt, elements });
+    return { id: Date.now().toString(), text: generatedPrompt, elements, createdAt: new Date().toISOString() };
+  }, [generatedPrompt, elements, savePromptMutation]);
 
   const loadPrompt = useCallback((prompt: SavedPrompt) => {
     setElements(prompt.elements);
   }, []);
 
   const deletePrompt = useCallback((id: string) => {
-    deletePromptFromStorage(id);
-    setSavedPrompts(getSavedPrompts());
-  }, []);
+    deletePromptMutation.mutate(id);
+  }, [deletePromptMutation]);
 
-  const clearAllSavedPrompts = useCallback(() => {
-    clearAllPrompts();
-    setSavedPrompts([]);
-  }, []);
+  const clearAllSavedPrompts = useCallback(async () => {
+    // Delete all prompts one by one (could be optimized with a bulk delete endpoint)
+    for (const prompt of savedPrompts) {
+      await deletePromptMutation.mutateAsync(prompt.id);
+    }
+  }, [savedPrompts, deletePromptMutation]);
 
   const copyPromptToClipboard = useCallback(async () => {
     return await copyToClipboard(generatedPrompt);
@@ -85,5 +112,7 @@ export const usePromptBuilder = () => {
     clearAllSavedPrompts,
     copyPromptToClipboard,
     updateGeneratedPrompt,
+    isSaving: savePromptMutation.isPending,
+    isDeleting: deletePromptMutation.isPending,
   };
 };
