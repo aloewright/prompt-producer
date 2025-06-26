@@ -68,6 +68,10 @@ export const usePromptBuilder = () => {
     return await copyToClipboard(generatedPrompt);
   }, [generatedPrompt]);
 
+  const updateGeneratedPrompt = useCallback((text: string) => {
+    setGeneratedPrompt(text);
+  }, []);
+
   return {
     elements,
     generatedPrompt,
@@ -80,5 +84,6 @@ export const usePromptBuilder = () => {
     deletePrompt,
     clearAllSavedPrompts,
     copyPromptToClipboard,
+    updateGeneratedPrompt,
   };
 };

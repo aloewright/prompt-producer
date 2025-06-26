@@ -9,6 +9,43 @@ export const subjectOptions = [
   "A creature",
 ];
 
+export const subjectAgeOptions = [
+  "Young",
+  "Middle-aged",
+  "Elderly",
+  "Child",
+  "Teenager",
+  "Adult",
+];
+
+export const subjectGenderOptions = [
+  "Male",
+  "Female",
+  "Non-binary",
+];
+
+export const subjectAppearanceOptions = [
+  "Athletic",
+  "Slender",
+  "Tall",
+  "Short",
+  "Muscular",
+  "Elegant",
+  "Casual",
+  "Professional",
+];
+
+export const subjectClothingOptions = [
+  "Formal wear",
+  "Casual clothes",
+  "Sports wear",
+  "Traditional outfit",
+  "Modern fashion",
+  "Vintage style",
+  "Work uniform",
+  "Evening wear",
+];
+
 export const actionOptions = [
   "Walking",
   "Running", 
@@ -87,6 +124,10 @@ export const closingOptions = [
 export const constructPrompt = (elements: {
   subject?: string;
   customSubject?: string;
+  subjectAge?: string;
+  subjectGender?: string;
+  subjectAppearance?: string;
+  subjectClothing?: string;
   context?: string;
   action?: string;
   customAction?: string;
@@ -98,10 +139,23 @@ export const constructPrompt = (elements: {
 }): string => {
   const parts: string[] = [];
   
-  // Subject
+  // Subject with descriptors
   const subject = elements.customSubject?.trim() || elements.subject;
   if (subject) {
-    parts.push(subject);
+    let subjectDescription = subject;
+    
+    // Add subject descriptors if they exist
+    const descriptors = [];
+    if (elements.subjectAge) descriptors.push(elements.subjectAge.toLowerCase());
+    if (elements.subjectGender) descriptors.push(elements.subjectGender.toLowerCase());
+    if (elements.subjectAppearance) descriptors.push(elements.subjectAppearance.toLowerCase());
+    if (elements.subjectClothing) descriptors.push(`wearing ${elements.subjectClothing.toLowerCase()}`);
+    
+    if (descriptors.length > 0) {
+      subjectDescription = `${descriptors.join(', ')} ${subject.toLowerCase()}`;
+    }
+    
+    parts.push(subjectDescription);
   }
   
   // Context

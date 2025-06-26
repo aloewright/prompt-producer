@@ -3,6 +3,10 @@ import { z } from "zod";
 export const promptElementsSchema = z.object({
   subject: z.string().optional(),
   customSubject: z.string().optional(),
+  subjectAge: z.string().optional(),
+  subjectGender: z.string().optional(),
+  subjectAppearance: z.string().optional(),
+  subjectClothing: z.string().optional(),
   context: z.string().optional(),
   action: z.string().optional(),
   customAction: z.string().optional(),

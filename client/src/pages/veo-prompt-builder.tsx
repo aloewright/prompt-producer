@@ -9,6 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import { usePromptBuilder } from "@/hooks/use-prompt-builder";
 import { 
   subjectOptions, 
+  subjectAgeOptions,
+  subjectGenderOptions,
+  subjectAppearanceOptions,
+  subjectClothingOptions,
   actionOptions, 
   styleOptions, 
   cameraMotionOptions, 
@@ -32,6 +36,7 @@ export default function VeoPromptBuilder() {
     deletePrompt,
     clearAllSavedPrompts,
     copyPromptToClipboard,
+    updateGeneratedPrompt,
   } = usePromptBuilder();
 
   const [isOnline] = useState(true); // For demo purposes, assuming always online
@@ -120,14 +125,7 @@ export default function VeoPromptBuilder() {
             <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
               Veo Prompt Builder
             </h1>
-            <div className="flex items-center space-x-2">
-              <div 
-                className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}
-              />
-              <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                {isOnline ? 'Offline Ready' : 'Offline'}
-              </span>
-            </div>
+
           </div>
           <p style={{ color: 'var(--text-secondary)' }}>
             Create compelling video prompts for AI video generation
@@ -168,6 +166,63 @@ export default function VeoPromptBuilder() {
                         color: 'var(--text-primary)' 
                       }}
                     />
+                    
+                    {/* Subject Description Dropdowns */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
+                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                          <SelectValue placeholder="Age..." />
+                        </SelectTrigger>
+                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                          {subjectAgeOptions.map((option) => (
+                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={elements.subjectGender || ""} onValueChange={(value) => updateElement('subjectGender', value)}>
+                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                          <SelectValue placeholder="Gender..." />
+                        </SelectTrigger>
+                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                          {subjectGenderOptions.map((option) => (
+                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
+                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                          <SelectValue placeholder="Appearance..." />
+                        </SelectTrigger>
+                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                          {subjectAppearanceOptions.map((option) => (
+                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Select value={elements.subjectClothing || ""} onValueChange={(value) => updateElement('subjectClothing', value)}>
+                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                          <SelectValue placeholder="Clothing..." />
+                        </SelectTrigger>
+                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                          {subjectClothingOptions.map((option) => (
+                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
 
