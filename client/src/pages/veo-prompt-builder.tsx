@@ -413,7 +413,7 @@ export default function VeoPromptBuilder() {
                 >
                   <Textarea
                     value={generatedPrompt}
-                    onChange={(e) => setGeneratedPrompt(e.target.value)}
+                    onChange={(e) => updateGeneratedPrompt(e.target.value)}
                     placeholder="Your generated prompt will appear here as you fill out the form..."
                     className="w-full bg-transparent resize-none focus:outline-none min-h-[120px] border-none p-0"
                     style={{ color: 'var(--text-primary)' }}
@@ -423,11 +423,7 @@ export default function VeoPromptBuilder() {
                 <div className="flex space-x-3">
                   <Button
                     onClick={handleCopyPrompt}
-                    className="flex-1"
-                    style={{ 
-                      backgroundColor: 'var(--accent-blue)', 
-                      color: 'white' 
-                    }}
+                    className="flex-1 shine-button"
                   >
                     <Copy className="w-4 h-4 mr-2" />
                     Copy
@@ -548,11 +544,7 @@ export default function VeoPromptBuilder() {
           <div className="flex space-x-3">
             <Button
               onClick={handleCopyPrompt}
-              className="flex-1"
-              style={{ 
-                backgroundColor: 'var(--accent-blue)', 
-                color: 'white' 
-              }}
+              className="flex-1 shine-button"
             >
               <Copy className="w-4 h-4 mr-2" />
               Copy Prompt

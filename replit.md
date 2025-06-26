@@ -105,6 +105,7 @@ This is a full-stack web application designed to help users create AI video prom
 ## Changelog
 
 - June 26, 2025. Initial setup
+- June 26, 2025. Enhanced UI with gray copy buttons with 1-minute shine animation, removed offline status text, added detailed subject description dropdowns (age, gender, appearance, clothing)
 
 ## User Preferences
 
