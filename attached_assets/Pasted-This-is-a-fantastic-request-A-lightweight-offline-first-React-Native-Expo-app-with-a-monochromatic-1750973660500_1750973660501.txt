@@ -1,0 +1,575 @@
+This is a fantastic request! A lightweight, offline-first React Native/Expo app with a monochromatic Shadcn UI for generating Veo video prompts sounds incredibly useful.
+Based on the Veo prompt examples, the structure often includes:
+ * Subject: Who or what is in the scene.
+ * Context/Setting: Where the subject is.
+ * Action: What the subject is doing.
+ * Style/Aesthetic: Cinematic, animated, film noir, etc.
+ * Camera Motion: Dolly in, pan left, close-up, wide shot, etc.
+ * Ambiance/Mood: Warm tones, dramatic, calm, suspenseful.
+ * Audio: Music, dialogue, sound effects, background noise.
+ * Closing: Text overlay, fade out, specific final shot.
+Shadcn UI is primarily designed for web (React) applications and doesn't have direct React Native components. However, there's a community project called react-native-reusables or nativecn that aims to bring Shadcn-like components to React Native using NativeWind for styling. We can leverage this or create custom components that mimic the Shadcn aesthetic. For offline capability, we'll use AsyncStorage.
+Here's a detailed plan for building your app:
+Veo Prompt Builder App
+Goal: A lightweight, offline-first React Native/Expo app with a monochromatic theme to build and save Veo video prompts for easy copy-pasting.
+Core Features:
+ * Prompt Builder Form:
+   * A series of dropdowns and text inputs for various prompt elements (Subject, Action, Style, Camera Motion, etc.).
+   * Dropdowns will offer predefined common options (e.g., "Cinematic", "Animated", "Close-up", "Pan Left").
+   * Text inputs will allow for custom descriptions.
+ * Generated Prompt Display:
+   * A multi-line text area that updates in real-time as the user selects/types.
+   * This text area will be editable for fine-tuning.
+ * Copy Button:
+   * A button to easily copy the generated prompt to the clipboard.
+ * Saved Prompts:
+   * Ability to save generated prompts for future use.
+   * A list of saved prompts.
+   * Ability to load a saved prompt back into the builder for editing.
+   * Ability to delete saved prompts.
+ * Offline Functionality: All data (saved prompts) will be stored locally using AsyncStorage.
+ * Monochromatic Theme: Utilizing a grayscale color palette with subtle accents.
+Technologies:
+ * React Native with Expo: For cross-platform mobile development.
+ * @react-native-async-storage/async-storage: For local, offline data persistence.
+ * nativewind (or similar for styling): To apply Tailwind CSS-like utilities for styling and achieve a monochromatic Shadcn-like aesthetic. Directly using shadcn/ui components for React Native is not straightforward, but we can replicate the look.
+ * React's useState and useEffect hooks: For managing component state and side effects.
+ * React Native's TextInput, TouchableOpacity, FlatList, Modal (for dropdowns): Core UI components.
+Project Structure (Conceptual)
+veo-prompt-builder/
+├── assets/
+├── components/
+│   ├── DropdownPicker.js   // Custom dropdown component
+│   ├── TextInputField.js   // Styled text input
+│   ├── Button.js           // Styled button
+│   ├── PromptDisplay.js    // Component to show generated prompt
+│   └── SavedPromptsList.js // Component to list and manage saved prompts
+├── screens/
+│   ├── HomeScreen.js       // Main prompt building screen
+│   └── SavedPromptsScreen.js // Screen to manage saved prompts
+├── utils/
+│   ├── AsyncStorageHelper.js // Functions for AsyncStorage operations
+│   └── promptTemplates.js    // Predefined prompt structures/options
+├── App.js                  // Main entry point
+├── tailwind.config.js      // NativeWind configuration
+└── package.json
+
+Step-by-Step Implementation Guide
+1. Project Setup:
+ * Initialize a new Expo project:
+   npx create-expo-app veo-prompt-builder
+cd veo-prompt-builder
+
+ * Install necessary dependencies:
+   npm install @react-native-async-storage/async-storage nativewind react-native-safe-area-context
+# For dropdowns, you might consider a library like `react-native-dropdown-picker` or build a custom one.
+# For a truly lightweight app, we'll build simple custom dropdowns using Modal/FlatList.
+
+ * Configure nativewind: Follow NativeWind's setup guide to initialize tailwind.config.js and babel.config.js. You'll typically add content paths to your source files.
+2. Monochromatic Theme (NativeWind & Custom Styles):
+ * In tailwind.config.js, define a custom color palette that is predominantly grayscale with a single accent color (e.g., a dark blue or green).
+   // tailwind.config.js
+module.exports = {
+  content: ["./App.{js,jsx,ts,tsx}", "./screens/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        'background-dark': '#1a1a1a',
+        'background-light': '#333333',
+        'text-primary': '#f0f0f0',
+        'text-secondary': '#cccccc',
+        'border-color': '#555555',
+        'accent': '#60a5fa', // A subtle blue accent
+        'button-bg': '#444444',
+        'button-text': '#f0f0f0',
+        'selected-bg': '#555555',
+      },
+    },
+  },
+  plugins: [],
+};
+
+ * Use NativeWind classes for styling components.
+3. AsyncStorageHelper.js (for offline storage):
+// utils/AsyncStorageHelper.js
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const SAVED_PROMPTS_KEY = '@veo_prompts';
+
+export const savePrompt = async (prompt) => {
+  try {
+    const existingPrompts = await getSavedPrompts();
+    const updatedPrompts = [...existingPrompts, { id: Date.now().toString(), text: prompt }];
+    await AsyncStorage.setItem(SAVED_PROMPTS_KEY, JSON.stringify(updatedPrompts));
+    return true;
+  } catch (e) {
+    console.error("Error saving prompt:", e);
+    return false;
+  }
+};
+
+export const getSavedPrompts = async () => {
+  try {
+    const jsonValue = await AsyncStorage.getItem(SAVED_PROMPTS_KEY);
+    return jsonValue != null ? JSON.parse(jsonValue) : [];
+  } catch (e) {
+    console.error("Error reading saved prompts:", e);
+    return [];
+  }
+};
+
+export const deletePrompt = async (id) => {
+  try {
+    const existingPrompts = await getSavedPrompts();
+    const updatedPrompts = existingPrompts.filter(prompt => prompt.id !== id);
+    await AsyncStorage.setItem(SAVED_PROMPTS_KEY, JSON.stringify(updatedPrompts));
+    return true;
+  } catch (e) {
+    console.error("Error deleting prompt:", e);
+    return false;
+  }
+};
+
+4. promptTemplates.js (Predefined options):
+// utils/promptTemplates.js
+export const subjectOptions = [
+  "A person", "An animal", "A cityscape", "A natural landscape", "An object"
+];
+
+export const actionOptions = [
+  "Walking", "Running", "Talking", "Flying", "Standing still", "Interacting with an object"
+];
+
+export const styleOptions = [
+  "Cinematic", "Animated", "Documentary", "Film Noir", "Sci-Fi", "Fantasy", "Abstract"
+];
+
+export const cameraMotionOptions = [
+  "Wide shot", "Close-up", "Medium shot", "Tracking shot", "Dolly in", "Pan left", "Tilt up", "Aerial view"
+];
+
+export const ambianceOptions = [
+  "Calm", "Dramatic", "Suspenseful", "Uplifting", "Mysterious", "Joyful"
+];
+
+export const audioOptions = [
+  "No audio", "Soft music", "Epic orchestral music", "Dialogue", "Ambient city sounds", "Nature sounds"
+];
+
+export const closingOptions = [
+  "Fade out", "Text overlay: 'The End'", "Zoom out to reveal logo", "Static shot"
+];
+
+// Function to construct the prompt string
+export const constructPrompt = (elements) => {
+  let prompt = "";
+  if (elements.subject) prompt += `${elements.subject}. `;
+  if (elements.context) prompt += `Context: ${elements.context}. `;
+  if (elements.action) prompt += `Action: ${elements.action}. `;
+  if (elements.style) prompt += `Style: ${elements.style}. `;
+  if (elements.cameraMotion) prompt += `Camera: ${elements.cameraMotion}. `;
+  if (elements.ambiance) prompt += `Ambiance: ${elements.ambiance}. `;
+  if (elements.audio) prompt += `Audio: ${elements.audio}. `;
+  if (elements.closing) prompt += `Closing: ${elements.closing}.`;
+  return prompt.trim();
+};
+
+5. components/Button.js:
+// components/Button.js
+import React from 'react';
+import { TouchableOpacity, Text } from 'react-native';
+import { useTailwind } from 'nativewind';
+
+const Button = ({ title, onPress, className = "" }) => {
+  const { tailwind } = useTailwind();
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      className={`py-3 px-5 rounded-md items-center justify-center bg-button-bg active:bg-selected-bg ${className}`}
+    >
+      <Text className="text-button-text font-semibold">{title}</Text>
+    </TouchableOpacity>
+  );
+};
+
+export default Button;
+
+6. components/TextInputField.js:
+// components/TextInputField.js
+import React from 'react';
+import { TextInput, View, Text } from 'react-native';
+import { useTailwind } from 'nativewind';
+
+const TextInputField = ({ label, value, onChangeText, placeholder, multiline = false, className = "" }) => {
+  const { tailwind } = useTailwind();
+  return (
+    <View className={`mb-4 ${className}`}>
+      {label && <Text className="text-text-secondary text-sm mb-1">{label}</Text>}
+      <TextInput
+        className="border border-border-color rounded-md px-3 py-2 text-text-primary bg-background-light"
+        value={value}
+        onChangeText={onChangeText}
+        placeholder={placeholder}
+        placeholderTextColor="#888"
+        multiline={multiline}
+        style={multiline ? { minHeight: 80, textAlignVertical: 'top' } : {}}
+      />
+    </View>
+  );
+};
+
+export default TextInputField;
+
+7. components/DropdownPicker.js (Custom Simple Dropdown):
+// components/DropdownPicker.js
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { useTailwind } from 'nativewind';
+
+const DropdownPicker = ({ label, options, selectedValue, onSelect }) => {
+  const { tailwind } = useTailwind();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const handleSelect = (item) => {
+    onSelect(item);
+    setModalVisible(false);
+  };
+
+  return (
+    <View className="mb-4">
+      {label && <Text className="text-text-secondary text-sm mb-1">{label}</Text>}
+      <TouchableOpacity
+        onPress={() => setModalVisible(true)}
+        className="border border-border-color rounded-md px-3 py-3 bg-background-light flex-row justify-between items-center"
+      >
+        <Text className="text-text-primary">{selectedValue || `Select a ${label.toLowerCase()}`}</Text>
+        <Text className="text-text-primary text-lg">▼</Text>
+      </TouchableOpacity>
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableOpacity
+          className="flex-1 justify-center items-center bg-black/50"
+          onPress={() => setModalVisible(false)} // Close modal when touching outside
+        >
+          <View className="bg-background-light rounded-lg w-4/5 border border-border-color max-h-2/3">
+            <FlatList
+              data={options}
+              keyExtractor={(item) => item}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => handleSelect(item)}
+                  className={`py-3 px-4 ${item === selectedValue ? 'bg-selected-bg' : ''}`}
+                >
+                  <Text className="text-text-primary">{item}</Text>
+                </TouchableOpacity>
+              )}
+              ItemSeparatorComponent={() => <View className="h-px bg-border-color" />}
+            />
+            <Button title="Close" onPress={() => setModalVisible(false)} className="mt-2" />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </View>
+  );
+};
+
+export default DropdownPicker;
+
+8. components/PromptDisplay.js:
+// components/PromptDisplay.js
+import React, { useState } from 'react';
+import { View, Text, TextInput, Alert, Clipboard } from 'react-native';
+import Button from './Button';
+import { useTailwind } from 'nativewind';
+
+const PromptDisplay = ({ promptText, onPromptTextChange, onSavePrompt }) => {
+  const { tailwind } = useTailwind();
+
+  const handleCopy = () => {
+    Clipboard.setString(promptText);
+    Alert.alert("Copied!", "Prompt copied to clipboard.");
+  };
+
+  return (
+    <View className="mt-6 p-4 border border-border-color rounded-md bg-background-light">
+      <Text className="text-text-secondary text-base mb-2">Generated Prompt:</Text>
+      <TextInput
+        className="border border-border-color rounded-md px-3 py-2 text-text-primary min-h-[100px] bg-background-dark"
+        value={promptText}
+        onChangeText={onPromptTextChange}
+        multiline
+        placeholder="Your Veo prompt will appear here..."
+        placeholderTextColor="#888"
+        style={{ textAlignVertical: 'top' }}
+      />
+      <View className="flex-row justify-between mt-4">
+        <Button title="Copy" onPress={handleCopy} className="flex-1 mr-2" />
+        <Button title="Save" onPress={onSavePrompt} className="flex-1 ml-2 bg-accent" />
+      </View>
+    </View>
+  );
+};
+
+export default PromptDisplay;
+
+9. components/SavedPromptsList.js:
+// components/SavedPromptsList.js
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { useTailwind } from 'nativewind';
+import Button from './Button';
+import { deletePrompt } from '../utils/AsyncStorageHelper';
+
+const SavedPromptsList = ({ savedPrompts, onLoadPrompt, onPromptsUpdated }) => {
+  const { tailwind } = useTailwind();
+
+  const handleDelete = async (id) => {
+    Alert.alert(
+      "Delete Prompt",
+      "Are you sure you want to delete this prompt?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          onPress: async () => {
+            const success = await deletePrompt(id);
+            if (success) {
+              onPromptsUpdated(); // Trigger refresh in parent
+            } else {
+              Alert.alert("Error", "Failed to delete prompt.");
+            }
+          },
+          style: "destructive"
+        }
+      ]
+    );
+  };
+
+  const renderItem = ({ item }) => (
+    <View className="flex-row justify-between items-center border border-border-color rounded-md p-3 mb-3 bg-background-light">
+      <Text className="flex-1 text-text-primary text-sm mr-2">{item.text.substring(0, 80)}...</Text>
+      <View className="flex-row">
+        <Button title="Load" onPress={() => onLoadPrompt(item.text)} className="mr-2 px-3 py-2 text-xs" />
+        <Button title="Del" onPress={() => handleDelete(item.id)} className="bg-red-500 px-3 py-2 text-xs" />
+      </View>
+    </View>
+  );
+
+  return (
+    <View className="mt-8">
+      <Text className="text-text-primary text-lg font-bold mb-4">Saved Prompts</Text>
+      {savedPrompts.length === 0 ? (
+        <Text className="text-text-secondary text-center">No prompts saved yet.</Text>
+      ) : (
+        <FlatList
+          data={savedPrompts}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+        />
+      )}
+    </View>
+  );
+};
+
+export default SavedPromptsList;
+
+10. screens/HomeScreen.js (Main Prompt Builder):
+```javascript
+// screens/HomeScreen.js
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, ScrollView, SafeAreaView, Alert } from 'react-native';
+import { useTailwind } from 'nativewind';
+import DropdownPicker from '../components/DropdownPicker';
+import TextInputField from '../components/TextInputField';
+import PromptDisplay from '../components/PromptDisplay';
+import SavedPromptsList from '../components/SavedPromptsList';
+import {
+  subjectOptions, actionOptions, styleOptions,
+  cameraMotionOptions, ambianceOptions, audioOptions,
+  closingOptions, constructPrompt
+} from '../utils/promptTemplates';
+import { savePrompt, getSavedPrompts } from '../utils/AsyncStorageHelper';
+
+const HomeScreen = () => {
+  const { tailwind } = useTailwind();
+  const [promptElements, setPromptElements] = useState({
+    subject: '',
+    context: '',
+    action: '',
+    style: '',
+    cameraMotion: '',
+    ambiance: '',
+    audio: '',
+    closing: '',
+    customNotes: '' // For additional free-form text
+  });
+  const [generatedPrompt, setGeneratedPrompt] = useState('');
+  const [savedPrompts, setSavedPrompts] = useState([]);
+
+  const loadSavedPrompts = useCallback(async () => {
+    const prompts = await getSavedPrompts();
+    setSavedPrompts(prompts);
+  }, []);
+
+  useEffect(() => {
+    loadSavedPrompts();
+  }, [loadSavedPrompts]);
+
+  useEffect(() => {
+    const newPrompt = constructPrompt(promptElements);
+    setGeneratedPrompt(newPrompt + (promptElements.customNotes ? `\n\nNotes: ${promptElements.customNotes}` : ''));
+  }, [promptElements]);
+
+  const handleElementChange = (key, value) => {
+    setPromptElements(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handlePromptTextChange = (text) => {
+    // This allows direct editing of the generated prompt text box
+    setGeneratedPrompt(text);
+    // We could also try to parse it back into elements if complex editing is done,
+    // but for simplicity, direct edit updates the text, not the dropdowns/inputs.
+    // For advanced use cases, consider a more robust state management or parser.
+  };
+
+  const handleSavePrompt = async () => {
+    if (!generatedPrompt.trim()) {
+      Alert.alert("Cannot save empty prompt", "Please generate some text before saving.");
+      return;
+    }
+    const success = await savePrompt(generatedPrompt);
+    if (success) {
+      Alert.alert("Success", "Prompt saved!");
+      loadSavedPrompts(); // Refresh the list of saved prompts
+    } else {
+      Alert.alert("Error", "Failed to save prompt.");
+    }
+  };
+
+  const handleLoadSavedPrompt = (promptText) => {
+    // This is a simplified load: it just populates the generated prompt box.
+    // For a full load, you'd need to parse the promptText back into individual elements.
+    // This could be complex given the free-form nature of Veo prompts.
+    // For a lightweight app, just loading the full text into the editable box is sufficient.
+    setGeneratedPrompt(promptText);
+    Alert.alert("Loaded", "Prompt loaded into the builder. You can now edit or copy it.");
+  };
+
+  return (
+    <SafeAreaView className="flex-1 bg-background-dark">
+      <ScrollView className="p-4">
+        <Text className="text-text-primary text-2xl font-bold mb-6 text-center">Veo Prompt Builder</Text>
+
+        <DropdownPicker
+          label="Subject"
+          options={subjectOptions}
+          selectedValue={promptElements.subject}
+          onSelect={(value) => handleElementChange('subject', value)}
+        />
+        <TextInputField
+          label="Context/Setting (e.g., 'a bustling city street')"
+          value={promptElements.context}
+          onChangeText={(text) => handleElementChange('context', text)}
+          placeholder="Describe the environment"
+        />
+        <DropdownPicker
+          label="Action"
+          options={actionOptions}
+          selectedValue={promptElements.action}
+          onSelect={(value) => handleElementChange('action', value)}
+        />
+        <DropdownPicker
+          label="Style/Aesthetic"
+          options={styleOptions}
+          selectedValue={promptElements.style}
+          onSelect={(value) => handleElementChange('style', value)}
+        />
+        <DropdownPicker
+          label="Camera Motion/Composition"
+          options={cameraMotionOptions}
+          selectedValue={promptElements.cameraMotion}
+          onSelect={(value) => handleElementChange('cameraMotion', value)}
+        />
+        <DropdownPicker
+          label="Ambiance/Mood"
+          options={ambianceOptions}
+          selectedValue={promptElements.ambiance}
+          onSelect={(value) => handleElementChange('ambiance', value)}
+        />
+        <DropdownPicker
+          label="Audio"
+          options={audioOptions}
+          selectedValue={promptElements.audio}
+          onSelect={(value) => handleElementChange('audio', value)}
+        />
+        <DropdownPicker
+          label="Closing Shot/Text"
+          options={closingOptions}
+          selectedValue={promptElements.closing}
+          onSelect={(value) => handleElementChange('closing', value)}
+        />
+        <TextInputField
+          label="Additional Notes / Custom Details"
+          value={promptElements.customNotes}
+          onChangeText={(text) => handleElementChange('customNotes', text)}
+          placeholder="Add any specific details not covered above"
+          multiline={true}
+        />
+
+        <PromptDisplay
+          promptText={generatedPrompt}
+          onPromptTextChange={handlePromptTextChange}
+          onSavePrompt={handleSavePrompt}
+        />
+
+        <SavedPromptsList
+          savedPrompts={savedPrompts}
+          onLoadPrompt={handleLoadSavedPrompt}
+          onPromptsUpdated={loadSavedPrompts}
+        />
+      </ScrollView>
+    </SafeAreaView>
+  );
+};
+
+export default HomeScreen;
+```
+
+11. App.js:
+```javascript
+// App.js
+import React from 'react';
+import { TailwindProvider } from 'nativewind'; // Ensure this is correctly set up
+import HomeScreen from './screens/HomeScreen';
+import { StyleSheet, StatusBar } from 'react-native';
+
+export default function App() {
+  return (
+    <TailwindProvider>
+      <StatusBar barStyle="light-content" />
+      <HomeScreen />
+    </TailwindProvider>
+  );
+}
+```
+
+How to Run:
+ * Save the files: Create the files and folders as outlined above.
+ * Install dependencies: Make sure you've run npm install for all listed packages.
+ * Start Expo: npx expo start
+ * Open on device/simulator: Use the Expo Go app on your phone or an iOS/Android simulator.
+Considerations and Enhancements:
+ * More Robust Dropdowns: For a production app, you might consider a more feature-rich dropdown library like react-native-dropdown-picker for better accessibility and search functionality, although our custom one is lightweight.
+ * Error Handling: Add more robust error handling and user feedback (e.g., toast messages for save/delete actions).
+ * Prompt Parsing on Load: If you want the dropdowns and text inputs to re-populate when loading a saved prompt, you'd need a more sophisticated parsing logic in handleLoadSavedPrompt to break down the saved text back into its constituent elements. This can be challenging for free-form text. For a lightweight app, just loading into the editable text box is a good start.
+ * Filtering/Searching Saved Prompts: For many saved prompts, adding a search bar to SavedPromptsList would be beneficial.
+ * Undo/Redo: For the main prompt text editor, an undo/redo feature could be added.
+ * Accessibility: Ensure all interactive elements have appropriate accessibility labels.
+ * Performance: For extremely long lists of saved prompts, FlatList is optimized, but for very complex forms, consider useMemo for heavy computations.
+ * Shadcn UI Native Components: Keep an eye on projects like react-native-reusables or nativecn as they evolve. If they offer more mature components, you could integrate them directly to further align with the Shadcn aesthetic. For now, NativeWind and custom components are a solid approach.
+This detailed guide provides a fully functional, lightweight, and offline-capable Veo prompt builder app with a monochromatic theme, fitting all your requirements!
