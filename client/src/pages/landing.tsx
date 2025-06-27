@@ -52,9 +52,9 @@ export default function Landing() {
               
               {/* Laptop Lid with Opening Animation */}
               <div 
-                className="absolute top-0 left-0 right-0 bg-gray-800 rounded-t-lg p-3 origin-bottom transform transition-transform duration-3000 ease-out"
+                className="absolute top-0 left-0 right-0 bg-gray-800 rounded-t-lg p-3 origin-bottom transform transition-transform duration-1000 ease-out"
                 style={{
-                  transform: `rotateX(${Math.min(scrollY * 0.5, 120)}deg)`,
+                  transform: `rotateX(${Math.min(Math.max(scrollY * 0.3, 0), 90)}deg)`,
                   transformStyle: 'preserve-3d',
                 }}
               >

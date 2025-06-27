@@ -75,31 +75,51 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
     if (!isActive) return;
 
     const timers: NodeJS.Timeout[] = [];
+    let currentTipIndex = 0;
 
-    aiTips.forEach((tip) => {
-      if (dismissedTips.has(tip.id)) return;
+    const showNextTip = () => {
+      // Find next non-dismissed tip
+      while (currentTipIndex < aiTips.length && dismissedTips.has(aiTips[currentTipIndex].id)) {
+        currentTipIndex++;
+      }
 
-      const timer = setTimeout(() => {
-        setVisibleTips(prev => new Set(Array.from(prev).concat(tip.id)));
+      if (currentTipIndex >= aiTips.length) return;
+
+      const tip = aiTips[currentTipIndex];
+      
+      // Only show if no other tip is currently visible
+      if (visibleTips.size === 0) {
+        setVisibleTips(new Set([tip.id]));
         
-        // Auto-hide after 8 seconds if not dismissed
+        // Auto-hide after 10 seconds if not dismissed
         const hideTimer = setTimeout(() => {
           setVisibleTips(prev => {
             const newArray = Array.from(prev).filter(id => id !== tip.id);
             return new Set(newArray);
           });
-        }, 8000);
+          
+          // Schedule next tip after a 5 second break
+          setTimeout(() => {
+            currentTipIndex++;
+            showNextTip();
+          }, 5000);
+        }, 10000);
         
         timers.push(hideTimer);
-      }, tip.delay);
+      }
+    };
 
-      timers.push(timer);
-    });
+    // Start showing tips with initial delay
+    const initialTimer = setTimeout(() => {
+      showNextTip();
+    }, 3000);
+
+    timers.push(initialTimer);
 
     return () => {
       timers.forEach(timer => clearTimeout(timer));
     };
-  }, [isActive, dismissedTips]);
+  }, [isActive, dismissedTips, visibleTips.size]);
 
   const dismissTip = (tipId: string) => {
     setVisibleTips(prev => {
@@ -124,34 +144,20 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
   if (!isActive) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-40">
-      {/* Dismiss All Button - appears when there are visible tips */}
-      {visibleTips.size > 1 && (
-        <div className="absolute top-4 right-4 pointer-events-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            className="bg-card/95 backdrop-blur-sm hover:bg-muted/80 transition-all duration-200"
-            onClick={dismissAllTips}
-          >
-            <XCircle className="h-4 w-4 mr-2" />
-            Dismiss All Tips
-          </Button>
-        </div>
-      )}
+    <div className="fixed inset-0 pointer-events-none z-40">{/* Mobile responsive tooltips - single tooltip display */}
       
       {aiTips.map((tip) => (
         visibleTips.has(tip.id) && !dismissedTips.has(tip.id) && (
           <div
             key={tip.id}
-            className="absolute tooltip-enter tooltip-float pointer-events-auto"
+            className="absolute tooltip-enter tooltip-float pointer-events-auto px-4 sm:px-0"
             style={{
-              left: `${tip.position.x}%`,
-              top: `${tip.position.y}%`,
+              left: `${Math.min(Math.max(tip.position.x, 10), 90)}%`,
+              top: `${Math.min(Math.max(tip.position.y, 15), 85)}%`,
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <Card className="max-w-xs bg-card/95 backdrop-blur-sm border-border shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group">
+            <Card className="max-w-xs sm:max-w-sm md:max-w-md bg-card/95 backdrop-blur-sm border-border shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200">
