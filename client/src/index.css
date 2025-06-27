@@ -1,61 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 3.7%, 15.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 25.1%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
+  /* Neutral color scheme */
+  --background: hsl(0, 0%, 98%);
+  --foreground: hsl(0, 0%, 15%);
+  --muted: hsl(0, 0%, 95%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 15%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 15%);
+  --border: hsl(0, 0%, 88%);
+  --input: hsl(0, 0%, 96%);
+  --primary: hsl(0, 0%, 25%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(0, 0%, 93%);
+  --secondary-foreground: hsl(0, 0%, 25%);
+  --accent: hsl(0, 0%, 93%);
+  --accent-foreground: hsl(0, 0%, 25%);
+  --destructive: hsl(0, 70%, 50%);
   --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(207, 90%, 54%);
+  --ring: hsl(0, 0%, 25%);
   --radius: 0.5rem;
   
-  /* Custom colors for the monochromatic theme */
-  --background-dark: hsl(240, 10%, 3.9%);
-  --background-darker: hsl(240, 8%, 6%);
-  --surface: hsl(240, 6%, 15%);
-  --surface-light: hsl(240, 5%, 25%);
-  --text-primary: hsl(0, 0%, 98%);
-  --text-secondary: hsl(240, 5%, 64%);
-  --border-color: hsl(240, 5%, 25%);
-  --accent-blue: hsl(207, 90%, 54%);
-  --accent-blue-hover: hsl(207, 90%, 45%);
+  /* Custom neutral colors */
+  --background-light: hsl(0, 0%, 98%);
+  --background-lighter: hsl(0, 0%, 100%);
+  --surface: hsl(0, 0%, 96%);
+  --surface-light: hsl(0, 0%, 93%);
+  --text-primary: hsl(0, 0%, 15%);
+  --text-secondary: hsl(0, 0%, 45%);
+  --border-color: hsl(0, 0%, 88%);
+  --accent-neutral: hsl(0, 0%, 25%);
+  --accent-neutral-hover: hsl(0, 0%, 35%);
 }
 
 .dark {
-  --background: hsl(240, 10%, 3.9%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 3.7%, 15.9%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 10%, 3.9%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 3.7%, 15.9%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 3.7%, 15.9%);
-  --input: hsl(240, 3.7%, 15.9%);
-  --primary: hsl(207, 90%, 54%);
-  --primary-foreground: hsl(211, 100%, 99%);
-  --secondary: hsl(240, 3.7%, 15.9%);
-  --secondary-foreground: hsl(0, 0%, 98%);
-  --accent: hsl(240, 3.7%, 15.9%);
-  --accent-foreground: hsl(0, 0%, 98%);
-  --destructive: hsl(0, 62.8%, 30.6%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(240, 4.9%, 83.9%);
+  /* Dark neutral color scheme */
+  --background: hsl(0, 0%, 8%);
+  --foreground: hsl(0, 0%, 95%);
+  --muted: hsl(0, 0%, 15%);
+  --muted-foreground: hsl(0, 0%, 65%);
+  --popover: hsl(0, 0%, 8%);
+  --popover-foreground: hsl(0, 0%, 95%);
+  --card: hsl(0, 0%, 12%);
+  --card-foreground: hsl(0, 0%, 95%);
+  --border: hsl(0, 0%, 20%);
+  --input: hsl(0, 0%, 15%);
+  --primary: hsl(0, 0%, 85%);
+  --primary-foreground: hsl(0, 0%, 8%);
+  --secondary: hsl(0, 0%, 15%);
+  --secondary-foreground: hsl(0, 0%, 85%);
+  --accent: hsl(0, 0%, 15%);
+  --accent-foreground: hsl(0, 0%, 85%);
+  --destructive: hsl(0, 70%, 60%);
+  --destructive-foreground: hsl(0, 0%, 8%);
+  --ring: hsl(0, 0%, 85%);
   --radius: 0.5rem;
 }
 
@@ -67,8 +71,13 @@
   body {
     @apply font-sans antialiased;
     font-family: 'Inter', sans-serif;
-    background-color: var(--background-dark);
-    color: var(--text-primary);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
   }
 }
 
