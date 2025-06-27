@@ -2,33 +2,29 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertSavedPromptSchema, promptElementsSchema } from "@shared/schema";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // For demo purposes, we'll use a simple user ID of 1
-  // In a real app, this would come from authentication
-  const DEMO_USER_ID = 1;
+  // Auth middleware
+  await setupAuth(app);
 
-  // Create demo user if it doesn't exist
-  app.use(async (req, res, next) => {
+  // Auth routes
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      let user = await storage.getUser(DEMO_USER_ID);
-      if (!user) {
-        user = await storage.createUser({
-          username: "demo_user",
-          password: "demo_password"
-        });
-      }
-      next();
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
     } catch (error) {
-      console.error("Error ensuring demo user:", error);
-      next();
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
     }
   });
 
   // Get saved prompts
-  app.get("/api/prompts", async (req: Request, res: Response) => {
+  app.get("/api/prompts", isAuthenticated, async (req: any, res: Response) => {
     try {
-      const prompts = await storage.getSavedPrompts(DEMO_USER_ID);
+      const userId = req.user.claims.sub;
+      const prompts = await storage.getSavedPrompts(userId);
       
       // Transform database prompts to frontend format
       const transformedPrompts = prompts.map(prompt => ({
@@ -61,9 +57,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save a new prompt
-  app.post("/api/prompts", async (req: Request, res: Response) => {
+  app.post("/api/prompts", isAuthenticated, async (req: any, res: Response) => {
     try {
       const { text, elements } = req.body;
+      const userId = req.user.claims.sub;
       
       if (!text || !elements) {
         return res.status(400).json({ error: "Text and elements are required" });
@@ -72,7 +69,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate elements
       const validatedElements = promptElementsSchema.parse(elements);
       
-      const savedPrompt = await storage.savePrompt(DEMO_USER_ID, text, validatedElements);
+      const savedPrompt = await storage.savePrompt(userId, text, validatedElements);
       
       // Transform to frontend format
       const transformedPrompt = {
@@ -90,15 +87,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a prompt
-  app.delete("/api/prompts/:id", async (req: Request, res: Response) => {
+  app.delete("/api/prompts/:id", isAuthenticated, async (req: any, res: Response) => {
     try {
       const promptId = parseInt(req.params.id);
+      const userId = req.user.claims.sub;
       
       if (isNaN(promptId)) {
         return res.status(400).json({ error: "Invalid prompt ID" });
       }
 
-      const success = await storage.deletePrompt(DEMO_USER_ID, promptId);
+      const success = await storage.deletePrompt(userId, promptId);
       
       if (success) {
         res.json({ success: true });
