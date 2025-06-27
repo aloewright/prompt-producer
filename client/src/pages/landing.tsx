@@ -32,65 +32,118 @@ export default function Landing() {
           </Button>
         </div>
 
-        {/* Parallax Laptop Mockup */}
-        <div className="relative mb-24 overflow-hidden">
+        {/* Animated Laptop Mockup */}
+        <div className="relative mb-24 overflow-hidden h-96 flex items-center justify-center">
           <div 
-            className="transform transition-transform duration-300 ease-out"
+            className="relative mx-auto max-w-4xl"
             style={{ 
-              transform: `translateY(${scrollY * 0.3}px)`,
+              transform: `translateY(${scrollY * 0.2}px) scale(${Math.max(0.3, 1 - scrollY * 0.001)})`,
+              opacity: Math.max(0, 1 - scrollY * 0.002),
             }}
           >
-            <div className="relative mx-auto max-w-4xl">
-              {/* Laptop Frame */}
-              <div className="relative bg-gray-800 rounded-lg p-3 shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
-                {/* Screen */}
-                <div className="bg-gray-900 rounded-md overflow-hidden aspect-video relative">
-                  {/* Screen Content */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-                    <div className="h-full flex flex-col">
-                      {/* Mock App Header */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="h-8 bg-gray-300 rounded w-48"></div>
-                        <div className="flex space-x-2">
-                          <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                          <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                        </div>
-                      </div>
-                      
-                      {/* Mock Content */}
-                      <div className="grid grid-cols-2 gap-4 flex-1">
-                        <div className="space-y-3">
-                          <div className="h-4 bg-gray-300 rounded w-full"></div>
-                          <div className="h-10 bg-gray-200 rounded"></div>
-                          <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-                          <div className="h-10 bg-gray-200 rounded"></div>
-                        </div>
-                        <div className="bg-gray-200 rounded p-4">
-                          <div className="space-y-2">
-                            <div className="h-3 bg-gray-300 rounded w-full"></div>
-                            <div className="h-3 bg-gray-300 rounded w-5/6"></div>
-                            <div className="h-3 bg-gray-300 rounded w-4/5"></div>
-                            <div className="h-3 bg-gray-300 rounded w-full"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Screen Reflection */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"></div>
-                </div>
-                
-                {/* Laptop Base */}
-                <div className="h-6 bg-gray-700 rounded-b-lg relative">
+            {/* Laptop Container */}
+            <div className="relative perspective-1000">
+              {/* Laptop Base */}
+              <div className="relative bg-gray-800 rounded-lg p-3 shadow-2xl">
+                <div className="h-6 bg-gray-700 rounded-lg relative">
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-1 bg-gray-600 rounded"></div>
                 </div>
               </div>
               
-              {/* Floating Elements */}
-              <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary/20 rounded-full animate-pulse"></div>
-              <div className="absolute -bottom-6 -left-6 w-8 h-8 bg-primary/30 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+              {/* Laptop Lid with Opening Animation */}
+              <div 
+                className="absolute top-0 left-0 right-0 bg-gray-800 rounded-t-lg p-3 origin-bottom transform transition-transform duration-3000 ease-out"
+                style={{
+                  transform: `rotateX(${Math.min(scrollY * 0.5, 120)}deg)`,
+                  transformStyle: 'preserve-3d',
+                }}
+              >
+                {/* Screen */}
+                <div className="bg-gray-900 rounded-md overflow-hidden aspect-video relative">
+                  {/* VS Code-like Interface */}
+                  <div className="absolute inset-0 bg-gray-900 text-green-400 font-mono text-xs p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex space-x-2">
+                        <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                        <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                        <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                      </div>
+                      <div className="text-gray-400 text-xs">veo-prompt-builder.tsx</div>
+                    </div>
+                    
+                    {/* Code Content */}
+                    <div className="space-y-1 text-xs">
+                      <div className="text-purple-400">
+                        <span className="text-blue-400">import</span> {`{ useState }`} <span className="text-blue-400">from</span> <span className="text-yellow-300">'react'</span>;
+                      </div>
+                      <div className="text-purple-400">
+                        <span className="text-blue-400">import</span> {`{ Button }`} <span className="text-blue-400">from</span> <span className="text-yellow-300">'@/components/ui/button'</span>;
+                      </div>
+                      <div className="mt-2">
+                        <span className="text-blue-400">export default function</span> <span className="text-yellow-300">VeoPromptBuilder</span>() {`{`}
+                      </div>
+                      <div className="ml-4">
+                        <span className="text-blue-400">const</span> [<span className="text-red-300">prompt</span>, <span className="text-red-300">setPrompt</span>] = <span className="text-yellow-300">useState</span>(<span className="text-yellow-300">''</span>);
+                      </div>
+                      <div className="ml-4 mt-2">
+                        <span className="text-blue-400">return</span> (
+                      </div>
+                      <div className="ml-8 text-green-300">
+                        &lt;<span className="text-red-400">div</span> <span className="text-blue-400">className</span>=<span className="text-yellow-300">"prompt-builder"</span>&gt;
+                      </div>
+                      <div className="ml-12 text-green-300">
+                        &lt;<span className="text-red-400">Button</span> <span className="text-blue-400">onClick</span>={`{handleCopy}`}&gt;
+                      </div>
+                      <div className="ml-16 text-white">
+                        Copy Prompt
+                      </div>
+                      <div className="ml-12 text-green-300">
+                        &lt;/<span className="text-red-400">Button</span>&gt;
+                      </div>
+                      <div className="ml-8 text-green-300">
+                        &lt;/<span className="text-red-400">div</span>&gt;
+                      </div>
+                      <div className="ml-4">
+                        );
+                      </div>
+                      <div>
+                        {`}`}
+                      </div>
+                    </div>
+                    
+                    {/* Cursor Blink */}
+                    <div 
+                      className="inline-block w-2 h-4 bg-green-400 animate-pulse"
+                      style={{ animationDuration: '1s' }}
+                    ></div>
+                  </div>
+                  
+                  {/* Screen Reflection */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent pointer-events-none"></div>
+                </div>
+              </div>
+              
+              {/* Floating Code Elements */}
+              <div 
+                className="absolute -top-8 -right-8 opacity-30"
+                style={{ 
+                  transform: `translateY(${scrollY * 0.1}px) rotate(${scrollY * 0.1}deg)`,
+                }}
+              >
+                <div className="text-primary font-mono text-sm bg-primary/10 px-2 py-1 rounded">
+                  {`{ prompt }`}
+                </div>
+              </div>
+              <div 
+                className="absolute -bottom-8 -left-8 opacity-30"
+                style={{ 
+                  transform: `translateY(${-scrollY * 0.15}px) rotate(${-scrollY * 0.05}deg)`,
+                }}
+              >
+                <div className="text-primary font-mono text-sm bg-primary/10 px-2 py-1 rounded">
+                  useState()
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -168,18 +221,9 @@ export default function Landing() {
             <CardHeader className="pb-4">
               <CardTitle className="font-heading text-2xl md:text-3xl">Ready to Create?</CardTitle>
               <CardDescription className="text-lg text-muted-foreground">
-                Sign in to start building professional video prompts
+                Start building professional video prompts with our intuitive interface
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button 
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-8 py-3"
-                onClick={() => window.location.href = '/api/login'}
-              >
-                Sign In to Continue
-              </Button>
-            </CardContent>
           </Card>
         </div>
       </div>
