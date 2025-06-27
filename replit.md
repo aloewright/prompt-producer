@@ -108,6 +108,7 @@ This is a full-stack web application designed to help users create AI video prom
 - June 26, 2025. Enhanced UI with gray copy buttons with 1-minute shine animation, removed offline status text, added detailed subject description dropdowns (age, gender, appearance, clothing)
 - June 26, 2025. Added PostgreSQL database with full CRUD operations, replaced bottom saved prompts section with sliding side panel accessed via sticky bookmark button in upper right corner
 - June 27, 2025. Implemented Replit Auth with OpenID Connect integration, added protected routes, created landing page for logged-out users and home page for authenticated users
+- June 27, 2025. Added floating interactive tooltips system with playful AI-generated tips, enhanced animations (float, wiggle, slide-in), hover effects, and dismiss functionality
 
 ## User Preferences
 

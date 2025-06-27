@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Lightbulb, Sparkles, Zap, Star } from "lucide-react";
+import { X, Lightbulb, Sparkles, Zap, Star, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -112,10 +112,34 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
     });
   };
 
+  const dismissAllTips = () => {
+    const allVisibleIds = Array.from(visibleTips);
+    setVisibleTips(new Set());
+    setDismissedTips(prev => {
+      const currentArray = Array.from(prev);
+      return new Set(currentArray.concat(allVisibleIds));
+    });
+  };
+
   if (!isActive) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-40">
+      {/* Dismiss All Button - appears when there are visible tips */}
+      {visibleTips.size > 1 && (
+        <div className="absolute top-4 right-4 pointer-events-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            className="bg-card/95 backdrop-blur-sm hover:bg-muted/80 transition-all duration-200"
+            onClick={dismissAllTips}
+          >
+            <XCircle className="h-4 w-4 mr-2" />
+            Dismiss All Tips
+          </Button>
+        </div>
+      )}
+      
       {aiTips.map((tip) => (
         visibleTips.has(tip.id) && !dismissedTips.has(tip.id) && (
           <div
@@ -127,10 +151,10 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
               transform: 'translate(-50%, -50%)',
             }}
           >
-            <Card className="max-w-xs bg-card/95 backdrop-blur-sm border-border shadow-lg hover:shadow-xl transition-all duration-200">
+            <Card className="max-w-xs bg-card/95 backdrop-blur-sm border-border shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 group">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-0.5">
+                  <div className="flex-shrink-0 mt-0.5 group-hover:scale-110 transition-transform duration-200">
                     {tip.icon}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -141,7 +165,7 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-shrink-0 h-6 w-6 p-0 hover:bg-muted"
+                    className="flex-shrink-0 h-6 w-6 p-0 hover:bg-muted hover:scale-110 transition-all duration-200"
                     onClick={() => dismissTip(tip.id)}
                   >
                     <X className="h-3 w-3" />
@@ -149,7 +173,10 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
                 </div>
                 
                 {/* Floating animation indicator */}
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse group-hover:bg-primary/80"></div>
+                
+                {/* Subtle glow effect */}
+                <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               </CardContent>
             </Card>
           </div>
