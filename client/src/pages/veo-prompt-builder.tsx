@@ -346,15 +346,10 @@ export default function VeoPromptBuilder() {
                       return (
                         <Button
                           key={style}
-                          variant="outline"
+                          variant={isSelected ? "default" : "outline"}
                           size="sm"
                           onClick={() => toggleStyle(style)}
-                          style={{
-                            backgroundColor: isSelected ? 'var(--accent-blue)' : 'var(--background-darker)',
-                            borderColor: isSelected ? 'var(--accent-blue)' : 'var(--border-color)',
-                            color: isSelected ? 'white' : 'var(--text-primary)',
-                          }}
-                          className="hover:opacity-80 transition-opacity"
+                          className={`${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-accent hover:text-accent-foreground'} transition-colors`}
                         >
                           {style}
                         </Button>
