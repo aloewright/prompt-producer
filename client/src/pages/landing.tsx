@@ -1,17 +1,10 @@
-import { useState, useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlayCircle, Sparkles, BookOpen, Users } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Landing() {
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -33,15 +26,9 @@ export default function Landing() {
           </Button>
         </div>
 
-        {/* Animated Laptop Mockup */}
-        <div className="relative mb-24 overflow-hidden h-96 flex items-center justify-center">
-          <div 
-            className="relative mx-auto max-w-4xl"
-            style={{ 
-              transform: `translateY(${scrollY * 0.2}px) scale(${Math.max(0.3, 1 - scrollY * 0.001)})`,
-              opacity: Math.max(0, 1 - scrollY * 0.002),
-            }}
-          >
+        {/* Static Laptop Mockup */}
+        <div className="relative mb-24 h-96 flex items-center justify-center">
+          <div className="relative mx-auto max-w-4xl">
             {/* Laptop Container */}
             <div className="relative perspective-1000">
               {/* Laptop Base */}
@@ -51,14 +38,8 @@ export default function Landing() {
                 </div>
               </div>
               
-              {/* Laptop Lid with Opening Animation */}
-              <div 
-                className="absolute top-0 left-0 right-0 bg-gray-800 rounded-t-lg p-3 origin-bottom transform transition-transform duration-1000 ease-out"
-                style={{
-                  transform: `rotateX(${Math.min(Math.max(scrollY * 0.3, 0), 90)}deg)`,
-                  transformStyle: 'preserve-3d',
-                }}
-              >
+              {/* Laptop Lid */}
+              <div className="absolute top-0 left-0 right-0 bg-gray-800 rounded-t-lg p-3">
                 {/* Screen */}
                 <div className="bg-gray-900 rounded-md overflow-hidden aspect-video relative">
                   {/* VS Code-like Interface */}
@@ -124,27 +105,7 @@ export default function Landing() {
                 </div>
               </div>
               
-              {/* Floating Code Elements */}
-              <div 
-                className="absolute -top-8 -right-8 opacity-30"
-                style={{ 
-                  transform: `translateY(${scrollY * 0.1}px) rotate(${scrollY * 0.1}deg)`,
-                }}
-              >
-                <div className="text-primary font-mono text-sm bg-primary/10 px-2 py-1 rounded">
-                  {`{ prompt }`}
-                </div>
-              </div>
-              <div 
-                className="absolute -bottom-8 -left-8 opacity-30"
-                style={{ 
-                  transform: `translateY(${-scrollY * 0.15}px) rotate(${-scrollY * 0.05}deg)`,
-                }}
-              >
-                <div className="text-primary font-mono text-sm bg-primary/10 px-2 py-1 rounded">
-                  useState()
-                </div>
-              </div>
+
             </div>
           </div>
         </div>

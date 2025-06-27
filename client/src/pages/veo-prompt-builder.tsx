@@ -176,7 +176,7 @@ export default function VeoPromptBuilder() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <FloatingTooltips isActive={true} />
+      {/* <FloatingTooltips isActive={false} /> */}
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
         <header className="mb-8">
