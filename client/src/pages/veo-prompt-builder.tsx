@@ -235,12 +235,12 @@ export default function VeoPromptBuilder() {
                     {/* Subject Description Dropdowns */}
                     <div className="grid grid-cols-2 gap-3">
                       <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
-                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                        <SelectTrigger className="bg-white border-border text-foreground">
                           <SelectValue placeholder="Age..." />
                         </SelectTrigger>
-                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                        <SelectContent className="bg-white border-border">
                           {subjectAgeOptions.map((option) => (
-                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                            <SelectItem key={option} value={option} className="text-foreground">
                               {option}
                             </SelectItem>
                           ))}
@@ -248,12 +248,12 @@ export default function VeoPromptBuilder() {
                       </Select>
                       
                       <Select value={elements.subjectGender || ""} onValueChange={(value) => updateElement('subjectGender', value)}>
-                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                        <SelectTrigger className="bg-white border-border text-foreground">
                           <SelectValue placeholder="Gender..." />
                         </SelectTrigger>
-                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                        <SelectContent className="bg-white border-border">
                           {subjectGenderOptions.map((option) => (
-                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                            <SelectItem key={option} value={option} className="text-foreground">
                               {option}
                             </SelectItem>
                           ))}
@@ -263,12 +263,12 @@ export default function VeoPromptBuilder() {
                     
                     <div className="grid grid-cols-2 gap-3">
                       <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
-                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                        <SelectTrigger className="bg-white border-border text-foreground">
                           <SelectValue placeholder="Appearance..." />
                         </SelectTrigger>
-                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                        <SelectContent className="bg-white border-border">
                           {subjectAppearanceOptions.map((option) => (
-                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                            <SelectItem key={option} value={option} className="text-foreground">
                               {option}
                             </SelectItem>
                           ))}
@@ -276,12 +276,12 @@ export default function VeoPromptBuilder() {
                       </Select>
                       
                       <Select value={elements.subjectClothing || ""} onValueChange={(value) => updateElement('subjectClothing', value)}>
-                        <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                        <SelectTrigger className="bg-white border-border text-foreground">
                           <SelectValue placeholder="Clothing..." />
                         </SelectTrigger>
-                        <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                        <SelectContent className="bg-white border-border">
                           {subjectClothingOptions.map((option) => (
-                            <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                            <SelectItem key={option} value={option} className="text-foreground">
                               {option}
                             </SelectItem>
                           ))}
@@ -293,32 +293,27 @@ export default function VeoPromptBuilder() {
 
                 {/* Context Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Context/Setting</Label>
+                  <Label className="text-muted-foreground font-medium">Context/Setting</Label>
                   <Textarea
                     placeholder="Describe the setting or context..."
                     rows={3}
                     value={elements.context || ""}
                     onChange={(e) => updateElement('context', e.target.value)}
-                    className="mt-2 resize-none"
-                    style={{ 
-                      backgroundColor: 'var(--background-darker)', 
-                      borderColor: 'var(--border-color)', 
-                      color: 'var(--text-primary)' 
-                    }}
+                    className="mt-2 resize-none bg-white border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
 
                 {/* Action Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Action</Label>
+                  <Label className="text-muted-foreground font-medium">Action</Label>
                   <div className="space-y-3 mt-2">
                     <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
-                      <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                      <SelectTrigger className="bg-white border-border text-foreground">
                         <SelectValue placeholder="Select an action..." />
                       </SelectTrigger>
-                      <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                      <SelectContent className="bg-white border-border">
                         {actionOptions.map((option) => (
-                          <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                          <SelectItem key={option} value={option} className="text-foreground">
                             {option}
                           </SelectItem>
                         ))}
@@ -328,11 +323,7 @@ export default function VeoPromptBuilder() {
                       placeholder="Or describe custom action..."
                       value={elements.customAction || ""}
                       onChange={(e) => updateElement('customAction', e.target.value)}
-                      style={{ 
-                        backgroundColor: 'var(--background-darker)', 
-                        borderColor: 'var(--border-color)', 
-                        color: 'var(--text-primary)' 
-                      }}
+                      className="bg-white border-border text-foreground placeholder:text-muted-foreground"
                     />
                   </div>
                 </div>
@@ -360,14 +351,14 @@ export default function VeoPromptBuilder() {
 
                 {/* Camera Motion Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Camera Motion</Label>
+                  <Label className="text-muted-foreground font-medium">Camera Motion</Label>
                   <Select value={elements.cameraMotion || ""} onValueChange={(value) => updateElement('cameraMotion', value)}>
-                    <SelectTrigger className="mt-2" style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
                       <SelectValue placeholder="Select camera motion..." />
                     </SelectTrigger>
-                    <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                    <SelectContent className="bg-white border-border">
                       {cameraMotionOptions.map((option) => (
-                        <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                        <SelectItem key={option} value={option} className="text-foreground">
                           {option}
                         </SelectItem>
                       ))}
@@ -377,14 +368,14 @@ export default function VeoPromptBuilder() {
 
                 {/* Ambiance Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Ambiance/Mood</Label>
+                  <Label className="text-muted-foreground font-medium">Ambiance/Mood</Label>
                   <Select value={elements.ambiance || ""} onValueChange={(value) => updateElement('ambiance', value)}>
-                    <SelectTrigger className="mt-2" style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
                       <SelectValue placeholder="Select ambiance..." />
                     </SelectTrigger>
-                    <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                    <SelectContent className="bg-white border-border">
                       {ambianceOptions.map((option) => (
-                        <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                        <SelectItem key={option} value={option} className="text-foreground">
                           {option}
                         </SelectItem>
                       ))}
@@ -394,14 +385,14 @@ export default function VeoPromptBuilder() {
 
                 {/* Audio Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Audio</Label>
+                  <Label className="text-muted-foreground font-medium">Audio</Label>
                   <Select value={elements.audio || ""} onValueChange={(value) => updateElement('audio', value)}>
-                    <SelectTrigger className="mt-2" style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
                       <SelectValue placeholder="Select audio..." />
                     </SelectTrigger>
-                    <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                    <SelectContent className="bg-white border-border">
                       {audioOptions.map((option) => (
-                        <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                        <SelectItem key={option} value={option} className="text-foreground">
                           {option}
                         </SelectItem>
                       ))}
@@ -411,14 +402,14 @@ export default function VeoPromptBuilder() {
 
                 {/* Closing Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Closing</Label>
+                  <Label className="text-muted-foreground font-medium">Closing</Label>
                   <Select value={elements.closing || ""} onValueChange={(value) => updateElement('closing', value)}>
-                    <SelectTrigger className="mt-2" style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
                       <SelectValue placeholder="Select closing..." />
                     </SelectTrigger>
-                    <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                    <SelectContent className="bg-white border-border">
                       {closingOptions.map((option) => (
-                        <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                        <SelectItem key={option} value={option} className="text-foreground">
                           {option}
                         </SelectItem>
                       ))}
