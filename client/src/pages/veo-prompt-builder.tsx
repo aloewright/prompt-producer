@@ -22,6 +22,7 @@ import {
 } from "@/lib/prompt-templates";
 import { Copy, Save, Edit, Trash2, CircleCheck, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
 import FloatingTooltips from "@/components/FloatingTooltips";
+import { Link } from "wouter";
 
 export default function VeoPromptBuilder() {
   const { toast } = useToast();
@@ -755,6 +756,23 @@ export default function VeoPromptBuilder() {
             </Button>
           </div>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-16 pt-8 border-t border-border">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <div className="text-sm text-muted-foreground">
+              <p>Veo and Flow are trademarks of Google Inc. This is an independent tool.</p>
+            </div>
+            <div className="flex space-x-6 text-sm">
+              <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                Terms of Service
+              </Link>
+              <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );

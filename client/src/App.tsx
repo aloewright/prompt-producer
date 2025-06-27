@@ -8,6 +8,8 @@ import VeoPromptBuilder from "@/pages/veo-prompt-builder";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
+import Terms from "@/pages/terms";
+import Privacy from "@/pages/privacy";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -22,6 +24,8 @@ function Router() {
           <Route path="/veo-prompt-builder" component={VeoPromptBuilder} />
         </>
       )}
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route component={NotFound} />
     </Switch>
   );

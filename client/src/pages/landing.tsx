@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlayCircle, Sparkles, BookOpen, Users } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Landing() {
   const [scrollY, setScrollY] = useState(0);
@@ -226,6 +227,23 @@ export default function Landing() {
             </CardHeader>
           </Card>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-16 pt-8 border-t border-border">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
+            <div className="text-sm text-muted-foreground">
+              <p>Veo and Flow are trademarks of Google Inc. This is an independent tool.</p>
+            </div>
+            <div className="flex space-x-6 text-sm">
+              <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
+                Terms of Service
+              </Link>
+              <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
