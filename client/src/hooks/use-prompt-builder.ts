@@ -14,9 +14,8 @@ export const usePromptBuilder = () => {
   const { toast } = useToast();
 
   // Fetch saved prompts from database
-  const { data: savedPrompts = [], refetch } = useQuery({
+  const { data: savedPrompts = [], refetch } = useQuery<SavedPrompt[]>({
     queryKey: ['/api/prompts'],
-    queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   // Save prompt mutation
