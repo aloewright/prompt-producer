@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pgTable, serial, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 export const promptElementsSchema = z.object({
@@ -19,17 +19,33 @@ export const promptElementsSchema = z.object({
   closing: z.string().optional(),
 });
 
-// Database tables
+// Session storage table.
+// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User storage table.
+// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  id: varchar("id").primaryKey().notNull(),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const savedPrompts = pgTable("saved_prompts", {
   id: serial("id").primaryKey(),
-  userId: serial("user_id").references(() => users.id),
+  userId: varchar("user_id").references(() => users.id),
   text: text("text").notNull(),
   subject: text("subject"),
   customSubject: text("custom_subject"),
@@ -58,8 +74,8 @@ export const savedPromptSchema = z.object({
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
   createdAt: true,
+  updatedAt: true,
 });
 
 export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({
@@ -70,6 +86,7 @@ export const insertSavedPromptSchema = createInsertSchema(savedPrompts).omit({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = typeof users.$inferInsert;
 export type SavedPrompt = z.infer<typeof savedPromptSchema>;
 export type PromptElements = z.infer<typeof promptElementsSchema>;
 export type DbSavedPrompt = typeof savedPrompts.$inferSelect;
