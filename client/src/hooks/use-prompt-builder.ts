@@ -3,7 +3,7 @@ import { PromptElements, SavedPrompt } from "@shared/schema";
 import { constructPrompt } from "@/lib/prompt-templates";
 import { copyToClipboard } from "@/lib/local-storage";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
@@ -16,16 +16,23 @@ export const usePromptBuilder = () => {
   // Fetch saved prompts from database
   const { data: savedPrompts = [], refetch } = useQuery({
     queryKey: ['/api/prompts'],
+    queryFn: getQueryFn({ on401: "returnNull" }),
   });
 
   // Save prompt mutation
   const savePromptMutation = useMutation({
     mutationFn: async ({ text, elements }: { text: string; elements: PromptElements }) => {
-      return await apiRequest('/api/prompts', {
+      const response = await fetch('/api/prompts', {
         method: 'POST',
         body: JSON.stringify({ text, elements }),
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/prompts'] });
@@ -53,9 +60,15 @@ export const usePromptBuilder = () => {
   // Delete prompt mutation
   const deletePromptMutation = useMutation({
     mutationFn: async (id: string) => {
-      return await apiRequest(`/api/prompts/${id}`, {
+      const response = await fetch(`/api/prompts/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`${response.status}: ${errorText}`);
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/prompts'] });

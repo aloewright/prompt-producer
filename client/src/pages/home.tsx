@@ -4,9 +4,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
 import { PlayCircle, User, LogOut } from "lucide-react";
+import type { User as UserType } from "@shared/schema";
 
 export default function Home() {
   const { user } = useAuth();
+  const typedUser = user as UserType;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -15,14 +17,14 @@ export default function Home() {
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-4">
             <Avatar className="h-12 w-12">
-              <AvatarImage src={user?.profileImageUrl || undefined} />
+              <AvatarImage src={typedUser?.profileImageUrl || undefined} />
               <AvatarFallback>
-                {user?.firstName?.[0] || user?.email?.[0] || 'U'}
+                {typedUser?.firstName?.[0] || typedUser?.email?.[0] || 'U'}
               </AvatarFallback>
             </Avatar>
             <div>
               <h1 className="text-2xl font-bold">
-                Welcome back{user?.firstName ? `, ${user.firstName}` : ''}!
+                Welcome back{typedUser?.firstName ? `, ${typedUser.firstName}` : ''}!
               </h1>
               <p className="text-muted-foreground">
                 Ready to create amazing video prompts?
@@ -68,11 +70,11 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <div className="space-y-2 text-sm">
-                {user?.email && (
-                  <p><span className="font-medium">Email:</span> {user.email}</p>
+                {typedUser?.email && (
+                  <p><span className="font-medium">Email:</span> {typedUser.email}</p>
                 )}
-                {user?.firstName && user?.lastName && (
-                  <p><span className="font-medium">Name:</span> {user.firstName} {user.lastName}</p>
+                {typedUser?.firstName && typedUser?.lastName && (
+                  <p><span className="font-medium">Name:</span> {typedUser.firstName} {typedUser.lastName}</p>
                 )}
               </div>
             </CardContent>
