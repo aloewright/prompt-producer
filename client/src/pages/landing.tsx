@@ -1,8 +1,17 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlayCircle, Sparkles, BookOpen, Users } from "lucide-react";
 
 export default function Landing() {
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-16">
@@ -21,6 +30,69 @@ export default function Landing() {
           >
             Get Started
           </Button>
+        </div>
+
+        {/* Parallax Laptop Mockup */}
+        <div className="relative mb-24 overflow-hidden">
+          <div 
+            className="transform transition-transform duration-300 ease-out"
+            style={{ 
+              transform: `translateY(${scrollY * 0.3}px)`,
+            }}
+          >
+            <div className="relative mx-auto max-w-4xl">
+              {/* Laptop Frame */}
+              <div className="relative bg-gray-800 rounded-lg p-3 shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500">
+                {/* Screen */}
+                <div className="bg-gray-900 rounded-md overflow-hidden aspect-video relative">
+                  {/* Screen Content */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+                    <div className="h-full flex flex-col">
+                      {/* Mock App Header */}
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="h-8 bg-gray-300 rounded w-48"></div>
+                        <div className="flex space-x-2">
+                          <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                          <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                          <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                        </div>
+                      </div>
+                      
+                      {/* Mock Content */}
+                      <div className="grid grid-cols-2 gap-4 flex-1">
+                        <div className="space-y-3">
+                          <div className="h-4 bg-gray-300 rounded w-full"></div>
+                          <div className="h-10 bg-gray-200 rounded"></div>
+                          <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                          <div className="h-10 bg-gray-200 rounded"></div>
+                        </div>
+                        <div className="bg-gray-200 rounded p-4">
+                          <div className="space-y-2">
+                            <div className="h-3 bg-gray-300 rounded w-full"></div>
+                            <div className="h-3 bg-gray-300 rounded w-5/6"></div>
+                            <div className="h-3 bg-gray-300 rounded w-4/5"></div>
+                            <div className="h-3 bg-gray-300 rounded w-full"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Screen Reflection */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none"></div>
+                </div>
+                
+                {/* Laptop Base */}
+                <div className="h-6 bg-gray-700 rounded-b-lg relative">
+                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-1 bg-gray-600 rounded"></div>
+                </div>
+              </div>
+              
+              {/* Floating Elements */}
+              <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary/20 rounded-full animate-pulse"></div>
+              <div className="absolute -bottom-6 -left-6 w-8 h-8 bg-primary/30 rounded-full animate-bounce" style={{ animationDelay: '1s' }}></div>
+            </div>
+          </div>
         </div>
 
         {/* Features */}

@@ -41,6 +41,46 @@ export default function VeoPromptBuilder() {
 
   const [isOnline] = useState(true); // For demo purposes, assuming always online
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+  const [isCopyAnimating, setIsCopyAnimating] = useState(false);
+
+  // Create completion sound
+  const playCompletionSound = () => {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+    
+    // Second tone for harmony
+    setTimeout(() => {
+      const oscillator2 = audioContext.createOscillator();
+      const gainNode2 = audioContext.createGain();
+      
+      oscillator2.connect(gainNode2);
+      gainNode2.connect(audioContext.destination);
+      
+      oscillator2.frequency.value = 1000;
+      oscillator2.type = 'sine';
+      
+      gainNode2.gain.setValueAtTime(0, audioContext.currentTime);
+      gainNode2.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.01);
+      gainNode2.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
+      
+      oscillator2.start(audioContext.currentTime);
+      oscillator2.stop(audioContext.currentTime + 0.2);
+    }, 100);
+  };
 
   const handleCopyPrompt = async () => {
     if (!generatedPrompt.trim()) {
@@ -52,8 +92,18 @@ export default function VeoPromptBuilder() {
       return;
     }
 
+    // Start copy animation
+    setIsCopyAnimating(true);
+
     const success = await copyPromptToClipboard();
     if (success) {
+      // Play completion sound
+      try {
+        playCompletionSound();
+      } catch (error) {
+        console.log("Audio not supported");
+      }
+      
       toast({
         title: "Copied!",
         description: "Prompt copied to clipboard",
@@ -65,6 +115,11 @@ export default function VeoPromptBuilder() {
         variant: "destructive",
       });
     }
+
+    // Reset animation after delay
+    setTimeout(() => {
+      setIsCopyAnimating(false);
+    }, 1000);
   };
 
   const handleSavePrompt = () => {
@@ -430,10 +485,22 @@ export default function VeoPromptBuilder() {
                 <div className="flex space-x-3">
                   <Button
                     onClick={handleCopyPrompt}
-                    className="flex-1 shine-button"
+                    className={`flex-1 shine-button relative overflow-hidden ${isCopyAnimating ? 'copy-animate' : ''}`}
                   >
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy
+                    {isCopyAnimating ? (
+                      <>
+                        <CircleCheck className="w-4 h-4 mr-2 copy-checkmark" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4 mr-2" />
+                        Copy
+                      </>
+                    )}
+                    {isCopyAnimating && (
+                      <div className="absolute inset-0 bg-green-500/20 animate-pulse"></div>
+                    )}
                   </Button>
                   <Button
                     variant="outline"
