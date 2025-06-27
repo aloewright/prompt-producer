@@ -92,16 +92,17 @@ export default function Landing() {
 
         {/* CTA */}
         <div className="text-center">
-          <Card className="max-w-2xl mx-auto border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-2xl">Ready to Create?</CardTitle>
-              <CardDescription className="text-lg">
+          <Card className="max-w-2xl mx-auto border-border hover:border-primary/20 transition-all duration-200 shadow-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="font-heading text-2xl md:text-3xl">Ready to Create?</CardTitle>
+              <CardDescription className="text-lg text-muted-foreground">
                 Sign in to start building professional video prompts
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Button 
                 size="lg"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-medium px-8 py-3"
                 onClick={() => window.location.href = '/api/login'}
               >
                 Sign In to Continue

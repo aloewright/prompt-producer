@@ -118,12 +118,12 @@ export default function VeoPromptBuilder() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--background-dark)', color: 'var(--text-primary)' }}>
+    <div className="min-h-screen bg-background text-foreground">
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
         <header className="mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <h1 className="text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
+            <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
               Veo Prompt Builder
             </h1>
             
@@ -132,41 +132,36 @@ export default function VeoPromptBuilder() {
               variant="outline"
               size="sm"
               onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              className="fixed top-4 right-4 z-50 shadow-lg"
-              style={{ 
-                backgroundColor: 'var(--surface)', 
-                borderColor: 'var(--border-color)', 
-                color: 'var(--text-primary)' 
-              }}
+              className="fixed top-4 right-4 z-50 shadow-lg bg-card border-border hover:bg-muted"
             >
               <Bookmark className="w-4 h-4 mr-1" />
               {isSidePanelOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
             </Button>
           </div>
-          <p style={{ color: 'var(--text-secondary)' }}>
+          <p className="text-muted-foreground text-lg">
             Create compelling video prompts for AI video generation
           </p>
         </header>
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Prompt Builder Section */}
           <div className="space-y-6">
-            <Card style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)' }}>
+            <Card className="bg-card border-border shadow-sm">
               <CardHeader>
-                <CardTitle style={{ color: 'var(--text-primary)' }}>Build Your Prompt</CardTitle>
+                <CardTitle className="font-heading text-xl text-foreground">Build Your Prompt</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Subject Section */}
                 <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Subject</Label>
+                  <Label className="text-muted-foreground font-medium">Subject</Label>
                   <div className="space-y-3 mt-2">
                     <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
-                      <SelectTrigger style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}>
+                      <SelectTrigger className="bg-input border-border text-foreground">
                         <SelectValue placeholder="Select a subject..." />
                       </SelectTrigger>
-                      <SelectContent style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}>
+                      <SelectContent className="bg-popover border-border">
                         {subjectOptions.map((option) => (
-                          <SelectItem key={option} value={option} style={{ color: 'var(--text-primary)' }}>
+                          <SelectItem key={option} value={option} className="text-foreground">
                             {option}
                           </SelectItem>
                         ))}
@@ -176,11 +171,7 @@ export default function VeoPromptBuilder() {
                       placeholder="Or describe custom subject..."
                       value={elements.customSubject || ""}
                       onChange={(e) => updateElement('customSubject', e.target.value)}
-                      style={{ 
-                        backgroundColor: 'var(--background-darker)', 
-                        borderColor: 'var(--border-color)', 
-                        color: 'var(--text-primary)' 
-                      }}
+                      className="bg-input border-border text-foreground placeholder:text-muted-foreground"
                     />
                     
                     {/* Subject Description Dropdowns */}
