@@ -21,6 +21,7 @@ import {
   closingOptions 
 } from "@/lib/prompt-templates";
 import { Copy, Save, Edit, Trash2, CircleCheck, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
+import FloatingTooltips from "@/components/FloatingTooltips";
 
 export default function VeoPromptBuilder() {
   const { toast } = useToast();
@@ -174,6 +175,7 @@ export default function VeoPromptBuilder() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <FloatingTooltips isActive={true} />
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
         <header className="mb-8">

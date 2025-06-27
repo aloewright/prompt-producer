@@ -149,4 +149,48 @@
   .copy-checkmark {
     animation: checkmark 0.4s ease-in-out forwards;
   }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes wiggle {
+    0%, 100% {
+      transform: rotate(0deg);
+    }
+    25% {
+      transform: rotate(1deg);
+    }
+    75% {
+      transform: rotate(-1deg);
+    }
+  }
+
+  @keyframes slideInFromCorner {
+    0% {
+      transform: scale(0.3) translate(-100px, -100px);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1) translate(-50%, -50%);
+      opacity: 1;
+    }
+  }
+
+  .tooltip-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .tooltip-wiggle {
+    animation: wiggle 4s ease-in-out infinite;
+  }
+
+  .tooltip-enter {
+    animation: slideInFromCorner 0.5s ease-out forwards;
+  }
 }
