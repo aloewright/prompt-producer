@@ -20,7 +20,27 @@ import {
   audioOptions, 
   closingOptions 
 } from "@/lib/prompt-templates";
-import { Copy, Save, Edit, Trash2, CircleCheck, ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
+import { 
+  Copy, 
+  Save, 
+  Edit, 
+  Trash2, 
+  CircleCheck, 
+  ChevronLeft, 
+  ChevronRight, 
+  Bookmark, 
+  User, 
+  Camera, 
+  Palette, 
+  VideoIcon, 
+  Volume2, 
+  Settings, 
+  LogOut, 
+  Menu,
+  X,
+  RefreshCw,
+  Download
+} from "lucide-react";
 import FloatingTooltips from "@/components/FloatingTooltips";
 import { Link } from "wouter";
 
@@ -175,163 +195,181 @@ export default function VeoPromptBuilder() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* <FloatingTooltips isActive={false} /> */}
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Header */}
-        <header className="mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2">
-            <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground">
-              Veo Prompt Builder
-            </h1>
+    <div className="min-h-screen bg-background">
+      <FloatingTooltips isActive={true} />
+      
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <VideoIcon className="w-8 h-8 text-primary" />
+              <h1 className="font-heading text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
+                Veo Prompt Builder
+              </h1>
+            </div>
             
-            {/* Sticky Arrow Button */}
+            {/* Menu Button */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              className="fixed top-4 right-4 z-50 shadow-lg bg-card border-border hover:bg-muted"
+              className="flex items-center gap-2"
             >
-              <Bookmark className="w-4 h-4 mr-1" />
-              {isSidePanelOpen ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              <Menu className="w-4 h-4" />
+              <span className="hidden sm:inline">Menu</span>
             </Button>
           </div>
-          <p className="text-muted-foreground text-lg">
-            Create compelling video prompts for AI video generation
-          </p>
-        </header>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-6 max-w-6xl">{/* Content will continue here */}
 
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Prompt Builder Section */}
           <div className="space-y-6">
+            {/* Subject Section */}
             <Card className="bg-card border-border shadow-sm">
-              <CardHeader>
-                <CardTitle className="font-heading text-xl text-foreground">Build Your Prompt</CardTitle>
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <User className="w-5 h-5 text-primary" />
+                  Subject & Character
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Subject Section */}
-                <div>
-                  <Label className="text-muted-foreground font-medium">Subject</Label>
-                  <div className="space-y-3 mt-2">
-                    <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
-                      <SelectTrigger className="bg-input border-border text-foreground">
-                        <SelectValue placeholder="Select a subject..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover border-border">
-                        {subjectOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-foreground">
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      placeholder="Or describe custom subject..."
-                      value={elements.customSubject || ""}
-                      onChange={(e) => updateElement('customSubject', e.target.value)}
-                      className="bg-input border-border text-foreground placeholder:text-muted-foreground"
-                    />
-                    
-                    {/* Subject Description Dropdowns */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
-                        <SelectTrigger className="bg-white border-border text-foreground">
-                          <SelectValue placeholder="Age..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-border">
-                          {subjectAgeOptions.map((option) => (
-                            <SelectItem key={option} value={option} className="text-foreground">
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      
-                      <Select value={elements.subjectGender || ""} onValueChange={(value) => updateElement('subjectGender', value)}>
-                        <SelectTrigger className="bg-white border-border text-foreground">
-                          <SelectValue placeholder="Gender..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-border">
-                          {subjectGenderOptions.map((option) => (
-                            <SelectItem key={option} value={option} className="text-foreground">
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
-                      <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
-                        <SelectTrigger className="bg-white border-border text-foreground">
-                          <SelectValue placeholder="Appearance..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-border">
-                          {subjectAppearanceOptions.map((option) => (
-                            <SelectItem key={option} value={option} className="text-foreground">
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      
-                      <Select value={elements.subjectClothing || ""} onValueChange={(value) => updateElement('subjectClothing', value)}>
-                        <SelectTrigger className="bg-white border-border text-foreground">
-                          <SelectValue placeholder="Clothing..." />
-                        </SelectTrigger>
-                        <SelectContent className="bg-white border-border">
-                          {subjectClothingOptions.map((option) => (
-                            <SelectItem key={option} value={option} className="text-foreground">
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
+              <CardContent className="space-y-4">
+                <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
+                  <SelectTrigger className="bg-white border-border text-foreground">
+                    <SelectValue placeholder="Choose a subject type..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white border-border">
+                    {subjectOptions.map((option) => (
+                      <SelectItem key={option} value={option} className="text-foreground">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Input
+                  placeholder="Or describe your own subject..."
+                  value={elements.customSubject || ""}
+                  onChange={(e) => updateElement('customSubject', e.target.value)}
+                  className="bg-white border-border text-foreground placeholder:text-muted-foreground"
+                />
+                
+                {/* Character Details Grid */}
+                <div className="grid grid-cols-2 gap-3">
+                  <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Age range..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-border">
+                      {subjectAgeOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-foreground">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={elements.subjectGender || ""} onValueChange={(value) => updateElement('subjectGender', value)}>
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Gender..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-border">
+                      {subjectGenderOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-foreground">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Appearance..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-border">
+                      {subjectAppearanceOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-foreground">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  
+                  <Select value={elements.subjectClothing || ""} onValueChange={(value) => updateElement('subjectClothing', value)}>
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Clothing..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-border">
+                      {subjectClothingOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-foreground">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Context Section */}
+            {/* Action & Setting Section */}
+            <Card className="bg-card border-border shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <VideoIcon className="w-5 h-5 text-primary" />
+                  Action & Setting
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-muted-foreground font-medium">Context/Setting</Label>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">What's happening?</Label>
+                  <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Choose an action..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white border-border">
+                      {actionOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-foreground">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="Or describe a custom action..."
+                    value={elements.customAction || ""}
+                    onChange={(e) => updateElement('customAction', e.target.value)}
+                    className="mt-3 bg-white border-border text-foreground placeholder:text-muted-foreground"
+                  />
+                </div>
+                
+                <div>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Where does it take place?</Label>
                   <Textarea
-                    placeholder="Describe the setting or context..."
+                    placeholder="Describe the setting, location, or environment..."
                     rows={3}
                     value={elements.context || ""}
                     onChange={(e) => updateElement('context', e.target.value)}
-                    className="mt-2 resize-none bg-white border-border text-foreground placeholder:text-muted-foreground"
+                    className="resize-none bg-white border-border text-foreground placeholder:text-muted-foreground"
                   />
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Action Section */}
+            {/* Style & Visual Section */}
+            <Card className="bg-card border-border shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <Palette className="w-5 h-5 text-primary" />
+                  Style & Visual
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-muted-foreground font-medium">Action</Label>
-                  <div className="space-y-3 mt-2">
-                    <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
-                      <SelectTrigger className="bg-white border-border text-foreground">
-                        <SelectValue placeholder="Select an action..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white border-border">
-                        {actionOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-foreground">
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      placeholder="Or describe custom action..."
-                      value={elements.customAction || ""}
-                      onChange={(e) => updateElement('customAction', e.target.value)}
-                      className="bg-white border-border text-foreground placeholder:text-muted-foreground"
-                    />
-                  </div>
-                </div>
-
-                {/* Style Section */}
-                <div>
-                  <Label style={{ color: 'var(--text-secondary)' }}>Style/Aesthetic</Label>
-                  <div className="grid grid-cols-2 gap-2 mt-2">
+                  <Label className="text-sm text-muted-foreground font-medium mb-3 block">Visual Style (select multiple)</Label>
+                  <div className="grid grid-cols-2 gap-2">
                     {styleOptions.map((style) => {
                       const isSelected = elements.style?.includes(style);
                       return (
@@ -340,7 +378,7 @@ export default function VeoPromptBuilder() {
                           variant={isSelected ? "default" : "outline"}
                           size="sm"
                           onClick={() => toggleStyle(style)}
-                          className={`${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-background hover:bg-accent hover:text-accent-foreground'} transition-colors`}
+                          className={`text-xs ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-white hover:bg-accent hover:text-accent-foreground'} transition-colors`}
                         >
                           {style}
                         </Button>
@@ -348,13 +386,23 @@ export default function VeoPromptBuilder() {
                     })}
                   </div>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Camera Motion Section */}
+            {/* Camera & Technical Section */}
+            <Card className="bg-card border-border shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <Camera className="w-5 h-5 text-primary" />
+                  Camera & Technical
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-muted-foreground font-medium">Camera Motion</Label>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Camera Movement</Label>
                   <Select value={elements.cameraMotion || ""} onValueChange={(value) => updateElement('cameraMotion', value)}>
-                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select camera motion..." />
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Select camera movement..." />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-border">
                       {cameraMotionOptions.map((option) => (
@@ -366,12 +414,11 @@ export default function VeoPromptBuilder() {
                   </Select>
                 </div>
 
-                {/* Ambiance Section */}
                 <div>
-                  <Label className="text-muted-foreground font-medium">Ambiance/Mood</Label>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Mood & Atmosphere</Label>
                   <Select value={elements.ambiance || ""} onValueChange={(value) => updateElement('ambiance', value)}>
-                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select ambiance..." />
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Select mood..." />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-border">
                       {ambianceOptions.map((option) => (
@@ -382,13 +429,23 @@ export default function VeoPromptBuilder() {
                     </SelectContent>
                   </Select>
                 </div>
+              </CardContent>
+            </Card>
 
-                {/* Audio Section */}
+            {/* Audio & Finishing Section */}
+            <Card className="bg-card border-border shadow-sm">
+              <CardHeader className="pb-4">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <Volume2 className="w-5 h-5 text-primary" />
+                  Audio & Finishing
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div>
-                  <Label className="text-muted-foreground font-medium">Audio</Label>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Audio Style</Label>
                   <Select value={elements.audio || ""} onValueChange={(value) => updateElement('audio', value)}>
-                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select audio..." />
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Select audio style..." />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-border">
                       {audioOptions.map((option) => (
@@ -400,12 +457,11 @@ export default function VeoPromptBuilder() {
                   </Select>
                 </div>
 
-                {/* Closing Section */}
                 <div>
-                  <Label className="text-muted-foreground font-medium">Closing</Label>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Ending Style</Label>
                   <Select value={elements.closing || ""} onValueChange={(value) => updateElement('closing', value)}>
-                    <SelectTrigger className="mt-2 bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select closing..." />
+                    <SelectTrigger className="bg-white border-border text-foreground">
+                      <SelectValue placeholder="Select ending..." />
                     </SelectTrigger>
                     <SelectContent className="bg-white border-border">
                       {closingOptions.map((option) => (
@@ -416,22 +472,20 @@ export default function VeoPromptBuilder() {
                     </SelectContent>
                   </Select>
                 </div>
-
-                {/* Clear All Button */}
-                <Button
-                  variant="outline"
-                  onClick={clearAllFields}
-                  className="w-full"
-                  style={{ 
-                    backgroundColor: 'var(--surface-light)', 
-                    borderColor: 'var(--border-color)', 
-                    color: 'var(--text-secondary)' 
-                  }}
-                >
-                  Clear All Fields
-                </Button>
               </CardContent>
             </Card>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                variant="outline"
+                onClick={clearAllFields}
+                className="flex-1 bg-white hover:bg-gray-50"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Clear All
+              </Button>
+            </div>
           </div>
 
           {/* Preview and Actions Section */}
