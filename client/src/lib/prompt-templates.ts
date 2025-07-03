@@ -1,3 +1,5 @@
+import { PromptElements } from '@shared/schema';
+
 export const subjectOptions = [
   "A person",
   "An animal", 
@@ -121,78 +123,284 @@ export const closingOptions = [
   "Dissolve",
 ];
 
-export const constructPrompt = (elements: {
-  subject?: string;
-  customSubject?: string;
-  subjectAge?: string;
-  subjectGender?: string;
-  subjectAppearance?: string;
-  subjectClothing?: string;
-  context?: string;
-  action?: string;
-  customAction?: string;
-  style?: string[];
-  cameraMotion?: string;
-  ambiance?: string;
-  audio?: string;
-  closing?: string;
-}): string => {
-  const parts: string[] = [];
-  
-  // Subject with descriptors
-  const subject = elements.customSubject?.trim() || elements.subject;
-  if (subject) {
-    let subjectDescription = subject;
+// Enhanced prompt construction with natural language flow
+export class PromptBuilder {
+  private parts: string[] = [];
+  private elements: PromptElements;
+
+  constructor(elements: PromptElements) {
+    this.elements = elements;
+  }
+
+  build(): string {
+    this.addSubject();
+    this.addContext();
+    this.addAction();
+    this.addStyle();
+    this.addCameraWork();
+    this.addAmbiance();
+    this.addAudio();
+    this.addClosing();
     
-    // Add subject descriptors if they exist
-    const descriptors = [];
-    if (elements.subjectAge) descriptors.push(elements.subjectAge.toLowerCase());
-    if (elements.subjectGender) descriptors.push(elements.subjectGender.toLowerCase());
-    if (elements.subjectAppearance) descriptors.push(elements.subjectAppearance.toLowerCase());
-    if (elements.subjectClothing) descriptors.push(`wearing ${elements.subjectClothing.toLowerCase()}`);
+    return this.formatPrompt();
+  }
+
+  private addSubject(): void {
+    const subject = this.elements.customSubject?.trim() || this.elements.subject;
+    if (!subject) return;
+
+    const descriptors: string[] = [];
     
-    if (descriptors.length > 0) {
-      subjectDescription = `${descriptors.join(', ')} ${subject.toLowerCase()}`;
+    // Build natural descriptor flow
+    if (this.elements.subjectAge) {
+      descriptors.push(this.elements.subjectAge.toLowerCase());
     }
     
-    parts.push(subjectDescription);
+    if (this.elements.subjectGender) {
+      descriptors.push(this.elements.subjectGender.toLowerCase());
+    }
+    
+    if (this.elements.subjectAppearance) {
+      descriptors.push(this.elements.subjectAppearance.toLowerCase());
+    }
+
+    let subjectPhrase = subject.toLowerCase();
+    
+    if (descriptors.length > 0) {
+      subjectPhrase = `a ${descriptors.join(', ')} ${subjectPhrase}`;
+    } else if (!subject.toLowerCase().startsWith('a ') && !subject.toLowerCase().startsWith('an ')) {
+      subjectPhrase = `a ${subjectPhrase}`;
+    }
+
+    if (this.elements.subjectClothing) {
+      subjectPhrase += ` wearing ${this.elements.subjectClothing.toLowerCase()}`;
+    }
+
+    this.parts.push(capitalizeFirst(subjectPhrase));
   }
-  
-  // Context
-  if (elements.context?.trim()) {
-    parts.push(`Context: ${elements.context.trim()}`);
+
+  private addContext(): void {
+    if (!this.elements.context?.trim()) return;
+    
+    const context = this.elements.context.trim();
+    const contextLower = context.toLowerCase();
+    
+    // Add contextual connector based on content
+    if (contextLower.includes('standing') || contextLower.includes('sitting') || contextLower.includes('located')) {
+      this.parts.push(context);
+    } else if (this.parts.length > 0) {
+      this.parts.push(`in ${context}`);
+    } else {
+      this.parts.push(capitalizeFirst(context));
+    }
   }
-  
-  // Action
-  const action = elements.customAction?.trim() || elements.action;
-  if (action) {
-    parts.push(`Action: ${action}`);
+
+  private addAction(): void {
+    const action = this.elements.customAction?.trim() || this.elements.action;
+    if (!action) return;
+
+    if (this.parts.length > 0) {
+      this.parts.push(`${action.toLowerCase()}`);
+    } else {
+      this.parts.push(capitalizeFirst(action));
+    }
   }
-  
-  // Style
-  if (elements.style && elements.style.length > 0) {
-    parts.push(`Style: ${elements.style.join(', ')}`);
+
+  private addStyle(): void {
+    if (!this.elements.style || this.elements.style.length === 0) return;
+
+    const styles = this.elements.style;
+    if (styles.length === 1) {
+      this.parts.push(`Shot in ${styles[0].toLowerCase()} style`);
+    } else if (styles.length === 2) {
+      this.parts.push(`Shot in ${styles[0].toLowerCase()} and ${styles[1].toLowerCase()} style`);
+    } else {
+      const lastStyle = styles[styles.length - 1];
+      const otherStyles = styles.slice(0, -1).join(', ').toLowerCase();
+      this.parts.push(`Shot in ${otherStyles}, and ${lastStyle.toLowerCase()} style`);
+    }
   }
-  
-  // Camera Motion
-  if (elements.cameraMotion) {
-    parts.push(`Camera: ${elements.cameraMotion}`);
+
+  private addCameraWork(): void {
+    if (!this.elements.cameraMotion) return;
+    this.parts.push(`Camera: ${this.elements.cameraMotion}`);
   }
-  
-  // Ambiance
-  if (elements.ambiance) {
-    parts.push(`Ambiance: ${elements.ambiance}`);
+
+  private addAmbiance(): void {
+    if (!this.elements.ambiance) return;
+    this.parts.push(`${this.elements.ambiance} ambiance`);
   }
-  
-  // Audio
-  if (elements.audio) {
-    parts.push(`Audio: ${elements.audio}`);
+
+  private addAudio(): void {
+    if (!this.elements.audio || this.elements.audio === 'No audio') return;
+    this.parts.push(`Audio: ${this.elements.audio}`);
   }
-  
-  // Closing
-  if (elements.closing) {
-    parts.push(`Closing: ${elements.closing}`);
+
+  private addClosing(): void {
+    if (!this.elements.closing) return;
+    this.parts.push(`Ending with ${this.elements.closing.toLowerCase()}`);
   }
-  
-  return parts.join('. ') + (parts.length > 0 ? '.' : '');
+
+  private formatPrompt(): string {
+    if (this.parts.length === 0) return '';
+    
+    // Join parts with appropriate punctuation
+    const prompt = this.parts.map((part, index) => {
+      if (index === 0) return part;
+      
+      // Check if previous part ended with punctuation
+      const prevPart = this.parts[index - 1];
+      if (prevPart.endsWith('.') || prevPart.endsWith('!') || prevPart.endsWith('?')) {
+        return ` ${part}`;
+      }
+      
+      // Add comma for natural flow
+      return `, ${part}`;
+    }).join('');
+    
+    // Ensure prompt ends with period
+    return prompt.endsWith('.') ? prompt : `${prompt}.`;
+  }
+}
+
+function capitalizeFirst(str: string): string {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Legacy function for backward compatibility
+export const constructPrompt = (elements: PromptElements): string => {
+  const builder = new PromptBuilder(elements);
+  return builder.build();
 };
+
+// Prompt templates
+export interface PromptTemplate {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+  elements: PromptElements;
+  thumbnail?: string;
+  tags: string[];
+  popularity?: number;
+}
+
+export const PROMPT_TEMPLATES: PromptTemplate[] = [
+  {
+    id: 'action-hero',
+    name: 'Action Hero Introduction',
+    category: 'Action',
+    description: 'Dynamic introduction scene for an action protagonist',
+    elements: {
+      subject: 'A person',
+      subjectAge: 'Adult',
+      subjectGender: 'Male',
+      subjectAppearance: 'Athletic',
+      subjectClothing: 'Tactical gear',
+      context: 'a destroyed cityscape with smoke in the background',
+      action: 'Walking slowly towards the camera',
+      style: ['Cinematic', 'Dramatic'],
+      cameraMotion: 'Tracking shot',
+      ambiance: 'Intense',
+      audio: 'Epic orchestral music',
+      closing: 'Freeze frame',
+    },
+    tags: ['action', 'hero', 'cinematic', 'dramatic'],
+    popularity: 95,
+  },
+  {
+    id: 'nature-documentary',
+    name: 'Wildlife Documentary',
+    category: 'Documentary',
+    description: 'Serene nature scene with wildlife',
+    elements: {
+      subject: 'An animal',
+      customSubject: 'A majestic eagle',
+      context: 'soaring above mountain peaks at sunrise',
+      action: 'Flying',
+      style: ['Documentary', 'Realistic'],
+      cameraMotion: 'Aerial view',
+      ambiance: 'Peaceful',
+      audio: 'Nature sounds',
+      closing: 'Fade out',
+    },
+    tags: ['nature', 'wildlife', 'documentary', 'peaceful'],
+    popularity: 88,
+  },
+  {
+    id: 'sci-fi-landscape',
+    name: 'Futuristic City',
+    category: 'Sci-Fi',
+    description: 'Establishing shot of a futuristic metropolis',
+    elements: {
+      subject: 'A cityscape',
+      context: 'with flying vehicles and neon lights reflecting on wet streets',
+      action: 'Standing still',
+      style: ['Sci-Fi', 'Cinematic'],
+      cameraMotion: 'Wide shot',
+      ambiance: 'Mysterious',
+      audio: 'Electronic music',
+      closing: 'Dissolve',
+    },
+    tags: ['sci-fi', 'future', 'city', 'cyberpunk'],
+    popularity: 92,
+  },
+  {
+    id: 'romantic-scene',
+    name: 'Romantic Moment',
+    category: 'Romance',
+    description: 'Intimate scene between two people',
+    elements: {
+      subject: 'A person',
+      customSubject: 'A couple',
+      context: 'on a beach at sunset',
+      action: 'Walking',
+      customAction: 'Walking hand in hand along the shoreline',
+      style: ['Cinematic', 'Realistic'],
+      cameraMotion: 'Medium shot',
+      ambiance: 'Peaceful',
+      audio: 'Soft music',
+      closing: 'Fade out',
+    },
+    tags: ['romance', 'beach', 'sunset', 'couple'],
+    popularity: 85,
+  },
+  {
+    id: 'horror-atmosphere',
+    name: 'Horror Scene',
+    category: 'Horror',
+    description: 'Creepy atmospheric scene',
+    elements: {
+      subject: 'A building',
+      customSubject: 'An abandoned mansion',
+      context: 'shrouded in fog on a moonless night',
+      action: 'Standing still',
+      style: ['Film Noir', 'Cinematic'],
+      cameraMotion: 'Dolly in',
+      ambiance: 'Suspenseful',
+      audio: 'No audio',
+      closing: 'Cut to black',
+    },
+    tags: ['horror', 'scary', 'atmospheric', 'suspense'],
+    popularity: 78,
+  },
+];
+
+export function getTemplatesByCategory(category: string): PromptTemplate[] {
+  return PROMPT_TEMPLATES.filter(template => template.category === category);
+}
+
+export function getPopularTemplates(limit: number = 5): PromptTemplate[] {
+  return [...PROMPT_TEMPLATES]
+    .sort((a, b) => (b.popularity || 0) - (a.popularity || 0))
+    .slice(0, limit);
+}
+
+export function searchTemplates(query: string): PromptTemplate[] {
+  const searchLower = query.toLowerCase();
+  return PROMPT_TEMPLATES.filter(template => 
+    template.name.toLowerCase().includes(searchLower) ||
+    template.description.toLowerCase().includes(searchLower) ||
+    template.tags.some(tag => tag.toLowerCase().includes(searchLower))
+  );
+}
