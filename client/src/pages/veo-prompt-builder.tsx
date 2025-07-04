@@ -869,15 +869,16 @@ export default function VeoPromptBuilder() {
               <div className="absolute inset-0 bg-primary/30 rounded-full blur-sm animate-pulse" />
             </div>
             
-            {/* Current section indicator dot */}
+            {/* End cap - filled circle at progress end */}
             <div 
-              className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-lg transition-all duration-1000 border-2 border-background"
+              className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full shadow-lg transition-all duration-1000 border-2 border-background"
               style={{
                 top: `${((sectionOrder.indexOf(currentSection) + 1) / sectionOrder.length) * 100}%`,
                 transform: 'translate(-50%, -50%)'
               }}
             >
-              <div className="absolute inset-0 bg-primary rounded-full animate-ping" />
+              <div className="absolute inset-0 bg-primary rounded-full animate-pulse" />
+              <div className="absolute inset-0 bg-primary/50 rounded-full animate-ping" />
             </div>
           </div>
           
