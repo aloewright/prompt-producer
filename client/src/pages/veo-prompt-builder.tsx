@@ -45,6 +45,7 @@ import {
 } from "lucide-react";
 import FloatingTooltips from "@/components/FloatingTooltips";
 import FloatingOrbs from "@/components/FloatingOrbs";
+import NewsTicker from "@/components/NewsTicker";
 import { Link } from "wouter";
 
 type Section = 'intro' | 'subject' | 'action' | 'style' | 'camera' | 'audio' | 'result';
@@ -293,6 +294,11 @@ export default function VeoPromptBuilder() {
                 <p className="text-lg text-muted-foreground">
                   Create stunning AI video prompts with ease
                 </p>
+              </div>
+              
+              {/* News Ticker */}
+              <div className="animate-fade-in-up animation-delay-300">
+                <NewsTicker />
               </div>
               
               <Card className="glass-card rounded-2xl">

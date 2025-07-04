@@ -109,6 +109,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // News API endpoint
+  app.get("/api/news", async (req: Request, res: Response) => {
+    try {
+      const newsApiKey = process.env.NEWS_API_KEY;
+      
+      if (!newsApiKey) {
+        return res.status(500).json({ message: "News API key not configured" });
+      }
+
+      const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&category=general&pageSize=10&apiKey=${newsApiKey}`);
+      
+      if (!response.ok) {
+        throw new Error(`News API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      
+      if (data.status !== 'ok') {
+        throw new Error(`News API error: ${data.message}`);
+      }
+
+      // Filter out articles with null titles and format the response
+      const articles = data.articles
+        .filter((article: any) => article.title && article.title !== '[Removed]')
+        .map((article: any) => ({
+          title: article.title,
+          url: article.url,
+          publishedAt: article.publishedAt,
+          source: {
+            name: article.source.name
+          }
+        }));
+
+      res.json(articles);
+    } catch (error) {
+      console.error("Error fetching news:", error);
+      res.status(500).json({ message: "Failed to fetch news" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
