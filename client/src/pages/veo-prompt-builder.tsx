@@ -94,12 +94,38 @@ export default function VeoPromptBuilder() {
       },
       { threshold: 0.5 }
     );
+    
+    // Set up scroll-based fade animation observer
+    const fadeObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const target = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            target.classList.remove('scroll-fade-out');
+            target.classList.add('scroll-fade-in');
+          } else {
+            target.classList.remove('scroll-fade-in');
+            target.classList.add('scroll-fade-out');
+          }
+        });
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '-10% 0px -10% 0px' 
+      }
+    );
 
     Object.values(sectionRefs.current).forEach((ref) => {
-      if (ref) observer.observe(ref);
+      if (ref) {
+        observer.observe(ref);
+        fadeObserver.observe(ref);
+      }
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      fadeObserver.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -254,7 +280,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.intro = el; }}
             data-section="intro"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <div className="max-w-2xl text-center space-y-8 animate-fade-in-up">
               <div className="space-y-6">
@@ -338,7 +364,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.subject = el; }}
             data-section="subject"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
               <CardHeader className="pb-4 border-b border-white/10">
@@ -448,7 +474,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.action = el; }}
             data-section="action"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <Card className="glass-card w-full max-w-2xl animate-slide-in-right">
               <CardHeader className="pb-4 border-b border-white/10">
@@ -513,7 +539,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.style = el; }}
             data-section="style"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
               <CardHeader className="pb-4 border-b border-white/10">
@@ -567,7 +593,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.camera = el; }}
             data-section="camera"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <Card className="glass-card w-full max-w-2xl animate-slide-in-right rounded-2xl">
               <CardHeader className="pb-6 border-b border-white/5">
@@ -640,7 +666,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.audio = el; }}
             data-section="audio"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
               <CardHeader className="pb-4 border-b border-white/10">
@@ -702,7 +728,7 @@ export default function VeoPromptBuilder() {
           <div 
             ref={el => { if (el) sectionRefs.current.result = el; }}
             data-section="result"
-            className="min-h-screen flex items-center justify-center p-4"
+            className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
             <Card className="glass-card w-full max-w-2xl animate-fade-in-up rounded-2xl">
               <CardHeader className="pb-6 border-b border-white/5">
@@ -742,13 +768,26 @@ export default function VeoPromptBuilder() {
                   Enhance for Google Veo Generation
                 </Button>
                 
-                <Textarea
-                  value={generatedPrompt}
-                  onChange={(e) => updateGeneratedPrompt(e.target.value)}
-                  placeholder="Your prompt will appear here as you make selections..."
-                  rows={12}
-                  className={`resize-none font-mono text-sm leading-relaxed ${inputStyle}`}
-                />
+                <div className="relative">
+                  <Textarea
+                    value={generatedPrompt}
+                    onChange={(e) => updateGeneratedPrompt(e.target.value)}
+                    placeholder="Your prompt will appear here as you make selections..."
+                    rows={12}
+                    className={`resize-none font-mono text-sm leading-relaxed ${inputStyle} pr-12`}
+                  />
+                  {generatedPrompt.trim() && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => updateGeneratedPrompt('')}
+                      className="absolute top-2 right-2 h-8 w-8 p-0 text-muted-foreground hover:text-destructive bg-background/80 backdrop-blur-sm rounded-md"
+                      title="Clear prompt"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3 mt-4">
                   <Button
