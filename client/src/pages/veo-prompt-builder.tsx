@@ -839,26 +839,59 @@ export default function VeoPromptBuilder() {
 
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
-        {/* Progress Indicator */}
-        <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 hidden lg:block">
-          <div className="flex flex-col gap-2">
-            {sectionOrder.map((section) => (
-              <button
-                key={section}
-                onClick={() => scrollToSection(section)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  currentSection === section 
-                    ? 'bg-primary w-8' 
-                    : 'bg-white/20 hover:bg-white/40'
-                }`}
-                aria-label={`Go to ${section} section`}
-              />
-            ))}
+        {/* Progress Indicator - Piano Style */}
+        <div className="fixed top-[72px] left-0 right-0 z-30 bg-background/80 backdrop-blur-xl border-b border-white/10">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex gap-1 justify-center max-w-2xl mx-auto">
+              {sectionOrder.map((section, index) => {
+                const isCompleted = sectionOrder.indexOf(currentSection) >= index;
+                const isCurrent = currentSection === section;
+                
+                return (
+                  <button
+                    key={section}
+                    onClick={() => scrollToSection(section)}
+                    className={`relative h-10 flex-1 transition-all duration-700 rounded-md overflow-hidden ${
+                      isCompleted
+                        ? 'bg-primary/70'
+                        : 'bg-white/10 hover:bg-white/20'
+                    }`}
+                    style={{
+                      animationDelay: `${index * 150}ms`,
+                    }}
+                    aria-label={`Go to ${section} section`}
+                  >
+                    {/* Piano key highlight effect */}
+                    {isCompleted && (
+                      <div 
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                        style={{
+                          animation: `pianoWave 3s ease-in-out infinite`,
+                          animationDelay: `${index * 0.5}s`,
+                        }}
+                      />
+                    )}
+                    
+                    {/* Current section highlight */}
+                    {isCurrent && (
+                      <div className="absolute inset-0 bg-primary animate-pulse" />
+                    )}
+                    
+                    {/* Section label */}
+                    <span className={`absolute inset-0 flex items-center justify-center text-xs font-medium capitalize ${
+                      isCompleted ? 'text-white' : 'text-muted-foreground'
+                    }`}>
+                      {section === 'intro' ? 'start' : section}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Sections */}
-        <div className="pt-20">
+        <div className="pt-32">
           {sectionOrder.map((section) => (
             <div key={section}>
               {renderSection(section)}
