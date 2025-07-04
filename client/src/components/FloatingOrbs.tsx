@@ -34,30 +34,29 @@ export default function FloatingOrbs() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // Create shapes with multiple layers and geometric variety
+    // Create gradient spheres like in the reference
     const createShape = (layer: number): Shape => {
-      const types: Shape['type'][] = ['circle', 'hexagon', 'triangle', 'square', 'diamond'];
-      const baseSpeed = 1.5 + (4 - layer) * 0.8; // Faster movement for back layers
+      const baseSpeed = 0.3 + (4 - layer) * 0.1; // Much slower, subtle movement
       
       return {
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 350 + 150 - layer * 30,
+        size: Math.random() * 300 + 200 - layer * 40,
         speedX: (Math.random() - 0.5) * baseSpeed,
         speedY: (Math.random() - 0.5) * baseSpeed,
-        rotation: Math.random() * Math.PI * 2,
-        rotationSpeed: (Math.random() - 0.5) * 0.02,
-        opacity: 0.01 + (4 - layer) * 0.01 + Math.random() * 0.02,
-        type: types[Math.floor(Math.random() * types.length)],
+        rotation: 0,
+        rotationSpeed: 0,
+        opacity: 0.6 - layer * 0.1, // More visible spheres
+        type: 'circle', // Only circles for gradient spheres
         layer,
         pulsePhase: Math.random() * Math.PI * 2,
       };
     };
 
-    // Create multiple layers of shapes
+    // Create fewer, larger gradient spheres
     shapesRef.current = [];
-    for (let layer = 0; layer < 5; layer++) {
-      for (let i = 0; i < 8; i++) {
+    for (let layer = 0; layer < 3; layer++) {
+      for (let i = 0; i < 3; i++) {
         shapesRef.current.push(createShape(layer));
       }
     }
@@ -65,72 +64,42 @@ export default function FloatingOrbs() {
     const drawShape = (ctx: CanvasRenderingContext2D, shape: Shape, time: number) => {
       ctx.save();
       ctx.translate(shape.x, shape.y);
-      ctx.rotate(shape.rotation);
       
-      // Pulsing effect
-      const pulseFactor = 1 + Math.sin(time * 0.001 + shape.pulsePhase) * 0.1;
+      // Subtle pulsing effect
+      const pulseFactor = 1 + Math.sin(time * 0.0005 + shape.pulsePhase) * 0.02;
       const size = shape.size * pulseFactor;
       
-      // Apply layer-based blur effect
-      ctx.filter = `blur(${35 - shape.layer * 6}px)`;
+      // Soft blur for dreamy effect
+      ctx.filter = `blur(${60}px)`;
       
-      // Set multi-layer gradient fill
-      const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, size);
-      const lightness = 95 - shape.layer * 3;
+      // Create blue-grey gradient sphere like in reference
+      const gradient = ctx.createRadialGradient(
+        -size * 0.3, -size * 0.3, 0,
+        0, 0, size
+      );
       
-      // Multiple transparency levels
-      gradient.addColorStop(0, `hsla(0, 0%, ${lightness}%, ${shape.opacity * 3})`);
-      gradient.addColorStop(0.3, `hsla(0, 0%, ${lightness}%, ${shape.opacity * 2})`);
-      gradient.addColorStop(0.6, `hsla(0, 0%, ${lightness}%, ${shape.opacity})`);
-      gradient.addColorStop(0.8, `hsla(0, 0%, ${lightness}%, ${shape.opacity * 0.5})`);
-      gradient.addColorStop(1, `hsla(0, 0%, ${lightness}%, 0)`);
+      // Blue to grey gradient colors
+      if (shape.layer === 0) {
+        gradient.addColorStop(0, `rgba(120, 150, 190, ${shape.opacity})`);
+        gradient.addColorStop(0.4, `rgba(140, 160, 185, ${shape.opacity * 0.8})`);
+        gradient.addColorStop(0.7, `rgba(160, 170, 180, ${shape.opacity * 0.5})`);
+        gradient.addColorStop(1, `rgba(180, 180, 185, 0)`);
+      } else if (shape.layer === 1) {
+        gradient.addColorStop(0, `rgba(130, 140, 170, ${shape.opacity})`);
+        gradient.addColorStop(0.4, `rgba(150, 155, 175, ${shape.opacity * 0.8})`);
+        gradient.addColorStop(0.7, `rgba(170, 170, 180, ${shape.opacity * 0.5})`);
+        gradient.addColorStop(1, `rgba(185, 185, 190, 0)`);
+      } else {
+        gradient.addColorStop(0, `rgba(140, 145, 160, ${shape.opacity})`);
+        gradient.addColorStop(0.4, `rgba(160, 160, 170, ${shape.opacity * 0.8})`);
+        gradient.addColorStop(0.7, `rgba(175, 175, 180, ${shape.opacity * 0.5})`);
+        gradient.addColorStop(1, `rgba(190, 190, 195, 0)`);
+      }
       
       ctx.fillStyle = gradient;
-      
-      switch (shape.type) {
-        case 'circle':
-          ctx.beginPath();
-          ctx.arc(0, 0, size, 0, Math.PI * 2);
-          ctx.fill();
-          break;
-          
-        case 'hexagon':
-          ctx.beginPath();
-          for (let i = 0; i < 6; i++) {
-            const angle = (Math.PI / 3) * i;
-            const x = size * Math.cos(angle);
-            const y = size * Math.sin(angle);
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-          }
-          ctx.closePath();
-          ctx.fill();
-          break;
-          
-        case 'triangle':
-          ctx.beginPath();
-          ctx.moveTo(0, -size);
-          ctx.lineTo(size * 0.866, size * 0.5);
-          ctx.lineTo(-size * 0.866, size * 0.5);
-          ctx.closePath();
-          ctx.fill();
-          break;
-          
-        case 'square':
-          const squareSize = size * 0.85;
-          ctx.fillRect(-squareSize, -squareSize, squareSize * 2, squareSize * 2);
-          break;
-          
-        case 'diamond':
-          ctx.beginPath();
-          ctx.moveTo(0, -size);
-          ctx.lineTo(size * 0.7, 0);
-          ctx.lineTo(0, size);
-          ctx.lineTo(-size * 0.7, 0);
-          ctx.closePath();
-          ctx.fill();
-          break;
-      }
+      ctx.beginPath();
+      ctx.arc(0, 0, size, 0, Math.PI * 2);
+      ctx.fill();
       
       ctx.restore();
     };
