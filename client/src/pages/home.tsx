@@ -43,7 +43,7 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
-          <Card className="border-border hover:border-primary/20 transition-all duration-200 hover:shadow-lg">
+          <Card className="border-border hover:border-primary/20 transition-all duration-200">
             <CardHeader>
               <PlayCircle className="h-10 w-10 mb-3 text-primary" />
               <CardTitle className="font-heading text-xl">Start Creating</CardTitle>
@@ -60,7 +60,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          <Card className="border-border hover:border-primary/20 transition-all duration-200 hover:shadow-lg">
+          <Card className="border-border hover:border-primary/20 transition-all duration-200">
             <CardHeader>
               <User className="h-10 w-10 mb-3 text-primary" />
               <CardTitle className="font-heading text-xl">Your Account</CardTitle>
