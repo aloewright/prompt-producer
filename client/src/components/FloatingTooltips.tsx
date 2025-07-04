@@ -14,50 +14,50 @@ interface Tip {
 const aiTips: Tip[] = [
   {
     id: "1",
-    text: "✨ AI Secret: Lighting sets the mood! Try 'golden hour glow' or 'neon-lit rain' for cinematic magic.",
-    position: { x: 85, y: 20 },
+    text: "Lighting sets the mood! Try 'golden hour glow' or 'neon-lit rain' for cinematic magic.",
+    position: { x: 20, y: 20 },
     icon: <Lightbulb className="h-4 w-4 text-yellow-500" />,
     delay: 3000,
   },
   {
     id: "2", 
-    text: "🎭 Pro move: Combine emotions with actions! 'Nervously adjusting glasses' tells a story in seconds.",
-    position: { x: 15, y: 65 },
+    text: "Pro move: Combine emotions with actions! 'Nervously adjusting glasses' tells a story in seconds.",
+    position: { x: 70, y: 40 },
     icon: <Sparkles className="h-4 w-4 text-purple-500" />,
     delay: 7000,
   },
   {
     id: "3",
-    text: "🎬 Director's cut: Camera motion = emotion! 'Slow dolly zoom' creates that Hitchcock thriller vibe.",
-    position: { x: 75, y: 80 },
+    text: "Director's cut: Camera motion = emotion! 'Slow dolly zoom' creates that Hitchcock thriller vibe.",
+    position: { x: 30, y: 70 },
     icon: <Zap className="h-4 w-4 text-blue-500" />,
     delay: 11000,
   },
   {
     id: "4",
-    text: "🔍 Detail wizard: Layer your descriptions! 'Person' → 'Artist' → 'Paint-splattered sculptor' = compelling character.",
-    position: { x: 20, y: 30 },
+    text: "Detail wizard: Layer your descriptions! 'Person' → 'Artist' → 'Paint-splattered sculptor' = compelling character.",
+    position: { x: 60, y: 25 },
     icon: <Star className="h-4 w-4 text-green-500" />,
     delay: 15000,
   },
   {
     id: "5",
-    text: "🌍 World builder: 'Cozy café' vs 'Steam-filled coffee shop with vintage jazz playing' - which draws you in?",
-    position: { x: 60, y: 45 },
+    text: "World builder: 'Cozy café' vs 'Steam-filled coffee shop with vintage jazz playing' - which draws you in?",
+    position: { x: 25, y: 55 },
     icon: <Lightbulb className="h-4 w-4 text-orange-500" />,
     delay: 19000,
   },
   {
     id: "6",
-    text: "🎨 Style hack: Mix unexpected elements! 'Cyberpunk meets cottagecore' creates unique visuals.",
-    position: { x: 40, y: 70 },
+    text: "Style hack: Mix unexpected elements! 'Cyberpunk meets cottagecore' creates unique visuals.",
+    position: { x: 65, y: 65 },
     icon: <Sparkles className="h-4 w-4 text-pink-500" />,
     delay: 23000,
   },
   {
     id: "7",
-    text: "🎵 Sound matters too! 'Distant thunder rumbling' adds tension even to peaceful scenes.",
-    position: { x: 80, y: 50 },
+    text: "Sound matters too! 'Distant thunder rumbling' adds tension even to peaceful scenes.",
+    position: { x: 40, y: 35 },
     icon: <Zap className="h-4 w-4 text-indigo-500" />,
     delay: 27000,
   },
@@ -162,8 +162,8 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
             key={tip.id}
             className="absolute tooltip-enter tooltip-float pointer-events-auto px-4 sm:px-0"
             style={{
-              left: `${Math.min(Math.max(tip.position.x, 10), 90)}%`,
-              top: `${Math.min(Math.max(tip.position.y, 15), 85)}%`,
+              left: `${Math.min(Math.max(tip.position.x, 15), 85)}%`,
+              top: `${Math.min(Math.max(tip.position.y, 20), 80)}%`,
               transform: 'translate(-50%, -50%)',
             }}
           >

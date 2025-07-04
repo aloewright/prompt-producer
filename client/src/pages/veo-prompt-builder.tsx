@@ -76,6 +76,7 @@ export default function VeoPromptBuilder() {
   const [aiTipsEnabled, setAiTipsEnabled] = useState(
     localStorage.getItem('disableTooltips') !== 'true'
   );
+  const [scrollY, setScrollY] = useState(0);
   const sectionRefs = useRef<{ [key in Section]?: HTMLDivElement }>({});
 
   useEffect(() => {
@@ -99,6 +100,16 @@ export default function VeoPromptBuilder() {
     });
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    // Track scroll position for camera icon scaling
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const scrollToSection = (section: Section) => {
@@ -818,7 +829,12 @@ export default function VeoPromptBuilder() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <VideoIcon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+              <VideoIcon 
+                className="w-6 h-6 md:w-8 md:h-8 text-primary transition-transform duration-300" 
+                style={{
+                  transform: `scale(${Math.max(0.6, 1 - scrollY / 1000)})`
+                }}
+              />
               <h1 className="font-heading text-lg md:text-2xl font-bold text-foreground">
                 Veo Prompt Builder
               </h1>
@@ -839,83 +855,88 @@ export default function VeoPromptBuilder() {
 
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
-        {/* Progress Indicator - Animated Bar */}
-        <div className="fixed top-[72px] left-0 right-0 z-30 bg-background/80 backdrop-blur-xl border-b border-white/10">
-          <div className="container mx-auto px-4 py-3">
-            <div className="max-w-2xl mx-auto">
-              <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
-                {/* Background segments */}
-                <div className="absolute inset-0 flex gap-[2px]">
-                  {sectionOrder.map((_, index) => (
-                    <div key={index} className="flex-1 bg-white/5" />
-                  ))}
-                </div>
-                
-                {/* Animated fill */}
-                {sectionOrder.map((section, index) => {
-                  const isCompleted = sectionOrder.indexOf(currentSection) >= index;
-                  const segmentWidth = 100 / sectionOrder.length;
-                  
-                  return (
-                    <div
-                      key={section}
-                      className={`absolute top-0 left-0 h-full transition-all duration-1000 ease-out ${
-                        isCompleted ? 'opacity-100' : 'opacity-0'
-                      }`}
-                      style={{
-                        width: `${segmentWidth}%`,
-                        transform: `translateX(${index * 100}%)`,
-                        transitionDelay: isCompleted ? `${index * 200}ms` : '0ms'
-                      }}
-                    >
-                      <div className="h-full bg-gradient-to-r from-primary to-primary/80 relative overflow-hidden">
-                        {/* Shimmer effect */}
-                        <div 
-                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
-                          style={{
-                            animation: 'progressShimmer 2s ease-in-out infinite',
-                            animationDelay: `${index * 0.3}s`
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-                
-                {/* Animated dot indicator */}
-                <div 
-                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-1000"
+        {/* Vertical Progress Indicator - Left Side */}
+        <div className="fixed left-4 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
+          <div className="relative h-64 w-1 bg-white/10 rounded-full overflow-hidden">
+            {/* Background segments */}
+            <div className="absolute inset-0 flex flex-col gap-[2px]">
+              {sectionOrder.map((_, index) => (
+                <div key={index} className="flex-1 bg-white/5" />
+              ))}
+            </div>
+            
+            {/* Animated fill */}
+            {sectionOrder.map((section, index) => {
+              const isCompleted = sectionOrder.indexOf(currentSection) >= index;
+              const segmentHeight = 100 / sectionOrder.length;
+              
+              return (
+                <div
+                  key={section}
+                  className={`absolute top-0 left-0 w-full transition-all duration-1000 ease-out ${
+                    isCompleted ? 'opacity-100' : 'opacity-0'
+                  }`}
                   style={{
-                    left: `${(sectionOrder.indexOf(currentSection) + 1) * (100 / sectionOrder.length)}%`,
-                    transform: 'translate(-50%, -50%)'
+                    height: `${segmentHeight}%`,
+                    transform: `translateY(${index * 100}%)`,
+                    transitionDelay: isCompleted ? `${index * 200}ms` : '0ms'
                   }}
                 >
-                  <div className="absolute inset-0 bg-white rounded-full animate-ping" />
+                  <div className="w-full h-full bg-gradient-to-b from-primary to-primary/80 relative overflow-hidden">
+                    {/* Glow effect */}
+                    <div 
+                      className="absolute inset-0 bg-primary/50 blur-sm"
+                      style={{
+                        animation: 'progressGlow 2s ease-in-out infinite',
+                        animationDelay: `${index * 0.3}s`
+                      }}
+                    />
+                    {/* Shimmer effect */}
+                    <div 
+                      className="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-transparent"
+                      style={{
+                        animation: 'progressShimmerVertical 2s ease-in-out infinite',
+                        animationDelay: `${index * 0.3}s`
+                      }}
+                    />
+                  </div>
                 </div>
-              </div>
-              
-              {/* Section labels */}
-              <div className="flex justify-between mt-2 px-2">
-                {sectionOrder.map((section, index) => (
-                  <button
-                    key={section}
-                    onClick={() => scrollToSection(section)}
-                    className={`text-xs font-medium capitalize transition-colors duration-300 ${
-                      sectionOrder.indexOf(currentSection) >= index
-                        ? 'text-primary'
-                        : 'text-muted-foreground hover:text-foreground'
-                    }`}
-                  >
-                    {section === 'intro' ? 'start' : section}
-                  </button>
-                ))}
-              </div>
+              );
+            })}
+            
+            {/* Animated dot indicator */}
+            <div 
+              className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-lg transition-all duration-1000"
+              style={{
+                top: `${(sectionOrder.indexOf(currentSection) + 0.5) * (100 / sectionOrder.length)}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+            >
+              <div className="absolute inset-0 bg-primary rounded-full animate-ping" />
+              <div className="absolute inset-0 bg-primary/30 rounded-full animate-pulse blur-sm" />
             </div>
+          </div>
+          
+          {/* Section labels */}
+          <div className="absolute -right-8 top-0 h-full flex flex-col justify-between py-2">
+            {sectionOrder.map((section, index) => (
+              <button
+                key={section}
+                onClick={() => scrollToSection(section)}
+                className={`text-xs font-medium capitalize transition-colors duration-300 whitespace-nowrap ${
+                  sectionOrder.indexOf(currentSection) >= index
+                    ? 'text-primary'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {section === 'intro' ? 'start' : section}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Sections */}
-        <div className="pt-40">
+        <div className="pt-20 lg:pl-24">
           {sectionOrder.map((section) => (
             <div key={section}>
               {renderSection(section)}
