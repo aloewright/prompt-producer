@@ -70,9 +70,13 @@ interface FloatingTooltipsProps {
 export default function FloatingTooltips({ isActive = true }: FloatingTooltipsProps) {
   const [visibleTips, setVisibleTips] = useState<Set<string>>(new Set());
   const [dismissedTips, setDismissedTips] = useState<Set<string>>(new Set());
+  const [tipsDisabled, setTipsDisabled] = useState(() => {
+    // Check localStorage for tips preference
+    return localStorage.getItem('disableTooltips') === 'true';
+  });
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isActive || tipsDisabled) return;
 
     const timers: NodeJS.Timeout[] = [];
     let currentTipIndex = 0;
@@ -119,7 +123,7 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
     return () => {
       timers.forEach(timer => clearTimeout(timer));
     };
-  }, [isActive, dismissedTips, visibleTips.size]);
+  }, [isActive, tipsDisabled, dismissedTips, visibleTips.size]);
 
   const dismissTip = (tipId: string) => {
     setVisibleTips(prev => {
@@ -141,7 +145,13 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
     });
   };
 
-  if (!isActive) return null;
+  const disableTips = () => {
+    localStorage.setItem('disableTooltips', 'true');
+    setTipsDisabled(true);
+    dismissAllTips();
+  };
+
+  if (!isActive || tipsDisabled) return null;
 
   return (
     <div className="fixed inset-0 pointer-events-none z-40">{/* Mobile responsive tooltips - single tooltip display */}
@@ -167,14 +177,23 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
                     <p className="text-sm text-foreground leading-relaxed">
                       {tip.text}
                     </p>
+                    <div className="mt-2 flex items-center gap-2">
+                      <button
+                        onClick={disableTips}
+                        className="text-xs text-muted-foreground hover:text-foreground underline transition-colors"
+                      >
+                        Disable all tips
+                      </button>
+                    </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
                     className="flex-shrink-0 h-6 w-6 p-0 hover:bg-muted hover:scale-110 transition-all duration-200"
                     onClick={() => dismissTip(tip.id)}
+                    title="Close this tip"
                   >
-                    <X className="h-3 w-3" />
+                    <X className="h-4 w-4" />
                   </Button>
                 </div>
                 

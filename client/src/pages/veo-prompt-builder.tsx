@@ -556,6 +556,30 @@ export default function VeoPromptBuilder() {
                 </Button>
               </div>
 
+              {/* Settings */}
+              <div className="space-y-2 mb-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Settings</h3>
+                <div className="flex items-center justify-between p-2">
+                  <span className="text-sm">AI Tips</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const isDisabled = localStorage.getItem('disableTooltips') === 'true';
+                      if (isDisabled) {
+                        localStorage.removeItem('disableTooltips');
+                        window.location.reload();
+                      } else {
+                        localStorage.setItem('disableTooltips', 'true');
+                        window.location.reload();
+                      }
+                    }}
+                  >
+                    {localStorage.getItem('disableTooltips') === 'true' ? 'Enable' : 'Disable'}
+                  </Button>
+                </div>
+              </div>
+
               {/* Saved Prompts */}
               <div className="space-y-3">
                 <h3 className="text-sm font-medium text-muted-foreground">Saved Prompts ({savedPrompts.length})</h3>

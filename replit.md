@@ -112,6 +112,8 @@ This is a full-stack web application designed to help users create AI video prom
 - June 27, 2025. Updated tooltips to display one at a time with mobile responsiveness, fixed landing page animations, added Terms of Service and Privacy Policy pages with Google copyright notices, and prepared for deployment
 - June 27, 2025. Removed laptop mockup from landing page below "Get Started" button for cleaner layout, fixed button selection persistence in prompt builder using proper shadcn variants
 - June 27, 2025. Changed selection criteria backgrounds from transparent to white fill for better visibility, added Honestlly AI logo as app icon
+- June 27, 2025. Redesigned prompt builder with clean card-based sections, iconography, comprehensive right drawer with all actions (saved prompts, navigation, settings, logout), mobile-responsive design
+- June 27, 2025. Enhanced AI tips dismissal functionality with individual tip close buttons, "Disable all tips" option, and persistent settings toggle in menu drawer
 
 ## User Preferences
 
