@@ -6,7 +6,7 @@
 
 :root {
   /* Apple-style light glassmorphism palette */
-  --background: hsl(0, 0%, 96%); /* Apple grey #f5f5f7 */
+  --background: hsl(0, 0%, 92%); /* Very light grey background */
   --foreground: hsl(0, 0%, 20%); /* Dark grey text */
   --muted: hsl(0, 0%, 92%); /* Light muted */
   --muted-foreground: hsl(0, 0%, 45%); /* Muted text */
