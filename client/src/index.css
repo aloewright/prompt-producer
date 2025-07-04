@@ -5,41 +5,41 @@
 @tailwind utilities;
 
 :root {
-  /* Apple-inspired glassmorphism palette */
-  --background: hsl(220, 15%, 8%); /* Deep space gray */
-  --foreground: hsl(220, 5%, 88%); /* Soft white */
-  --muted: hsl(220, 10%, 18%); /* Subtle dark */
-  --muted-foreground: hsl(220, 5%, 72%); /* Muted text */
-  --popover: hsla(220, 15%, 14%, 0.72); /* Frosted popover */
-  --popover-foreground: hsl(220, 5%, 88%); /* Soft white */
-  --card: hsla(220, 12%, 16%, 0.64); /* Frosted card */
-  --card-foreground: hsl(220, 5%, 88%); /* Soft white */
-  --border: hsla(220, 5%, 100%, 0.08); /* Ultra subtle border */
-  --input: hsla(220, 10%, 20%, 0.48); /* Frosted input */
-  --primary: hsl(211, 100%, 50%); /* Apple blue */
+  /* Modern light glassmorphism palette */
+  --background: hsl(210, 25%, 97%); /* Soft light gray */
+  --foreground: hsl(215, 25%, 27%); /* Deep blue-gray */
+  --muted: hsl(210, 20%, 92%); /* Light muted */
+  --muted-foreground: hsl(215, 15%, 45%); /* Muted text */
+  --popover: hsla(0, 0%, 100%, 0.85); /* Frosted white popover */
+  --popover-foreground: hsl(215, 25%, 27%); /* Deep blue-gray */
+  --card: hsla(0, 0%, 100%, 0.72); /* Frosted white card */
+  --card-foreground: hsl(215, 25%, 27%); /* Deep blue-gray */
+  --border: hsla(215, 20%, 75%, 0.2); /* Subtle light border */
+  --input: hsla(0, 0%, 100%, 0.65); /* Frosted white input */
+  --primary: hsl(211, 100%, 50%); /* Bright blue */
   --primary-foreground: hsl(0, 0%, 100%); /* Pure white */
-  --secondary: hsl(220, 10%, 28%); /* Subtle gray */
-  --secondary-foreground: hsl(220, 5%, 88%); /* Soft white */
-  --accent: hsl(211, 100%, 45%); /* Accent blue */
+  --secondary: hsl(210, 20%, 85%); /* Light gray */
+  --secondary-foreground: hsl(215, 25%, 27%); /* Deep blue-gray */
+  --accent: hsl(211, 100%, 60%); /* Light blue accent */
   --accent-foreground: hsl(0, 0%, 100%); /* Pure white */
-  --destructive: hsl(0, 84%, 60%); /* Apple red */
+  --destructive: hsl(0, 72%, 51%); /* Soft red */
   --destructive-foreground: hsl(0, 0%, 100%); /* Pure white */
-  --ring: hsla(211, 100%, 50%, 0.4); /* Subtle focus ring */
-  --radius: 1rem; /* Larger radius for modern look */
+  --ring: hsla(211, 100%, 50%, 0.25); /* Subtle blue focus ring */
+  --radius: 1.5rem; /* Extra rounded for modern look */
   
-  /* Apple glassmorphism properties */
-  --glass-bg: hsla(255, 255, 255, 0.04);
-  --glass-border: hsla(255, 255, 255, 0.06);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.32);
-  --glass-blur: 24px;
+  /* Modern glassmorphism properties */
+  --glass-bg: hsla(255, 255, 255, 0.72);
+  --glass-border: hsla(215, 50%, 75%, 0.2);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  --glass-blur: 20px;
   --glass-overlay: linear-gradient(
     135deg,
-    hsla(255, 255, 255, 0.1) 0%,
-    hsla(255, 255, 255, 0.02) 100%
+    hsla(255, 255, 255, 0.9) 0%,
+    hsla(255, 255, 255, 0.6) 100%
   );
-  --text-primary: hsl(220, 5%, 88%);
-  --text-secondary: hsl(220, 5%, 68%);
-  --hover-overlay: hsla(255, 255, 255, 0.04);
+  --text-primary: hsl(215, 25%, 27%);
+  --text-secondary: hsl(215, 15%, 45%);
+  --hover-overlay: hsla(211, 100%, 50%, 0.04);
 }
 
 .dark {
@@ -122,6 +122,25 @@
     100% {
       left: 100%;
     }
+  }
+  
+  .glass-button {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+      0 4px 16px rgba(31, 38, 135, 0.1),
+      inset 0 1px 2px rgba(255, 255, 255, 0.9);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.75);
+    transform: translateY(-1px);
+    box-shadow: 
+      0 6px 20px rgba(31, 38, 135, 0.15),
+      inset 0 1px 2px rgba(255, 255, 255, 0.9);
   }
 
   @keyframes copySuccess {
@@ -219,13 +238,13 @@
 }
 
 .glass-card {
-  background: hsla(0, 0%, 100%, 0.02);
-  backdrop-filter: saturate(200%) blur(20px);
-  -webkit-backdrop-filter: saturate(200%) blur(20px);
-  border: 1px solid hsla(0, 0%, 100%, 0.05);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 
-    inset 0 1px 0 0 hsla(0, 0%, 100%, 0.05),
-    0 8px 40px rgba(0, 0, 0, 0.48);
+    0 8px 32px rgba(31, 38, 135, 0.08),
+    inset 0 2px 4px rgba(255, 255, 255, 0.9);
   position: relative;
   overflow: hidden;
 }
@@ -236,35 +255,35 @@
   inset: 0;
   background: linear-gradient(
     135deg,
-    hsla(0, 0%, 100%, 0.05) 0%,
-    transparent 100%
+    rgba(255, 255, 255, 0.4) 0%,
+    rgba(255, 255, 255, 0.1) 100%
   );
   pointer-events: none;
 }
 
 .glass-input {
-  background: hsla(0, 0%, 100%, 0.02);
+  background: rgba(255, 255, 255, 0.65);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid hsla(0, 0%, 100%, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow: 
-    inset 0 1px 0 0 hsla(0, 0%, 100%, 0.03),
-    0 2px 8px rgba(0, 0, 0, 0.24);
+    inset 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 2px 8px rgba(31, 38, 135, 0.06);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .glass-input:hover {
-  background: hsla(0, 0%, 100%, 0.03);
-  border-color: hsla(0, 0%, 100%, 0.06);
+  background: rgba(255, 255, 255, 0.75);
+  border-color: rgba(255, 255, 255, 0.9);
 }
 
 .glass-input:focus {
-  background: hsla(0, 0%, 100%, 0.04);
+  background: rgba(255, 255, 255, 0.8);
   border-color: var(--primary);
   box-shadow: 
-    inset 0 1px 0 0 hsla(0, 0%, 100%, 0.03),
-    0 0 0 3px hsla(211, 100%, 50%, 0.2),
-    0 2px 8px rgba(0, 0, 0, 0.24);
+    inset 0 1px 2px rgba(0, 0, 0, 0.04),
+    0 0 0 3px rgba(59, 130, 246, 0.15),
+    0 2px 8px rgba(31, 38, 135, 0.08);
 }
 
 .glass-hover {

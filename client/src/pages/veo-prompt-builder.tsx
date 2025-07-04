@@ -44,6 +44,7 @@ import {
   Sparkles
 } from "lucide-react";
 import FloatingTooltips from "@/components/FloatingTooltips";
+import FloatingOrbs from "@/components/FloatingOrbs";
 import { Link } from "wouter";
 
 type Section = 'intro' | 'subject' | 'action' | 'style' | 'camera' | 'audio' | 'result';
@@ -72,6 +73,9 @@ export default function VeoPromptBuilder() {
   const [currentSection, setCurrentSection] = useState<Section>('intro');
   const [complexity, setComplexity] = useState([2]); // 1-3 scale
   const [isGenerating, setIsGenerating] = useState(false);
+  const [aiTipsEnabled, setAiTipsEnabled] = useState(
+    localStorage.getItem('disableTooltips') !== 'true'
+  );
   const sectionRefs = useRef<{ [key in Section]?: HTMLDivElement }>({});
 
   useEffect(() => {
@@ -242,8 +246,10 @@ export default function VeoPromptBuilder() {
             className="min-h-screen flex items-center justify-center p-4"
           >
             <div className="max-w-2xl text-center space-y-8 animate-fade-in-up">
-              <div className="space-y-4">
-                <VideoIcon className="w-16 h-16 mx-auto text-primary opacity-80" />
+              <div className="space-y-6">
+                <div className="w-24 h-24 mx-auto glass-button rounded-3xl flex items-center justify-center">
+                  <VideoIcon className="w-12 h-12 text-primary" />
+                </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground">
                   Veo Prompt Builder
                 </h1>
@@ -804,7 +810,8 @@ export default function VeoPromptBuilder() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <FloatingTooltips isActive={true} />
+      <FloatingOrbs />
+      <FloatingTooltips isActive={aiTipsEnabled} />
       
       {/* Fixed Header */}
       <header className="fixed top-0 left-0 right-0 z-40 glass border-b border-white/10">
