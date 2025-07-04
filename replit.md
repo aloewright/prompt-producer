@@ -114,6 +114,11 @@ This is a full-stack web application designed to help users create AI video prom
 - June 27, 2025. Changed selection criteria backgrounds from transparent to white fill for better visibility, added Honestlly AI logo as app icon
 - June 27, 2025. Redesigned prompt builder with clean card-based sections, iconography, comprehensive right drawer with all actions (saved prompts, navigation, settings, logout), mobile-responsive design
 - June 27, 2025. Enhanced AI tips dismissal functionality with individual tip close buttons, "Disable all tips" option, and persistent settings toggle in menu drawer
+- July 04, 2025. Updated to Apple-inspired glassmorphism design with deep space gray palette, ultra-low contrast, and subtle depth effects
+- July 04, 2025. Added progressive disclosure interface with smooth scroll animations and section-based navigation
+- July 04, 2025. Implemented random prompt generation with complexity control slider (simple/balanced/comprehensive)
+- July 04, 2025. Fixed Camera & Technical section buttons with proper glass-button styling and hover animations
+- July 04, 2025. Added "Enhance Prompt with Cinematic Quality" button spanning full width above generated prompt textarea
 
 ## User Preferences
 

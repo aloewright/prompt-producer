@@ -687,14 +687,35 @@ export default function VeoPromptBuilder() {
             data-section="result"
             className="min-h-screen flex items-center justify-center p-4"
           >
-            <Card className="glass-card w-full max-w-2xl animate-fade-in-up">
-              <CardHeader className="border-b border-white/10">
-                <CardTitle className="font-heading text-xl text-foreground flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-primary" />
+            <Card className="glass-card w-full max-w-2xl animate-fade-in-up rounded-2xl">
+              <CardHeader className="pb-6 border-b border-white/5">
+                <CardTitle className="font-heading text-xl text-foreground flex items-center gap-3">
+                  <div className="p-2 glass-button rounded-xl">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
                   Generated Prompt
                 </CardTitle>
               </CardHeader>
-              <CardContent className="pt-4">
+              <CardContent className="pt-6 space-y-4">
+                <Button
+                  onClick={() => {
+                    if (generatedPrompt.trim()) {
+                      const enhanced = generatedPrompt + "\n\nEnhance with: cinematic quality, ultra-high definition, professional color grading, smooth transitions, and immersive depth of field.";
+                      updateGeneratedPrompt(enhanced);
+                      toast({
+                        title: "Enhanced!",
+                        description: "Added cinematic quality enhancements to your prompt",
+                      });
+                    }
+                  }}
+                  disabled={!generatedPrompt.trim()}
+                  className="w-full h-12 rounded-xl font-medium glass-button"
+                  variant="outline"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Enhance Prompt with Cinematic Quality
+                </Button>
+                
                 <Textarea
                   value={generatedPrompt}
                   onChange={(e) => updateGeneratedPrompt(e.target.value)}
@@ -719,7 +740,7 @@ export default function VeoPromptBuilder() {
                     variant="outline"
                     onClick={handleSavePrompt}
                     disabled={!generatedPrompt.trim()}
-                    className="glass-hover border-white/10 text-foreground"
+                    className="glass-button rounded-xl font-medium"
                   >
                     <Save className="w-4 h-4 mr-2" />
                     Save
