@@ -856,74 +856,38 @@ export default function VeoPromptBuilder() {
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
         {/* Vertical Progress Indicator - Left Side */}
-        <div className="fixed left-4 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
-          <div className="relative h-64 w-1 bg-white/10 rounded-full overflow-hidden">
-            {/* Background segments */}
-            <div className="absolute inset-0 flex flex-col gap-[2px]">
-              {sectionOrder.map((_, index) => (
-                <div key={index} className="flex-1 bg-white/5" />
-              ))}
+        <div className="fixed left-8 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
+          <div className="relative h-80 w-1 bg-white/10 rounded-full overflow-hidden">
+            {/* Solid progress fill */}
+            <div 
+              className="absolute top-0 left-0 w-full bg-primary rounded-full transition-all duration-1000 ease-out"
+              style={{
+                height: `${((sectionOrder.indexOf(currentSection) + 1) / sectionOrder.length) * 100}%`,
+              }}
+            >
+              {/* Subtle glow effect */}
+              <div className="absolute inset-0 bg-primary/30 rounded-full blur-sm animate-pulse" />
             </div>
             
-            {/* Animated fill */}
-            {sectionOrder.map((section, index) => {
-              const isCompleted = sectionOrder.indexOf(currentSection) >= index;
-              const segmentHeight = 100 / sectionOrder.length;
-              
-              return (
-                <div
-                  key={section}
-                  className={`absolute top-0 left-0 w-full transition-all duration-1000 ease-out ${
-                    isCompleted ? 'opacity-100' : 'opacity-0'
-                  }`}
-                  style={{
-                    height: `${segmentHeight}%`,
-                    transform: `translateY(${index * 100}%)`,
-                    transitionDelay: isCompleted ? `${index * 200}ms` : '0ms'
-                  }}
-                >
-                  <div className="w-full h-full bg-gradient-to-b from-primary to-primary/80 relative overflow-hidden">
-                    {/* Glow effect */}
-                    <div 
-                      className="absolute inset-0 bg-primary/50 blur-sm"
-                      style={{
-                        animation: 'progressGlow 2s ease-in-out infinite',
-                        animationDelay: `${index * 0.3}s`
-                      }}
-                    />
-                    {/* Shimmer effect */}
-                    <div 
-                      className="absolute inset-0 bg-gradient-to-b from-transparent via-white/40 to-transparent"
-                      style={{
-                        animation: 'progressShimmerVertical 2s ease-in-out infinite',
-                        animationDelay: `${index * 0.3}s`
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-            
-            {/* Animated dot indicator */}
+            {/* Current section indicator dot */}
             <div 
-              className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-lg transition-all duration-1000"
+              className="absolute left-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full shadow-lg transition-all duration-1000 border-2 border-background"
               style={{
-                top: `${(sectionOrder.indexOf(currentSection) + 0.5) * (100 / sectionOrder.length)}%`,
+                top: `${((sectionOrder.indexOf(currentSection) + 1) / sectionOrder.length) * 100}%`,
                 transform: 'translate(-50%, -50%)'
               }}
             >
               <div className="absolute inset-0 bg-primary rounded-full animate-ping" />
-              <div className="absolute inset-0 bg-primary/30 rounded-full animate-pulse blur-sm" />
             </div>
           </div>
           
           {/* Section labels */}
-          <div className="absolute -right-8 top-0 h-full flex flex-col justify-between py-2">
+          <div className="absolute left-6 top-0 h-full flex flex-col justify-between py-2">
             {sectionOrder.map((section, index) => (
               <button
                 key={section}
                 onClick={() => scrollToSection(section)}
-                className={`text-xs font-medium capitalize transition-colors duration-300 whitespace-nowrap ${
+                className={`text-xs font-medium capitalize transition-colors duration-300 whitespace-nowrap text-left ${
                   sectionOrder.indexOf(currentSection) >= index
                     ? 'text-primary'
                     : 'text-muted-foreground hover:text-foreground'
@@ -936,7 +900,7 @@ export default function VeoPromptBuilder() {
         </div>
 
         {/* Sections */}
-        <div className="pt-20 lg:pl-24">
+        <div className="pt-20 lg:pl-16">
           {sectionOrder.map((section) => (
             <div key={section}>
               {renderSection(section)}
