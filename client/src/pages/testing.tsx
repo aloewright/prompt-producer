@@ -264,7 +264,7 @@ export default function Testing() {
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Enter your video prompt here..."
-                className="min-h-32 bg-white/5 border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
+                className="min-h-32 bg-white/5 border border-black/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               />
               
               {/* Cover Image Upload */}
