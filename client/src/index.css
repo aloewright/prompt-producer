@@ -6,7 +6,7 @@
 
 :root {
   /* Apple-style light glassmorphism palette */
-  --background: hsl(210, 10%, 95%); /* Light grey background for card contrast */
+  --background: #d5d9e0; /* Custom light blue-grey background */
   --foreground: hsl(0, 0%, 15%); /* Dark text for readability */
   --muted: hsl(210, 10%, 90%); /* Light muted */
   --muted-foreground: hsl(0, 0%, 45%); /* Muted text */
@@ -77,7 +77,7 @@
   body {
     @apply font-sans antialiased;
     font-family: 'Inter', sans-serif;
-    background-color: hsl(var(--background));
+    background-color: var(--background);
     color: hsl(var(--foreground));
   }
 

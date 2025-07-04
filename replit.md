@@ -132,6 +132,7 @@ This is a full-stack web application designed to help users create AI video prom
 - July 04, 2025. Added interactive blue laser animation to camera icon with lightsaber-like twirling effect when clicked
 - July 04, 2025. Implemented comprehensive video testing functionality with cover image upload, video screenshot capture, and video download features on Testing page
 - July 04, 2025. Replaced Google Veo and Google Flow external links with internal link to Testing page for better user flow
+- July 04, 2025. Updated background color to custom light blue-grey (#d5d9e0) for improved visual aesthetics
 
 ## User Preferences
 
