@@ -41,7 +41,8 @@ import {
   X,
   RefreshCw,
   Shuffle,
-  Sparkles
+  Sparkles,
+  Play
 } from "lucide-react";
 
 import FloatingOrbs from "@/components/FloatingOrbs";
@@ -836,34 +837,16 @@ export default function VeoPromptBuilder() {
                   </Button>
                 </div>
 
-                {/* Google Veo/Flow Links */}
+                {/* Test Video Link */}
                 {generatedPrompt.trim() && (
                   <div className={`mt-6 p-4 glass rounded-lg animate-fade-in-up animation-delay-200`}>
-                    <p className="text-sm text-muted-foreground mb-3">Ready to create your video? Use your prompt with:</p>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <a
-                        href="https://deepmind.google/technologies/veo/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1"
-                      >
-                        <Button variant="outline" className="w-full glass-hover border-white/10 text-foreground">
-                          <VideoIcon className="w-4 h-4 mr-2" />
-                          Google Veo
-                        </Button>
-                      </a>
-                      <a
-                        href="https://flow.google/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1"
-                      >
-                        <Button variant="outline" className="w-full glass-hover border-white/10 text-foreground">
-                          <VideoIcon className="w-4 h-4 mr-2" />
-                          Google Flow
-                        </Button>
-                      </a>
-                    </div>
+                    <p className="text-sm text-muted-foreground mb-3">Ready to create your video? Test your prompt:</p>
+                    <Link href="/testing" className="block">
+                      <Button variant="outline" className="w-full glass-hover border-white/10 text-foreground">
+                        <Play className="w-4 h-4 mr-2" />
+                        Test with Google Veo
+                      </Button>
+                    </Link>
                   </div>
                 )}
                 
