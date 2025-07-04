@@ -829,38 +829,9 @@ export default function VeoPromptBuilder() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground pt-16">
       <FloatingOrbs />
       <FloatingTooltips isActive={aiTipsEnabled} />
-      
-      {/* Fixed Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 glass border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <VideoIcon 
-                className="w-6 h-6 md:w-8 md:h-8 text-primary transition-transform duration-300" 
-                style={{
-                  transform: `scale(${Math.max(0.6, 1 - scrollY / 1000)})`
-                }}
-              />
-              <h1 className="font-heading text-lg md:text-2xl font-bold text-foreground">
-                Veo Prompt Builder
-              </h1>
-            </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              className="flex items-center gap-2 glass-hover border-white/10 text-foreground"
-            >
-              <Menu className="w-4 h-4" />
-              <span className="hidden sm:inline">Menu</span>
-            </Button>
-          </div>
-        </div>
-      </header>
 
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
