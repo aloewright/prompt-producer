@@ -156,6 +156,15 @@
     }
   }
   
+  @keyframes progressShimmer {
+    0% {
+      transform: translateX(-100%) skewX(-12deg);
+    }
+    100% {
+      transform: translateX(200%) skewX(-12deg);
+    }
+  }
+  
   .glass-button {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(80px);

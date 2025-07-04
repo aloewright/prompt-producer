@@ -839,53 +839,77 @@ export default function VeoPromptBuilder() {
 
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
-        {/* Progress Indicator - Piano Style */}
+        {/* Progress Indicator - Animated Bar */}
         <div className="fixed top-[72px] left-0 right-0 z-30 bg-background/80 backdrop-blur-xl border-b border-white/10">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex gap-1 justify-center max-w-2xl mx-auto">
-              {sectionOrder.map((section, index) => {
-                const isCompleted = sectionOrder.indexOf(currentSection) >= index;
-                const isCurrent = currentSection === section;
+          <div className="container mx-auto px-4 py-3">
+            <div className="max-w-2xl mx-auto">
+              <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+                {/* Background segments */}
+                <div className="absolute inset-0 flex gap-[2px]">
+                  {sectionOrder.map((_, index) => (
+                    <div key={index} className="flex-1 bg-white/5" />
+                  ))}
+                </div>
                 
-                return (
+                {/* Animated fill */}
+                {sectionOrder.map((section, index) => {
+                  const isCompleted = sectionOrder.indexOf(currentSection) >= index;
+                  const segmentWidth = 100 / sectionOrder.length;
+                  
+                  return (
+                    <div
+                      key={section}
+                      className={`absolute top-0 left-0 h-full transition-all duration-1000 ease-out ${
+                        isCompleted ? 'opacity-100' : 'opacity-0'
+                      }`}
+                      style={{
+                        width: `${segmentWidth}%`,
+                        transform: `translateX(${index * 100}%)`,
+                        transitionDelay: isCompleted ? `${index * 200}ms` : '0ms'
+                      }}
+                    >
+                      <div className="h-full bg-gradient-to-r from-primary to-primary/80 relative overflow-hidden">
+                        {/* Shimmer effect */}
+                        <div 
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -skew-x-12"
+                          style={{
+                            animation: 'progressShimmer 2s ease-in-out infinite',
+                            animationDelay: `${index * 0.3}s`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {/* Animated dot indicator */}
+                <div 
+                  className="absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-white rounded-full shadow-lg transition-all duration-1000"
+                  style={{
+                    left: `${(sectionOrder.indexOf(currentSection) + 1) * (100 / sectionOrder.length)}%`,
+                    transform: 'translate(-50%, -50%)'
+                  }}
+                >
+                  <div className="absolute inset-0 bg-white rounded-full animate-ping" />
+                </div>
+              </div>
+              
+              {/* Section labels */}
+              <div className="flex justify-between mt-2 px-2">
+                {sectionOrder.map((section, index) => (
                   <button
                     key={section}
                     onClick={() => scrollToSection(section)}
-                    className={`relative h-10 flex-1 transition-all duration-700 rounded-md overflow-hidden ${
-                      isCompleted
-                        ? 'bg-primary/70'
-                        : 'bg-white/10 hover:bg-white/20'
+                    className={`text-xs font-medium capitalize transition-colors duration-300 ${
+                      sectionOrder.indexOf(currentSection) >= index
+                        ? 'text-primary'
+                        : 'text-muted-foreground hover:text-foreground'
                     }`}
-                    style={{
-                      animationDelay: `${index * 150}ms`,
-                    }}
-                    aria-label={`Go to ${section} section`}
                   >
-                    {/* Piano key highlight effect */}
-                    {isCompleted && (
-                      <div 
-                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                        style={{
-                          animation: `pianoWave 3s ease-in-out infinite`,
-                          animationDelay: `${index * 0.5}s`,
-                        }}
-                      />
-                    )}
-                    
-                    {/* Current section highlight */}
-                    {isCurrent && (
-                      <div className="absolute inset-0 bg-primary animate-pulse" />
-                    )}
-                    
-                    {/* Section label */}
-                    <span className={`absolute inset-0 flex items-center justify-center text-xs font-medium capitalize ${
-                      isCompleted ? 'text-white' : 'text-muted-foreground'
-                    }`}>
-                      {section === 'intro' ? 'start' : section}
-                    </span>
+                    {section === 'intro' ? 'start' : section}
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
           </div>
         </div>
