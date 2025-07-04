@@ -2,14 +2,14 @@ import { useState } from 'react';
 import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, Home, Sparkles, TestTube, LogOut } from 'lucide-react';
+import { Menu, Home, Sparkles, TestTube, LogOut, BookOpen, Wand2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@shared/schema';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
-  { name: 'Builder', href: '/veo-prompt-builder', icon: Sparkles },
-  { name: 'Prompts', href: '/prompts', icon: Sparkles },
+  { name: 'Builder', href: '/veo-prompt-builder', icon: Wand2 },
+  { name: 'Prompts', href: '/prompts', icon: BookOpen },
   { name: 'Testing', href: '/testing', icon: TestTube },
 ];
 
@@ -33,7 +33,7 @@ export default function AppHeader() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-2">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = location === item.href;
@@ -41,14 +41,14 @@ export default function AppHeader() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  className={`flex items-center space-x-3 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-blue-500 text-white'
                       : 'text-blue-100 hover:text-white hover:bg-blue-500/50'
                   }`}
                 >
-                  <Icon className="h-4 w-4" />
-                  <span>{item.name}</span>
+                  <Icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{item.name}</span>
                 </Link>
               );
             })}
@@ -87,14 +87,14 @@ export default function AppHeader() {
                       key={item.name}
                       href={item.href}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                      className={`flex items-center space-x-4 px-4 py-3 rounded-md text-sm font-medium transition-colors ${
                         isActive
                           ? 'bg-blue-500 text-white'
                           : 'text-blue-100 hover:text-white hover:bg-blue-500/50'
                       }`}
                     >
-                      <Icon className="h-5 w-5" />
-                      <span>{item.name}</span>
+                      <Icon className="h-5 w-5 flex-shrink-0" />
+                      <span className="whitespace-nowrap">{item.name}</span>
                     </Link>
                   );
                 })}
