@@ -76,6 +76,7 @@ export default function VeoPromptBuilder() {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const [scrollY, setScrollY] = useState(0);
+  const [cameraLaserActive, setCameraLaserActive] = useState(false);
   const sectionRefs = useRef<{ [key in Section]?: HTMLDivElement }>({});
 
   useEffect(() => {
@@ -246,6 +247,20 @@ export default function VeoPromptBuilder() {
         description: "Prompt loaded into builder",
       });
     }
+  };
+
+  const handleCameraLaser = () => {
+    setCameraLaserActive(true);
+    
+    // Reset animation after it completes
+    setTimeout(() => {
+      setCameraLaserActive(false);
+    }, 1500);
+    
+    toast({
+      title: "Blue Laser Activated!",
+      description: "Camera ready for action",
+    });
   };
 
   const handleDeletePrompt = (promptId: string) => {
@@ -602,7 +617,12 @@ export default function VeoPromptBuilder() {
             <Card className="glass-card w-full max-w-2xl animate-slide-in-right rounded-2xl">
               <CardHeader className="pb-6 border-b border-white/5">
                 <CardTitle className="flex items-center gap-3 font-heading text-xl text-foreground">
-                  <div className="p-2 glass-button rounded-xl">
+                  <div 
+                    className={`p-2 glass-button rounded-xl cursor-pointer transition-all duration-200 hover:scale-105 ${
+                      cameraLaserActive ? 'camera-laser-active' : ''
+                    }`}
+                    onClick={handleCameraLaser}
+                  >
                     <Camera className="w-5 h-5 text-primary" />
                   </div>
                   Camera & Technical

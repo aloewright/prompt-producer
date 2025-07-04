@@ -256,6 +256,96 @@
     animation: videoGlow 3s ease-in-out infinite;
   }
   
+  @keyframes laserTwirl {
+    0% {
+      transform: rotate(0deg) scale(1);
+      box-shadow: 
+        0 0 10px rgba(59, 130, 246, 0.8),
+        0 0 20px rgba(59, 130, 246, 0.6),
+        0 0 30px rgba(59, 130, 246, 0.4);
+    }
+    25% {
+      transform: rotate(90deg) scale(1.1);
+      box-shadow: 
+        0 0 15px rgba(59, 130, 246, 1),
+        0 0 30px rgba(59, 130, 246, 0.8),
+        0 0 45px rgba(59, 130, 246, 0.6),
+        inset 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.2);
+      box-shadow: 
+        0 0 20px rgba(59, 130, 246, 1),
+        0 0 40px rgba(59, 130, 246, 0.9),
+        0 0 60px rgba(59, 130, 246, 0.7),
+        0 0 80px rgba(59, 130, 246, 0.3),
+        inset 0 0 15px rgba(59, 130, 246, 0.6);
+    }
+    75% {
+      transform: rotate(270deg) scale(1.1);
+      box-shadow: 
+        0 0 15px rgba(59, 130, 246, 1),
+        0 0 30px rgba(59, 130, 246, 0.8),
+        0 0 45px rgba(59, 130, 246, 0.6),
+        inset 0 0 10px rgba(59, 130, 246, 0.5);
+    }
+    100% {
+      transform: rotate(360deg) scale(1);
+      box-shadow: 
+        0 0 10px rgba(59, 130, 246, 0.8),
+        0 0 20px rgba(59, 130, 246, 0.6),
+        0 0 30px rgba(59, 130, 246, 0.4);
+    }
+  }
+  
+  @keyframes laserBeam {
+    0%, 100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  
+  .camera-laser-active {
+    animation: laserTwirl 1.5s ease-in-out;
+    position: relative;
+    overflow: visible;
+  }
+  
+  .camera-laser-active::before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: 
+      linear-gradient(45deg, transparent 40%, rgba(59, 130, 246, 0.3) 50%, transparent 60%),
+      linear-gradient(-45deg, transparent 40%, rgba(59, 130, 246, 0.3) 50%, transparent 60%);
+    border-radius: 50%;
+    animation: laserBeam 1.5s ease-in-out;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  .camera-laser-active::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2px;
+    height: 200px;
+    background: linear-gradient(to bottom, 
+      rgba(59, 130, 246, 1) 0%,
+      rgba(59, 130, 246, 0.8) 50%, 
+      transparent 100%);
+    transform: translate(-50%, -50%) rotate(0deg);
+    animation: laserTwirl 1.5s ease-in-out;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
   .glass-button {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(80px);
