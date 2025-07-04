@@ -11,11 +11,12 @@ export const subjectOptions = [
 ];
 
 export const subjectAgeOptions = [
+  "Baby",
+  "Child",
+  "Teenager",
   "Young",
   "Middle-aged",
   "Elderly",
-  "Child",
-  "Teenager",
   "Adult",
 ];
 
