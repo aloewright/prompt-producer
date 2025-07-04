@@ -915,7 +915,7 @@ export default function VeoPromptBuilder() {
         </div>
 
         {/* Sections */}
-        <div className="pt-32">
+        <div className="pt-40">
           {sectionOrder.map((section) => (
             <div key={section}>
               {renderSection(section)}
