@@ -866,33 +866,75 @@ export default function VeoPromptBuilder() {
       <div className="relative">
         {/* Vertical Progress Indicator - Left Side */}
         <div className="fixed left-8 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
-          <div className="relative h-80 w-1 bg-white/10 rounded-full overflow-hidden">
-            {/* Solid progress fill */}
-            <div 
-              className="absolute top-0 left-0 w-full bg-primary rounded-full transition-all duration-1000 ease-out"
-              style={{
-                height: `${((sectionOrder.indexOf(currentSection) + 1) / sectionOrder.length) * 100}%`,
-              }}
-            >
-              {/* Subtle glow effect */}
-              <div className="absolute inset-0 bg-primary/30 rounded-full blur-sm animate-pulse" />
-            </div>
+          <div className="relative h-80 w-1 bg-white/10 rounded-full">
+            {/* Progress line segments */}
+            {sectionOrder.map((section, index) => {
+              const isCompleted = sectionOrder.indexOf(currentSection) > index;
+              const isCurrent = sectionOrder.indexOf(currentSection) === index;
+              const segmentHeight = 80 / (sectionOrder.length - 1);
+              
+              return (
+                <div key={`segment-${index}`}>
+                  {index < sectionOrder.length - 1 && (
+                    <div
+                      className={`absolute left-0 w-full transition-all duration-1000 ease-out ${
+                        isCompleted ? 'bg-primary' : 'bg-white/10'
+                      }`}
+                      style={{
+                        height: `${segmentHeight}px`,
+                        top: `${(index * segmentHeight) + 40}px`,
+                      }}
+                    />
+                  )}
+                </div>
+              );
+            })}
             
-            {/* End cap - filled circle at progress end */}
-            <div 
-              className="absolute left-1/2 -translate-x-1/2 w-4 h-4 bg-primary rounded-full shadow-lg transition-all duration-1000 border-2 border-background"
-              style={{
-                top: `${((sectionOrder.indexOf(currentSection) + 1) / sectionOrder.length) * 100}%`,
-                transform: 'translate(-50%, -50%)'
-              }}
-            >
-              <div className="absolute inset-0 bg-primary rounded-full animate-pulse" />
-              <div className="absolute inset-0 bg-primary/50 rounded-full animate-ping" />
-            </div>
+            {/* Section circles with checkmarks */}
+            {sectionOrder.map((section, index) => {
+              const isCompleted = sectionOrder.indexOf(currentSection) > index;
+              const isCurrent = sectionOrder.indexOf(currentSection) === index;
+              const segmentHeight = 80 / (sectionOrder.length - 1);
+              
+              return (
+                <div
+                  key={`circle-${index}`}
+                  className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center ${
+                    isCompleted
+                      ? 'bg-primary border-primary scale-110'
+                      : isCurrent
+                        ? 'bg-primary border-primary animate-pulse scale-125'
+                        : 'bg-background border-white/20'
+                  }`}
+                  style={{
+                    top: `${(index * segmentHeight) + 28}px`,
+                  }}
+                >
+                  {isCompleted && (
+                    <svg
+                      className="w-3 h-3 text-white animate-fade-in"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  )}
+                  {isCurrent && (
+                    <div className="absolute inset-0 bg-primary/30 rounded-full animate-ping" />
+                  )}
+                </div>
+              );
+            })}
           </div>
           
           {/* Section labels */}
-          <div className="absolute left-6 top-0 h-full flex flex-col justify-between py-2">
+          <div className="absolute left-8 top-0 h-full flex flex-col justify-between py-8">
             {sectionOrder.map((section, index) => (
               <button
                 key={section}
