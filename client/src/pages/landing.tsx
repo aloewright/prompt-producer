@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PlayCircle, Sparkles, BookOpen, Users } from "lucide-react";
 import { Link } from "wouter";
 import NewsTicker from "@/components/NewsTicker";
+import VideoTicker from "@/components/VideoTicker";
 
 export default function Landing() {
 
@@ -18,6 +19,12 @@ export default function Landing() {
           <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
             Create professional AI video prompts with our intuitive builder. Craft detailed prompts for stunning video generation.
           </p>
+          
+          {/* Video Ticker */}
+          <div className="mb-8">
+            <VideoTicker />
+          </div>
+          
           <Button 
             size="lg" 
             className="text-lg px-8 py-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium"

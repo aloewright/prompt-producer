@@ -234,6 +234,15 @@
     transform: translateY(-20px) scale(0.95);
   }
   
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
   .glass-button {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(80px);
