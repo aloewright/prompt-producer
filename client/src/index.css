@@ -12,7 +12,7 @@
   --muted-foreground: hsl(0, 0%, 45%); /* Muted text */
   --popover: hsla(0, 0%, 100%, 0.7); /* More transparent popover */
   --popover-foreground: hsl(0, 0%, 20%); /* Dark grey */
-  --card: hsla(0, 0%, 100%, 0.55); /* More transparent card */
+  --card: hsl(0, 0%, 100%); /* Solid white card background */
   --card-foreground: hsl(0, 0%, 20%); /* Dark grey */
   --border: hsla(0, 0%, 70%, 0.15); /* Subtle light border */
   --input: hsla(0, 0%, 100%, 0.5); /* More transparent input */
