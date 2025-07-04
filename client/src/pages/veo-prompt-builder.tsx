@@ -43,7 +43,7 @@ import {
   Shuffle,
   Sparkles
 } from "lucide-react";
-import FloatingTooltips from "@/components/FloatingTooltips";
+
 import FloatingOrbs from "@/components/FloatingOrbs";
 import NewsTicker from "@/components/NewsTicker";
 import { Link } from "wouter";
@@ -74,9 +74,7 @@ export default function VeoPromptBuilder() {
   const [currentSection, setCurrentSection] = useState<Section>('intro');
   const [complexity, setComplexity] = useState([2]); // 1-3 scale
   const [isGenerating, setIsGenerating] = useState(false);
-  const [aiTipsEnabled, setAiTipsEnabled] = useState(
-    localStorage.getItem('disableTooltips') !== 'true'
-  );
+
   const [scrollY, setScrollY] = useState(0);
   const sectionRefs = useRef<{ [key in Section]?: HTMLDivElement }>({});
 
@@ -876,7 +874,6 @@ export default function VeoPromptBuilder() {
   return (
     <div className="min-h-screen bg-background text-foreground pt-16">
       <FloatingOrbs />
-      <FloatingTooltips isActive={aiTipsEnabled} />
 
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
@@ -1025,30 +1022,7 @@ export default function VeoPromptBuilder() {
               </Button>
             </div>
 
-            {/* Settings */}
-            <div className="space-y-2 mb-6">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Settings</h3>
-              <div className="flex items-center justify-between p-2">
-                <span className="text-sm text-foreground">AI Tips</span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const isDisabled = localStorage.getItem('disableTooltips') === 'true';
-                    if (isDisabled) {
-                      localStorage.removeItem('disableTooltips');
-                      window.location.reload();
-                    } else {
-                      localStorage.setItem('disableTooltips', 'true');
-                      window.location.reload();
-                    }
-                  }}
-                  className="border-border text-foreground hover:bg-primary/10"
-                >
-                  {localStorage.getItem('disableTooltips') === 'true' ? 'Enable' : 'Disable'}
-                </Button>
-              </div>
-            </div>
+
 
             {/* Saved Prompts */}
             <div className="space-y-3">

@@ -128,6 +128,7 @@ This is a full-stack web application designed to help users create AI video prom
 - July 04, 2025. Added "Me" option to subject dropdown for personal video generation
 - July 04, 2025. Integrated News API with blue ticker component showing trending US stories, replaced "Ready to create?" sections on both prompt builder intro and landing page with live news ticker
 - July 04, 2025. Added horizontal scrolling video ticker component on landing page above "Get Started" button, displaying example AI-generated videos with smooth auto-scroll animation
+- July 04, 2025. Removed floating tooltip system and AI tips functionality for cleaner interface
 
 ## User Preferences
 
