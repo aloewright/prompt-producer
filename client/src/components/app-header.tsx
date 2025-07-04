@@ -29,7 +29,7 @@ export default function AppHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Sparkles className="h-8 w-8 text-white" />
-            <span className="text-xl font-bold text-white">Veo Builder</span>
+            <span className="text-xl font-bold text-white">Prompt Producer</span>
           </Link>
 
           {/* Desktop Navigation */}

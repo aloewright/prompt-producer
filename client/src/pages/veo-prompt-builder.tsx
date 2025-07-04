@@ -262,7 +262,7 @@ export default function VeoPromptBuilder() {
                   <VideoIcon className="w-12 h-12 text-primary" />
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-                  Veo Prompt Builder
+                  Prompt Producer
                 </h1>
                 <p className="text-lg text-muted-foreground">
                   Create stunning AI video prompts with ease

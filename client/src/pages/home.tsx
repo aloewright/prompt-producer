@@ -54,7 +54,7 @@ export default function Home() {
             <CardContent>
               <Link href="/veo-prompt-builder">
                 <Button size="lg" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium">
-                  Open Prompt Builder
+                  Open Prompt Producer
                 </Button>
               </Link>
             </CardContent>

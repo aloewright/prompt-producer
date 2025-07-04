@@ -1,8 +1,8 @@
-# Veo Prompt Builder - Replit Development Guide
+# Prompt Producer - Replit Development Guide
 
 ## Overview
 
-This is a full-stack web application designed to help users create AI video prompts for Veo video generation. The app features a React frontend with a Node.js/Express backend, utilizing a monochromatic design theme with shadcn/ui components. The application supports offline-first functionality with local storage and includes features for building, saving, and managing video prompts.
+This is a full-stack web application designed to help users create AI video prompts for video generation. The app features a React frontend with a Node.js/Express backend, utilizing a glassmorphism design theme with shadcn/ui components. The application supports offline-first functionality with local storage and includes features for building, saving, and managing video prompts.
 
 ## System Architecture
 
@@ -124,6 +124,7 @@ This is a full-stack web application designed to help users create AI video prom
 - July 04, 2025. Enhanced "Enhance Prompt" feature with Google Veo-specific technical specifications including 4K resolution, professional camera movement, natural lighting, photorealistic textures, temporal consistency, and Veo optimization instructions
 - July 04, 2025. Implemented blue sticky header with navigation to three main pages: Home, Builder (VeoPromptBuilder), Prompts (saved prompts grid), and Testing (Google Veo integration)
 - July 04, 2025. Created multi-page application structure with glassmorphism design consistency across all pages and proper authentication-based routing
+- July 04, 2025. Renamed application from "Veo Prompt Builder" to "Prompt Producer" across all pages, components, and documentation
 
 ## User Preferences
 
