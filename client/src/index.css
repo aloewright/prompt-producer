@@ -243,6 +243,19 @@
     display: none;
   }
   
+  @keyframes videoGlow {
+    0%, 100% {
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+      box-shadow: 0 4px 25px rgba(59, 130, 246, 0.6), 0 0 30px rgba(59, 130, 246, 0.4);
+    }
+  }
+  
+  .video-glow-item {
+    animation: videoGlow 3s ease-in-out infinite;
+  }
+  
   .glass-button {
     background: rgba(255, 255, 255, 0.08);
     backdrop-filter: blur(80px);

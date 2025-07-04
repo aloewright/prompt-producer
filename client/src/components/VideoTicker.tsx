@@ -50,28 +50,25 @@ const VideoTicker = ({ videos }: VideoTickerProps) => {
     if (!scrollContainer) return;
 
     let animationId: number;
-    let scrollPosition = 0;
-    const scrollSpeed = 1; // pixels per frame
-
+    const scrollSpeed = 0.5; // Constant speed in pixels per frame
+    
     const scroll = () => {
-      scrollPosition += scrollSpeed;
-      
-      // Reset when we've scrolled past the first set of videos
-      if (scrollPosition >= scrollContainer.scrollWidth / 2) {
-        scrollPosition = 0;
+      if (scrollContainer) {
+        scrollContainer.scrollLeft += scrollSpeed;
+        
+        // Seamless reset when we've scrolled past the first set
+        const maxScroll = scrollContainer.scrollWidth / 2;
+        if (scrollContainer.scrollLeft >= maxScroll) {
+          scrollContainer.scrollLeft = 0;
+        }
       }
-      
-      scrollContainer.scrollLeft = scrollPosition;
       animationId = requestAnimationFrame(scroll);
     };
 
-    // Start the animation after a short delay
-    const timer = setTimeout(() => {
-      scroll();
-    }, 1000);
+    // Start the animation immediately
+    animationId = requestAnimationFrame(scroll);
 
     return () => {
-      clearTimeout(timer);
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
@@ -100,7 +97,10 @@ const VideoTicker = ({ videos }: VideoTickerProps) => {
         {duplicatedVideos.map((video, index) => (
           <div
             key={`${video.id}-${index}`}
-            className="flex-shrink-0 w-64 h-36 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 bg-white dark:bg-gray-800"
+            className="flex-shrink-0 w-64 h-36 rounded-xl overflow-hidden shadow-md bg-white dark:bg-gray-800 video-glow-item"
+            style={{
+              animationDelay: `${index * 0.5}s`
+            }}
           >
             <video
               className="w-full h-full object-cover"
