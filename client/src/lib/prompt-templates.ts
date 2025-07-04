@@ -1,5 +1,6 @@
 export const subjectOptions = [
   "A person",
+  "Me",
   "An animal", 
   "A cityscape",
   "A natural landscape",

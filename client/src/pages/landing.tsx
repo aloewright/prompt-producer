@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlayCircle, Sparkles, BookOpen, Users } from "lucide-react";
 import { Link } from "wouter";
+import NewsTicker from "@/components/NewsTicker";
 
 export default function Landing() {
 
@@ -93,16 +94,9 @@ export default function Landing() {
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="text-center">
-          <Card className="max-w-2xl mx-auto border-border hover:border-primary/20 transition-all duration-200 shadow-lg">
-            <CardHeader className="pb-4">
-              <CardTitle className="font-heading text-2xl md:text-3xl">Ready to Create?</CardTitle>
-              <CardDescription className="text-lg text-muted-foreground">
-                Start building professional video prompts with our intuitive interface
-              </CardDescription>
-            </CardHeader>
-          </Card>
+        {/* News Ticker */}
+        <div className="mb-16">
+          <NewsTicker />
         </div>
 
         {/* Footer */}

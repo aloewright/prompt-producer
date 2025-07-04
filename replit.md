@@ -125,6 +125,8 @@ This is a full-stack web application designed to help users create AI video prom
 - July 04, 2025. Implemented blue sticky header with navigation to three main pages: Home, Builder (VeoPromptBuilder), Prompts (saved prompts grid), and Testing (Google Veo integration)
 - July 04, 2025. Created multi-page application structure with glassmorphism design consistency across all pages and proper authentication-based routing
 - July 04, 2025. Renamed application from "Veo Prompt Builder" to "Prompt Producer" across all pages, components, and documentation
+- July 04, 2025. Added "Me" option to subject dropdown for personal video generation
+- July 04, 2025. Integrated News API with blue ticker component showing trending US stories, replaced "Ready to create?" sections on both prompt builder intro and landing page with live news ticker
 
 ## User Preferences
 
