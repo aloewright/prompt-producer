@@ -119,6 +119,8 @@ This is a full-stack web application designed to help users create AI video prom
 - July 04, 2025. Implemented random prompt generation with complexity control slider (simple/balanced/comprehensive)
 - July 04, 2025. Fixed Camera & Technical section buttons with proper glass-button styling and hover animations
 - July 04, 2025. Added "Enhance Prompt with Cinematic Quality" button spanning full width above generated prompt textarea
+- July 04, 2025. Transformed background to gradient blue-grey spheres with soft blur effect, made glass components crystal clear with ultra-low opacity (5-8%)
+- July 04, 2025. Implemented Apple-style frosted glass dropdown modals with backdrop blur effect to prevent user overwhelm, applied to all modal components (select, dropdown, dialog, popover)
 
 ## User Preferences
 
