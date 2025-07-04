@@ -284,7 +284,7 @@ export default function VeoPromptBuilder() {
   };
 
   // Common styles for inputs with Apple glassmorphism
-  const inputStyle = "glass-input text-foreground placeholder:text-foreground/40 rounded-xl";
+  const inputStyle = "glass-input text-foreground placeholder:text-foreground/40 rounded-xl border border-black/20";
   const selectStyle = "glass-input text-foreground rounded-xl";
 
   const renderSection = (section: Section) => {

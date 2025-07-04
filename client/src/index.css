@@ -6,9 +6,9 @@
 
 :root {
   /* Apple-style light glassmorphism palette */
-  --background: hsl(0, 0%, 92%); /* Very light grey background */
-  --foreground: hsl(0, 0%, 20%); /* Dark grey text */
-  --muted: hsl(0, 0%, 92%); /* Light muted */
+  --background: hsl(210, 10%, 95%); /* Light grey background for card contrast */
+  --foreground: hsl(0, 0%, 15%); /* Dark text for readability */
+  --muted: hsl(210, 10%, 90%); /* Light muted */
   --muted-foreground: hsl(0, 0%, 45%); /* Muted text */
   --popover: hsla(0, 0%, 100%, 0.7); /* More transparent popover */
   --popover-foreground: hsl(0, 0%, 20%); /* Dark grey */

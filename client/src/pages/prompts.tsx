@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Copy, Trash2, Calendar, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Copy, Trash2, Calendar, Sparkles, Edit, Save, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { copyToClipboard } from '@/lib/local-storage';
 import { apiRequest } from '@/lib/queryClient';
@@ -10,10 +12,35 @@ import type { DbSavedPrompt } from '@shared/schema';
 
 export default function Prompts() {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editText, setEditText] = useState('');
 
   const { data: savedPrompts = [], isLoading } = useQuery<DbSavedPrompt[]>({
     queryKey: ['/api/prompts'],
+  });
+
+  const updatePromptMutation = useMutation({
+    mutationFn: async ({ id, title, text }: { id: number; title: string; text: string }) => {
+      return apiRequest(`/api/prompts/${id}`, 'PUT', { title, text });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/prompts'] });
+      toast({
+        title: "Updated!",
+        description: "Prompt updated successfully",
+      });
+      setEditingId(null);
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update prompt",
+        variant: "destructive",
+      });
+    },
   });
 
   const handleCopy = async (prompt: DbSavedPrompt) => {
