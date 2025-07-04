@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Play, Copy, Download, Clock, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Play, Copy, Download, Clock, CheckCircle, XCircle, AlertCircle, Camera, Upload, Image } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { copyToClipboard } from '@/lib/local-storage';
 
@@ -14,6 +16,7 @@ interface TestResult {
   status: 'pending' | 'processing' | 'completed' | 'failed';
   progress: number;
   videoUrl?: string;
+  coverImage?: string;
   error?: string;
   createdAt: Date;
 }
@@ -23,6 +26,93 @@ export default function Testing() {
   const [prompt, setPrompt] = useState('');
   const [testResults, setTestResults] = useState<TestResult[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoRefs = useRef<{ [key: string]: HTMLVideoElement | null }>({});
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setCoverImage(e.target?.result as string);
+          toast({
+            title: "Cover Image Added!",
+            description: "Image uploaded successfully",
+          });
+        };
+        reader.readAsDataURL(file);
+      } else {
+        toast({
+          title: "Invalid File",
+          description: "Please select an image file",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleScreenshot = async (testId: string) => {
+    const video = videoRefs.current[testId];
+    if (!video) return;
+
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      
+      if (ctx) {
+        ctx.drawImage(video, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `screenshot-${testId}.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            toast({
+              title: "Screenshot Saved!",
+              description: "Video frame captured successfully",
+            });
+          }
+        }, 'image/png');
+      }
+    } catch (error) {
+      toast({
+        title: "Screenshot Failed",
+        description: "Unable to capture video frame",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleVideoDownload = async (testId: string, videoUrl: string) => {
+    try {
+      const response = await fetch(videoUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `video-${testId}.mp4`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Download Started!",
+        description: "Video download initiated",
+      });
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Unable to download video",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleTest = async () => {
     if (!prompt.trim()) {
@@ -40,6 +130,7 @@ export default function Testing() {
       prompt: prompt.trim(),
       status: 'pending',
       progress: 0,
+      coverImage: coverImage || undefined,
       createdAt: new Date(),
     };
 
@@ -86,6 +177,8 @@ export default function Testing() {
           )
         );
         setIsGenerating(false);
+        setPrompt('');
+        setCoverImage(null);
         toast({
           title: "Video Generated!",
           description: "Your Veo video is ready",
@@ -173,6 +266,53 @@ export default function Testing() {
                 placeholder="Enter your video prompt here..."
                 className="min-h-32 bg-white/5 border-white/20 text-gray-900 dark:text-white placeholder:text-gray-500 dark:placeholder:text-gray-400"
               />
+              
+              {/* Cover Image Upload */}
+              <div className="space-y-2">
+                <Label htmlFor="cover-image" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Cover Image (Optional)
+                </Label>
+                <div className="flex items-center gap-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="bg-white/5 border-white/20 text-gray-900 dark:text-white hover:bg-white/10"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Cover Image
+                  </Button>
+                  <Input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  {coverImage && (
+                    <div className="flex items-center gap-2">
+                      <Image className="h-4 w-4 text-green-500" />
+                      <span className="text-sm text-green-600 dark:text-green-400">Image uploaded</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setCoverImage(null)}
+                        className="text-red-500 hover:text-red-600 h-6 w-6 p-0"
+                      >
+                        ×
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                {coverImage && (
+                  <img 
+                    src={coverImage} 
+                    alt="Cover preview" 
+                    className="max-w-32 h-20 object-cover rounded-lg border border-white/20"
+                  />
+                )}
+              </div>
+
               <div className="flex gap-2">
                 <Button
                   onClick={handleTest}
@@ -254,23 +394,59 @@ export default function Testing() {
                     )}
                     
                     {result.status === 'completed' && result.videoUrl && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => window.open(result.videoUrl, '_blank')}
-                          className="bg-green-600 hover:bg-green-700 text-white"
-                        >
-                          <Play className="h-4 w-4 mr-2" />
-                          View Video
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-white/5 border-white/20 text-gray-900 dark:text-white hover:bg-white/10"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
-                        </Button>
+                      <div className="space-y-4">
+                        {/* Show cover image if available */}
+                        {result.coverImage && (
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Cover Image:</p>
+                            <img 
+                              src={result.coverImage} 
+                              alt="Video cover" 
+                              className="max-w-48 h-32 object-cover rounded-lg border border-white/20"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Video player for screenshot functionality */}
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Generated Video:</p>
+                          <video 
+                            ref={(el) => { videoRefs.current[result.id] = el; }}
+                            src={result.videoUrl} 
+                            controls 
+                            className="max-w-full h-48 rounded-lg border border-white/20 bg-black/20"
+                          />
+                        </div>
+                        
+                        {/* Action buttons */}
+                        <div className="flex gap-2 flex-wrap">
+                          <Button
+                            size="sm"
+                            onClick={() => window.open(result.videoUrl, '_blank')}
+                            className="bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            View Full Screen
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleVideoDownload(result.id, result.videoUrl!)}
+                            className="bg-white/5 border-white/20 text-gray-900 dark:text-white hover:bg-white/10"
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download Video
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleScreenshot(result.id)}
+                            className="bg-white/5 border-white/20 text-gray-900 dark:text-white hover:bg-white/10"
+                          >
+                            <Camera className="h-4 w-4 mr-2" />
+                            Screenshot
+                          </Button>
+                        </div>
                       </div>
                     )}
                     
