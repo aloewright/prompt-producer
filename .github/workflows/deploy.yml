@@ -1,0 +1,105 @@
+name: Deploy to Cloudflare Workers
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Test
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Type check
+      run: npm run check
+      
+    - name: Build application
+      run: npm run build:worker
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        retention-days: 1
+
+  deploy-dev:
+    needs: build
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Deploy to Development
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Deploy to Cloudflare Workers (Dev)
+      uses: cloudflare/wrangler-action@v3
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        command: deploy --env dev
+
+  deploy-prod:
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Deploy to Production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+        
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+        
+    - name: Deploy to Cloudflare Workers (Production)
+      uses: cloudflare/wrangler-action@v3
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        command: deploy --env production
