@@ -717,11 +717,20 @@ export default function VeoPromptBuilder() {
                 <Button
                   onClick={() => {
                     if (generatedPrompt.trim()) {
-                      const enhanced = generatedPrompt + "\n\nEnhance with: cinematic quality, ultra-high definition, professional color grading, smooth transitions, and immersive depth of field.";
+                      const veoEnhancements = [
+                        "Shot in 4K resolution with cinematic depth of field",
+                        "Professional camera movement with smooth stabilization",
+                        "Natural lighting with realistic shadows and highlights",
+                        "High-quality textures and materials for photorealistic output",
+                        "Temporal consistency for seamless motion between frames",
+                        "Optimized for Google Veo's advanced video generation capabilities"
+                      ];
+                      
+                      const enhanced = `${generatedPrompt}\n\nGoogle Veo Enhancement Instructions:\n${veoEnhancements.join(', ')}.`;
                       updateGeneratedPrompt(enhanced);
                       toast({
-                        title: "Enhanced!",
-                        description: "Added cinematic quality enhancements to your prompt",
+                        title: "Enhanced for Google Veo!",
+                        description: "Added technical specifications optimized for Veo's video generation",
                       });
                     }
                   }}
@@ -730,7 +739,7 @@ export default function VeoPromptBuilder() {
                   variant="outline"
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
-                  Enhance Prompt with Cinematic Quality
+                  Enhance for Google Veo Generation
                 </Button>
                 
                 <Textarea
