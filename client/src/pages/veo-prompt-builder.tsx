@@ -864,14 +864,14 @@ export default function VeoPromptBuilder() {
 
       {/* Main Content - Scrollable Sections */}
       <div className="relative">
-        {/* Vertical Progress Indicator - Left Side */}
-        <div className="fixed left-8 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
-          <div className="relative h-80 w-1 bg-white/10 rounded-full">
+        {/* Vertical Progress Indicator - Center Right */}
+        <div className="fixed right-8 top-1/2 -translate-y-1/2 z-30 hidden lg:block">
+          <div className="relative h-96 w-1 bg-white/10 rounded-full">
             {/* Progress line segments */}
             {sectionOrder.map((section, index) => {
               const isCompleted = sectionOrder.indexOf(currentSection) > index;
               const isCurrent = sectionOrder.indexOf(currentSection) === index;
-              const segmentHeight = 80 / (sectionOrder.length - 1);
+              const segmentHeight = (96 * 4) / (sectionOrder.length - 1); // Increased spacing
               
               return (
                 <div key={`segment-${index}`}>
@@ -881,8 +881,8 @@ export default function VeoPromptBuilder() {
                         isCompleted ? 'bg-primary' : 'bg-white/10'
                       }`}
                       style={{
-                        height: `${segmentHeight}px`,
-                        top: `${(index * segmentHeight) + 40}px`,
+                        height: `${segmentHeight - 20}px`, // Reduced to create gaps
+                        top: `${(index * segmentHeight) + 20}px`,
                       }}
                     />
                   )}
@@ -890,29 +890,33 @@ export default function VeoPromptBuilder() {
               );
             })}
             
-            {/* Section circles with checkmarks */}
+            {/* Section circles with final checkmark only */}
             {sectionOrder.map((section, index) => {
               const isCompleted = sectionOrder.indexOf(currentSection) > index;
               const isCurrent = sectionOrder.indexOf(currentSection) === index;
-              const segmentHeight = 80 / (sectionOrder.length - 1);
+              const isLastSection = index === sectionOrder.length - 1;
+              const isPromptComplete = currentSection === 'result' && generatedPrompt.trim().length > 0;
+              const segmentHeight = (96 * 4) / (sectionOrder.length - 1);
               
               return (
                 <div
                   key={`circle-${index}`}
-                  className={`absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full border-2 transition-all duration-500 flex items-center justify-center ${
-                    isCompleted
-                      ? 'bg-primary border-primary scale-110'
-                      : isCurrent
-                        ? 'bg-primary border-primary animate-pulse scale-125'
-                        : 'bg-background border-white/20'
+                  className={`absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full border-2 transition-all duration-500 flex items-center justify-center ${
+                    isLastSection && isPromptComplete
+                      ? 'bg-green-500 border-green-500 scale-110'
+                      : isCompleted
+                        ? 'bg-primary border-primary'
+                        : isCurrent
+                          ? 'bg-primary border-primary animate-pulse'
+                          : 'bg-background border-white/20'
                   }`}
                   style={{
-                    top: `${(index * segmentHeight) + 28}px`,
+                    top: `${(index * segmentHeight) + 12}px`,
                   }}
                 >
-                  {isCompleted && (
+                  {isLastSection && isPromptComplete && (
                     <svg
-                      className="w-3 h-3 text-white animate-fade-in"
+                      className="w-2.5 h-2.5 text-white animate-fade-in"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -920,7 +924,7 @@ export default function VeoPromptBuilder() {
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        strokeWidth={2}
+                        strokeWidth={3}
                         d="M5 13l4 4L19 7"
                       />
                     </svg>
@@ -934,16 +938,19 @@ export default function VeoPromptBuilder() {
           </div>
           
           {/* Section labels */}
-          <div className="absolute left-8 top-0 h-full flex flex-col justify-between py-8">
+          <div className="absolute -left-16 top-0 h-full flex flex-col justify-between py-3">
             {sectionOrder.map((section, index) => (
               <button
                 key={section}
                 onClick={() => scrollToSection(section)}
-                className={`text-xs font-medium capitalize transition-colors duration-300 whitespace-nowrap text-left ${
+                className={`text-xs font-medium capitalize transition-colors duration-300 whitespace-nowrap text-right ${
                   sectionOrder.indexOf(currentSection) >= index
                     ? 'text-primary'
                     : 'text-muted-foreground hover:text-foreground'
                 }`}
+                style={{
+                  marginTop: index === 0 ? '8px' : '0px'
+                }}
               >
                 {section === 'intro' ? 'start' : section}
               </button>
@@ -952,7 +959,7 @@ export default function VeoPromptBuilder() {
         </div>
 
         {/* Sections */}
-        <div className="pt-20 lg:pl-16">
+        <div className="pt-20 lg:pr-20">
           {sectionOrder.map((section) => (
             <div key={section}>
               {renderSection(section)}
