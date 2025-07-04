@@ -3,6 +3,7 @@ import { Link, useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, Home, Sparkles, TestTube, LogOut, BookOpen, Wand2 } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from '@shared/schema';
 
@@ -56,9 +57,14 @@ export default function AppHeader() {
 
           {/* User Menu */}
           <div className="hidden md:flex items-center space-x-4">
-            <span className="text-sm text-blue-100">
-              {(user as User)?.firstName || (user as User)?.email}
-            </span>
+            <Link href="/settings">
+              <Avatar className="h-8 w-8 border-2 border-blue-300/50 hover:border-blue-200 transition-colors cursor-pointer">
+                <AvatarImage src={(user as User)?.profileImageUrl || undefined} />
+                <AvatarFallback className="bg-blue-500 text-white text-sm font-medium">
+                  {(user as User)?.firstName?.[0] || (user as User)?.email?.[0] || 'U'}
+                </AvatarFallback>
+              </Avatar>
+            </Link>
             <Button
               variant="ghost"
               size="sm"

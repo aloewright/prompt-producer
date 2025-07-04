@@ -468,6 +468,39 @@
   .tooltip-enter {
     animation: slideInFromCorner 0.5s ease-out forwards;
   }
+
+  /* Parallax scroll effects */
+  @keyframes cardApproach {
+    from {
+      transform: translateZ(-100px) scale(0.95);
+      opacity: 0.7;
+    }
+    to {
+      transform: translateZ(0) scale(1);
+      opacity: 1;
+    }
+  }
+
+  .scroll-parallax {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  .parallax-card {
+    transform: translateZ(-50px) scale(0.98);
+    opacity: 0.8;
+    transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), 
+                opacity 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .parallax-card.in-view {
+    transform: translateZ(0) scale(1);
+    opacity: 1;
+  }
+
+  .parallax-card.approaching {
+    animation: cardApproach 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
 }
 
 

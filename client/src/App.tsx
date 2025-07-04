@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import VeoPromptBuilder from "@/pages/veo-prompt-builder";
 import Prompts from "@/pages/prompts";
 import Testing from "@/pages/testing";
+import Settings from "@/pages/settings";
 import Landing from "@/pages/landing";
 import Home from "@/pages/home";
 import NotFound from "@/pages/not-found";
@@ -29,6 +30,7 @@ function Router() {
             <Route path="/veo-prompt-builder" component={VeoPromptBuilder} />
             <Route path="/prompts" component={Prompts} />
             <Route path="/testing" component={Testing} />
+            <Route path="/settings" component={Settings} />
           </>
         )}
         <Route path="/terms" component={Terms} />

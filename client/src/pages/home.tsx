@@ -13,33 +13,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground pt-16">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-          <div className="flex items-center space-x-4">
-            <Avatar className="h-12 w-12 border-2 border-border">
-              <AvatarImage src={typedUser?.profileImageUrl || undefined} />
-              <AvatarFallback className="bg-muted text-muted-foreground font-medium">
-                {typedUser?.firstName?.[0] || typedUser?.email?.[0] || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <div>
-              <h1 className="font-heading text-2xl md:text-3xl font-bold text-foreground">
-                Welcome back{typedUser?.firstName ? `, ${typedUser.firstName}` : ''}!
-              </h1>
-              <p className="text-muted-foreground">
-                Ready to create amazing video prompts?
-              </p>
-            </div>
-          </div>
-          <Button 
-            variant="outline" 
-            onClick={() => window.location.href = '/api/logout'}
-            className="flex items-center space-x-2 border-border hover:bg-muted"
-          >
-            <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign Out</span>
-          </Button>
-        </div>
+
 
         {/* Main Content */}
         <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">

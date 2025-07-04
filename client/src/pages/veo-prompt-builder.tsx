@@ -48,6 +48,7 @@ import {
 import FloatingOrbs from "@/components/FloatingOrbs";
 import NewsTicker from "@/components/NewsTicker";
 import { Link } from "wouter";
+import { useParallaxScroll } from "@/hooks/useParallaxScroll";
 
 type Section = 'intro' | 'subject' | 'action' | 'style' | 'camera' | 'audio' | 'result';
 
@@ -55,6 +56,7 @@ const sectionOrder: Section[] = ['intro', 'subject', 'action', 'style', 'camera'
 
 export default function VeoPromptBuilder() {
   const { toast } = useToast();
+  const { containerRef } = useParallaxScroll();
   const {
     elements,
     generatedPrompt,
@@ -315,7 +317,7 @@ export default function VeoPromptBuilder() {
                 <NewsTicker />
               </div>
               
-              <Card className="glass-card rounded-2xl">
+              <Card className="glass-card rounded-2xl parallax-card">
                 <CardContent className="p-8 space-y-8">
                   <div className="space-y-4">
                     <Label className="text-sm font-medium text-muted-foreground">How would you like to start?</Label>
@@ -386,7 +388,7 @@ export default function VeoPromptBuilder() {
             data-section="subject"
             className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
-            <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-left parallax-card">
               <CardHeader className="pb-4 border-b border-white/10">
                 <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
                   <User className="w-5 h-5 text-primary opacity-80" />
@@ -561,7 +563,7 @@ export default function VeoPromptBuilder() {
             data-section="style"
             className="min-h-screen flex items-center justify-center p-4 scroll-fade-element"
           >
-            <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-left parallax-card">
               <CardHeader className="pb-4 border-b border-white/10">
                 <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
                   <Palette className="w-5 h-5 text-primary opacity-80" />
@@ -875,7 +877,7 @@ export default function VeoPromptBuilder() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground pt-16">
+    <div ref={containerRef} className="min-h-screen bg-background text-foreground pt-16 scroll-parallax">
       <FloatingOrbs />
 
       {/* Main Content - Scrollable Sections */}
