@@ -5,38 +5,38 @@
 @tailwind utilities;
 
 :root {
-  /* Neutral color scheme */
-  --background: hsl(0, 0%, 98%);
-  --foreground: hsl(0, 0%, 15%);
-  --muted: hsl(0, 0%, 95%);
-  --muted-foreground: hsl(0, 0%, 45%);
-  --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(0, 0%, 15%);
-  --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(0, 0%, 15%);
-  --border: hsl(0, 0%, 88%);
-  --input: hsl(0, 0%, 96%);
-  --primary: hsl(0, 0%, 25%);
-  --primary-foreground: hsl(0, 0%, 98%);
-  --secondary: hsl(0, 0%, 93%);
-  --secondary-foreground: hsl(0, 0%, 25%);
-  --accent: hsl(0, 0%, 93%);
-  --accent-foreground: hsl(0, 0%, 25%);
+  /* Black background with white text theme */
+  --background: hsl(0, 0%, 0%);
+  --foreground: hsl(0, 0%, 100%);
+  --muted: hsl(0, 0%, 10%);
+  --muted-foreground: hsl(0, 0%, 70%);
+  --popover: hsl(0, 0%, 5%);
+  --popover-foreground: hsl(0, 0%, 100%);
+  --card: hsl(0, 0%, 5%);
+  --card-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 30%);
+  --input: hsl(0, 0%, 10%);
+  --primary: hsl(221.2, 83.2%, 53.3%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 15%);
+  --secondary-foreground: hsl(0, 0%, 100%);
+  --accent: hsl(0, 0%, 20%);
+  --accent-foreground: hsl(0, 0%, 100%);
   --destructive: hsl(0, 70%, 50%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --ring: hsl(0, 0%, 25%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(221.2, 83.2%, 53.3%);
   --radius: 0.5rem;
   
-  /* Custom neutral colors */
-  --background-light: hsl(0, 0%, 98%);
-  --background-lighter: hsl(0, 0%, 100%);
-  --surface: hsl(0, 0%, 96%);
-  --surface-light: hsl(0, 0%, 93%);
-  --text-primary: hsl(0, 0%, 15%);
-  --text-secondary: hsl(0, 0%, 45%);
-  --border-color: hsl(0, 0%, 88%);
-  --accent-neutral: hsl(0, 0%, 25%);
-  --accent-neutral-hover: hsl(0, 0%, 35%);
+  /* Custom colors */
+  --background-light: hsl(0, 0%, 5%);
+  --background-lighter: hsl(0, 0%, 10%);
+  --surface: hsl(0, 0%, 8%);
+  --surface-light: hsl(0, 0%, 12%);
+  --text-primary: hsl(0, 0%, 100%);
+  --text-secondary: hsl(0, 0%, 70%);
+  --border-color: hsl(0, 0%, 30%);
+  --accent-neutral: hsl(0, 0%, 100%);
+  --accent-neutral-hover: hsl(0, 0%, 90%);
 }
 
 .dark {
@@ -193,4 +193,75 @@
   .tooltip-enter {
     animation: slideInFromCorner 0.5s ease-out forwards;
   }
+}
+
+
+/* Animation Classes */
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInFromLeft 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-300 {
+  animation-delay: 300ms;
+}
+
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
+
+.animation-delay-600 {
+  animation-delay: 600ms;
 }
