@@ -510,6 +510,37 @@ export default function VeoPromptBuilder() {
                       Save
                     </Button>
                   </div>
+
+                  {/* Google Veo/Flow Links */}
+                  {generatedPrompt.trim() && (
+                    <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+                      <p className="text-sm text-muted-foreground mb-3">Ready to create your video? Use your prompt with:</p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <a
+                          href="https://deepmind.google/technologies/veo/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1"
+                        >
+                          <Button variant="outline" className="w-full bg-white hover:bg-gray-50">
+                            <VideoIcon className="w-4 h-4 mr-2" />
+                            Google Veo
+                          </Button>
+                        </a>
+                        <a
+                          href="https://flow.google/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1"
+                        >
+                          <Button variant="outline" className="w-full bg-white hover:bg-gray-50">
+                            <VideoIcon className="w-4 h-4 mr-2" />
+                            Google Flow
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
