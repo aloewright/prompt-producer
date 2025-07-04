@@ -552,10 +552,12 @@ export default function VeoPromptBuilder() {
             data-section="camera"
             className="min-h-screen flex items-center justify-center p-4"
           >
-            <Card className="glass-card w-full max-w-2xl animate-slide-in-right">
-              <CardHeader className="pb-4 border-b border-white/10">
-                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                  <Camera className="w-5 h-5 text-primary opacity-80" />
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-right rounded-2xl">
+              <CardHeader className="pb-6 border-b border-white/5">
+                <CardTitle className="flex items-center gap-3 font-heading text-xl text-foreground">
+                  <div className="p-2 glass-button rounded-xl">
+                    <Camera className="w-5 h-5 text-primary" />
+                  </div>
                   Camera & Technical
                 </CardTitle>
               </CardHeader>
@@ -595,11 +597,18 @@ export default function VeoPromptBuilder() {
                 )}
                 
                 <div className="flex justify-between mt-6">
-                  <Button variant="ghost" onClick={prevSection}>
+                  <Button 
+                    variant="outline" 
+                    onClick={prevSection}
+                    className="glass-button rounded-xl font-medium hover:scale-105 transition-transform"
+                  >
                     <ChevronUp className="w-4 h-4 mr-2" />
                     Back
                   </Button>
-                  <Button variant="ghost" onClick={nextSection}>
+                  <Button 
+                    onClick={nextSection}
+                    className="rounded-xl font-medium hover:scale-105 transition-transform"
+                  >
                     Next
                     <ChevronDown className="w-4 h-4 ml-2" />
                   </Button>
