@@ -179,8 +179,11 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
                     </p>
                     <div className="mt-2 flex items-center gap-2">
                       <button
-                        onClick={disableTips}
-                        className="text-xs text-muted-foreground hover:text-foreground underline transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          disableTips();
+                        }}
+                        className="text-xs text-muted-foreground hover:text-foreground underline transition-colors relative z-50 cursor-pointer"
                       >
                         Disable all tips
                       </button>
@@ -189,8 +192,11 @@ export default function FloatingTooltips({ isActive = true }: FloatingTooltipsPr
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex-shrink-0 h-6 w-6 p-0 hover:bg-muted hover:scale-110 transition-all duration-200"
-                    onClick={() => dismissTip(tip.id)}
+                    className="flex-shrink-0 h-6 w-6 p-0 hover:bg-muted hover:scale-110 transition-all duration-200 relative z-50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dismissTip(tip.id);
+                    }}
                     title="Close this tip"
                   >
                     <X className="h-4 w-4" />

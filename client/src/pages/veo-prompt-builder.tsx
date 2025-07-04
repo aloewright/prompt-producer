@@ -185,21 +185,21 @@ export default function VeoPromptBuilder() {
     });
   };
 
-  // Common styles for inputs
-  const inputStyle = "bg-black border-white/50 text-white placeholder:text-white/50 hover:border-white transition-all duration-300 focus:border-primary focus:ring-1 focus:ring-primary";
-  const selectStyle = "bg-black border-white/50 text-white hover:border-white transition-all duration-300 focus:border-primary focus:ring-1 focus:ring-primary";
+  // Common styles for inputs with glassmorphism
+  const inputStyle = "glass-input text-foreground placeholder:text-foreground/40 transition-all duration-300 focus:border-white/20 focus:ring-1 focus:ring-white/10";
+  const selectStyle = "glass-input text-foreground transition-all duration-300 focus:border-white/20 focus:ring-1 focus:ring-white/10";
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <FloatingTooltips isActive={true} />
       
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-black/80 backdrop-blur supports-[backdrop-filter]:bg-black/60 border-b border-white/20">
+      <header className="sticky top-0 z-40 glass border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 animate-fade-in-up">
               <VideoIcon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              <h1 className="font-heading text-lg md:text-2xl lg:text-3xl font-bold text-white">
+              <h1 className="font-heading text-lg md:text-2xl lg:text-3xl font-bold text-foreground">
                 Veo Prompt Builder
               </h1>
             </div>
@@ -208,7 +208,7 @@ export default function VeoPromptBuilder() {
               variant="outline"
               size="sm"
               onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              className="flex items-center gap-2 border-white/50 text-white hover:bg-white/10 animate-fade-in-up"
+              className="flex items-center gap-2 glass-hover border-white/10 text-foreground animate-fade-in-up"
             >
               <Menu className="w-4 h-4" />
               <span className="hidden sm:inline">Menu</span>
@@ -224,10 +224,10 @@ export default function VeoPromptBuilder() {
             {/* Prompt Builder Section */}
             <div className="space-y-6">
               {/* Subject Section */}
-              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-left' : 'opacity-0'}`}>
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left' : 'opacity-0'}`}>
                 <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
-                    <User className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <User className="w-5 h-5 text-primary opacity-80" />
                     Subject & Character
                   </CardTitle>
                 </CardHeader>
@@ -236,9 +236,9 @@ export default function VeoPromptBuilder() {
                     <SelectTrigger className={selectStyle}>
                       <SelectValue placeholder="Choose a subject type..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-black border-white/30">
+                    <SelectContent className="bg-popover border-border">
                       {subjectOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                           {option}
                         </SelectItem>
                       ))}
@@ -257,9 +257,9 @@ export default function VeoPromptBuilder() {
                       <SelectTrigger className={selectStyle}>
                         <SelectValue placeholder="Age range..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
+                      <SelectContent className="bg-popover border-border">
                         {subjectAgeOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                          <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                             {option}
                           </SelectItem>
                         ))}
@@ -309,10 +309,10 @@ export default function VeoPromptBuilder() {
               </Card>
 
               {/* Action & Setting Section */}
-              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-left animation-delay-100' : 'opacity-0'}`}>
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-100' : 'opacity-0'}`}>
                 <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
-                    <VideoIcon className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <VideoIcon className="w-5 h-5 text-primary opacity-80" />
                     Action & Setting
                   </CardTitle>
                 </CardHeader>
@@ -353,10 +353,10 @@ export default function VeoPromptBuilder() {
               </Card>
 
               {/* Style & Visual Section */}
-              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-left animation-delay-200' : 'opacity-0'}`}>
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-200' : 'opacity-0'}`}>
                 <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
-                    <Palette className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <Palette className="w-5 h-5 text-primary opacity-80" />
                     Style & Visual
                   </CardTitle>
                 </CardHeader>
@@ -388,10 +388,10 @@ export default function VeoPromptBuilder() {
               </Card>
 
               {/* Camera & Technical Section */}
-              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-left animation-delay-300' : 'opacity-0'}`}>
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-300' : 'opacity-0'}`}>
                 <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
-                    <Camera className="w-5 h-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <Camera className="w-5 h-5 text-primary opacity-80" />
                     Camera & Technical
                   </CardTitle>
                 </CardHeader>
@@ -562,19 +562,19 @@ export default function VeoPromptBuilder() {
 
         {/* Right Drawer */}
         <div
-          className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-black border-l border-white/20 shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
+          className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-card border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
             isSidePanelOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
           <div className="flex flex-col h-full">
             {/* Drawer Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/20">
-              <h2 className="font-heading text-lg font-semibold text-white">Menu</h2>
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-heading text-lg font-semibold text-foreground">Menu</h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsSidePanelOpen(false)}
-                className="text-white hover:bg-white/10"
+                className="text-foreground hover:bg-primary/10"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -584,16 +584,16 @@ export default function VeoPromptBuilder() {
             <div className="flex-1 overflow-y-auto p-4">
               {/* Navigation */}
               <div className="space-y-2 mb-6">
-                <h3 className="text-sm font-medium text-white/70 mb-3">Navigation</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
                 <Link href="/">
-                  <Button variant="ghost" className="w-full justify-start text-white hover:bg-white/10">
+                  <Button variant="ghost" className="w-full justify-start text-foreground hover:bg-primary/10">
                     <Home className="w-4 h-4 mr-2" />
                     Home
                   </Button>
                 </Link>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start text-white hover:bg-white/10"
+                  className="w-full justify-start text-foreground hover:bg-primary/10"
                   onClick={() => window.location.href = '/api/logout'}
                 >
                   <LogOut className="w-4 h-4 mr-2" />
@@ -603,9 +603,9 @@ export default function VeoPromptBuilder() {
 
               {/* Settings */}
               <div className="space-y-2 mb-6">
-                <h3 className="text-sm font-medium text-white/70 mb-3">Settings</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Settings</h3>
                 <div className="flex items-center justify-between p-2">
-                  <span className="text-sm text-white">AI Tips</span>
+                  <span className="text-sm text-foreground">AI Tips</span>
                   <Button
                     variant="outline"
                     size="sm"
@@ -619,7 +619,7 @@ export default function VeoPromptBuilder() {
                         window.location.reload();
                       }
                     }}
-                    className="bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white"
+                    className="border-border text-foreground hover:bg-primary/10"
                   >
                     {localStorage.getItem('disableTooltips') === 'true' ? 'Enable' : 'Disable'}
                   </Button>
@@ -628,19 +628,19 @@ export default function VeoPromptBuilder() {
 
               {/* Saved Prompts */}
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-white/70">Saved Prompts ({savedPrompts.length})</h3>
+                <h3 className="text-sm font-medium text-muted-foreground">Saved Prompts ({savedPrompts.length})</h3>
                 
                 {savedPrompts.length === 0 ? (
-                  <p className="text-sm text-white/50">No saved prompts yet.</p>
+                  <p className="text-sm text-muted-foreground">No saved prompts yet.</p>
                 ) : (
                   <div className="space-y-2 max-h-96 overflow-y-auto">
                     {savedPrompts.map((prompt) => (
-                      <Card key={prompt.id} className="p-3 bg-white/5 border-white/20">
+                      <Card key={prompt.id} className="p-3 bg-primary/5 border-border">
                         <div className="space-y-2">
-                          <div className="text-xs text-white/50">
+                          <div className="text-xs text-muted-foreground">
                             {formatDate(prompt.createdAt)}
                           </div>
-                          <div className="text-sm line-clamp-3 text-white">
+                          <div className="text-sm line-clamp-3 text-foreground">
                             {prompt.text.substring(0, 100)}...
                           </div>
                           <div className="flex gap-2">
@@ -648,7 +648,7 @@ export default function VeoPromptBuilder() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleLoadPrompt(prompt.id)}
-                              className="flex-1 bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white"
+                              className="flex-1 border-border text-foreground hover:bg-primary/10"
                             >
                               <Edit className="w-3 h-3 mr-1" />
                               Load
@@ -657,7 +657,7 @@ export default function VeoPromptBuilder() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleDeletePrompt(prompt.id)}
-                              className="bg-transparent border-white/50 text-destructive hover:bg-white/10 hover:border-white"
+                              className="border-border text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>

@@ -5,38 +5,36 @@
 @tailwind utilities;
 
 :root {
-  /* Black background with white text theme */
-  --background: hsl(0, 0%, 0%);
-  --foreground: hsl(0, 0%, 100%);
-  --muted: hsl(0, 0%, 10%);
-  --muted-foreground: hsl(0, 0%, 70%);
-  --popover: hsl(0, 0%, 5%);
-  --popover-foreground: hsl(0, 0%, 100%);
-  --card: hsl(0, 0%, 5%);
-  --card-foreground: hsl(0, 0%, 100%);
-  --border: hsl(0, 0%, 30%);
-  --input: hsl(0, 0%, 10%);
-  --primary: hsl(221.2, 83.2%, 53.3%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(0, 0%, 15%);
-  --secondary-foreground: hsl(0, 0%, 100%);
-  --accent: hsl(0, 0%, 20%);
-  --accent-foreground: hsl(0, 0%, 100%);
-  --destructive: hsl(0, 70%, 50%);
-  --destructive-foreground: hsl(0, 0%, 100%);
-  --ring: hsl(221.2, 83.2%, 53.3%);
-  --radius: 0.5rem;
+  /* Glassmorphism palette - low contrast, low saturation */
+  --background: hsl(220, 20%, 12%); /* Very dark desaturated blue */
+  --foreground: hsl(220, 10%, 75%); /* Light gray-blue */
+  --muted: hsl(220, 15%, 25%); /* Dark muted blue */
+  --muted-foreground: hsl(220, 10%, 65%); /* Medium gray-blue */
+  --popover: hsla(220, 15%, 20%, 0.8); /* Semi-transparent dark */
+  --popover-foreground: hsl(220, 10%, 75%); /* Light gray-blue */
+  --card: hsla(220, 15%, 18%, 0.5); /* Semi-transparent card */
+  --card-foreground: hsl(220, 10%, 75%); /* Light gray-blue */
+  --border: hsla(220, 10%, 50%, 0.2); /* Very subtle border */
+  --input: hsla(220, 15%, 25%, 0.5); /* Semi-transparent input */
+  --primary: hsl(220, 20%, 45%); /* Desaturated blue */
+  --primary-foreground: hsl(220, 10%, 90%); /* Very light gray */
+  --secondary: hsl(220, 15%, 35%); /* Muted secondary blue */
+  --secondary-foreground: hsl(220, 10%, 85%); /* Light gray */
+  --accent: hsl(220, 18%, 40%); /* Subtle accent */
+  --accent-foreground: hsl(220, 10%, 90%); /* Very light gray */
+  --destructive: hsla(0, 30%, 50%, 0.8); /* Muted red */
+  --destructive-foreground: hsl(220, 10%, 90%); /* Very light gray */
+  --ring: hsla(220, 20%, 45%, 0.5); /* Subtle ring */
+  --radius: 0.75rem;
   
-  /* Custom colors */
-  --background-light: hsl(0, 0%, 5%);
-  --background-lighter: hsl(0, 0%, 10%);
-  --surface: hsl(0, 0%, 8%);
-  --surface-light: hsl(0, 0%, 12%);
-  --text-primary: hsl(0, 0%, 100%);
-  --text-secondary: hsl(0, 0%, 70%);
-  --border-color: hsl(0, 0%, 30%);
-  --accent-neutral: hsl(0, 0%, 100%);
-  --accent-neutral-hover: hsl(0, 0%, 90%);
+  /* Glassmorphism properties */
+  --glass-bg: hsla(220, 15%, 20%, 0.3);
+  --glass-border: hsla(220, 10%, 60%, 0.15);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  --glass-blur: 12px;
+  --text-primary: hsl(220, 10%, 80%);
+  --text-secondary: hsl(220, 10%, 65%);
+  --hover-overlay: hsla(220, 20%, 50%, 0.1);
 }
 
 .dark {
@@ -195,6 +193,35 @@
   }
 }
 
+
+/* Glassmorphism Classes */
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
 
 /* Animation Classes */
 @keyframes slideInFromLeft {
