@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
 import { usePromptBuilder } from "@/hooks/use-prompt-builder";
 import { 
@@ -18,15 +19,17 @@ import {
   cameraMotionOptions, 
   ambianceOptions, 
   audioOptions, 
-  closingOptions 
+  closingOptions,
+  constructPrompt 
 } from "@/lib/prompt-templates";
 import { 
   Copy, 
   Save, 
   Edit, 
   Trash2, 
-  ChevronLeft, 
-  ChevronRight, 
+  ChevronDown,
+  ChevronUp,
+  Home,
   User, 
   Camera, 
   Palette, 
@@ -37,11 +40,15 @@ import {
   Menu,
   X,
   RefreshCw,
-  Download,
-  Home
+  Shuffle,
+  Sparkles
 } from "lucide-react";
 import FloatingTooltips from "@/components/FloatingTooltips";
 import { Link } from "wouter";
+
+type Section = 'intro' | 'subject' | 'action' | 'style' | 'camera' | 'audio' | 'result';
+
+const sectionOrder: Section[] = ['intro', 'subject', 'action', 'style', 'camera', 'audio', 'result'];
 
 export default function VeoPromptBuilder() {
   const { toast } = useToast();
@@ -62,51 +69,99 @@ export default function VeoPromptBuilder() {
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isCopyAnimating, setIsCopyAnimating] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+  const [currentSection, setCurrentSection] = useState<Section>('intro');
+  const [complexity, setComplexity] = useState([2]); // 1-3 scale
+  const [isGenerating, setIsGenerating] = useState(false);
+  const sectionRefs = useRef<{ [key in Section]?: HTMLDivElement }>({});
 
   useEffect(() => {
-    setIsVisible(true);
+    // Set up intersection observer for auto-scrolling sections
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const section = entry.target.getAttribute('data-section') as Section;
+            if (section) {
+              setCurrentSection(section);
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    Object.values(sectionRefs.current).forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
   }, []);
 
-  // Create completion sound
-  const playCompletionSound = () => {
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  const scrollToSection = (section: Section) => {
+    sectionRefs.current[section]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const nextSection = () => {
+    const currentIndex = sectionOrder.indexOf(currentSection);
+    if (currentIndex < sectionOrder.length - 1) {
+      scrollToSection(sectionOrder[currentIndex + 1]);
+    }
+  };
+
+  const prevSection = () => {
+    const currentIndex = sectionOrder.indexOf(currentSection);
+    if (currentIndex > 0) {
+      scrollToSection(sectionOrder[currentIndex - 1]);
+    }
+  };
+
+  const generateRandomPrompt = () => {
+    setIsGenerating(true);
+    clearAllFields();
     
-    // First tone
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-    
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-    
-    oscillator.frequency.value = 800;
-    oscillator.type = 'sine';
-    
-    gainNode.gain.setValueAtTime(0, audioContext.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
-    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
-    
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.1);
-    
-    // Second tone
+    // Simulate generation animation
     setTimeout(() => {
-      const oscillator2 = audioContext.createOscillator();
-      const gainNode2 = audioContext.createGain();
+      const complexityLevel = complexity[0];
       
-      oscillator2.connect(gainNode2);
-      gainNode2.connect(audioContext.destination);
+      // Always include subject and action
+      const randomSubject = subjectOptions[Math.floor(Math.random() * subjectOptions.length)];
+      const randomAction = actionOptions[Math.floor(Math.random() * actionOptions.length)];
       
-      oscillator2.frequency.value = 1000;
-      oscillator2.type = 'sine';
+      updateElement('subject', randomSubject);
+      updateElement('action', randomAction);
       
-      gainNode2.gain.setValueAtTime(0, audioContext.currentTime);
-      gainNode2.gain.linearRampToValueAtTime(0.08, audioContext.currentTime + 0.01);
-      gainNode2.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.2);
+      if (complexityLevel >= 2) {
+        // Add subject details
+        updateElement('subjectAge', subjectAgeOptions[Math.floor(Math.random() * subjectAgeOptions.length)]);
+        updateElement('subjectGender', subjectGenderOptions[Math.floor(Math.random() * subjectGenderOptions.length)]);
+        updateElement('subjectAppearance', subjectAppearanceOptions[Math.floor(Math.random() * subjectAppearanceOptions.length)]);
+        
+        // Add style
+        const numStyles = Math.floor(Math.random() * 3) + 1;
+        const randomStyles = [...styleOptions].sort(() => 0.5 - Math.random()).slice(0, numStyles);
+        randomStyles.forEach(style => toggleStyle(style));
+        
+        // Add camera motion
+        updateElement('cameraMotion', cameraMotionOptions[Math.floor(Math.random() * cameraMotionOptions.length)]);
+      }
       
-      oscillator2.start(audioContext.currentTime);
-      oscillator2.stop(audioContext.currentTime + 0.2);
-    }, 100);
+      if (complexityLevel >= 3) {
+        // Add all details
+        updateElement('subjectClothing', subjectClothingOptions[Math.floor(Math.random() * subjectClothingOptions.length)]);
+        updateElement('context', `In a ${['bustling', 'serene', 'mysterious', 'futuristic', 'vintage'][Math.floor(Math.random() * 5)]} ${['city', 'forest', 'desert', 'mountain', 'ocean'][Math.floor(Math.random() * 5)]} setting`);
+        updateElement('ambiance', ambianceOptions[Math.floor(Math.random() * ambianceOptions.length)]);
+        updateElement('audio', audioOptions[Math.floor(Math.random() * audioOptions.length)]);
+        updateElement('closing', closingOptions[Math.floor(Math.random() * closingOptions.length)]);
+      }
+      
+      setIsGenerating(false);
+      scrollToSection('result');
+      
+      toast({
+        title: "Generated!",
+        description: `Created a ${['simple', 'detailed', 'comprehensive'][complexityLevel - 1]} prompt for you`,
+      });
+    }, 1500);
   };
 
   const handleCopyPrompt = async () => {
@@ -123,21 +178,9 @@ export default function VeoPromptBuilder() {
     const success = await copyPromptToClipboard();
     
     if (success) {
-      try {
-        playCompletionSound();
-      } catch (error) {
-        console.log("Audio not supported");
-      }
-      
       toast({
         title: "Copied!",
         description: "Prompt copied to clipboard",
-      });
-    } else {
-      toast({
-        title: "Copy failed",
-        description: "Failed to copy prompt to clipboard",
-        variant: "destructive",
       });
     }
 
@@ -185,74 +228,131 @@ export default function VeoPromptBuilder() {
     });
   };
 
-  // Common styles for inputs with glassmorphism
-  const inputStyle = "glass-input text-foreground placeholder:text-foreground/40 transition-all duration-300 focus:border-white/20 focus:ring-1 focus:ring-white/10";
-  const selectStyle = "glass-input text-foreground transition-all duration-300 focus:border-white/20 focus:ring-1 focus:ring-white/10";
+  // Common styles for inputs with Apple glassmorphism
+  const inputStyle = "glass-input text-foreground placeholder:text-foreground/40 rounded-xl";
+  const selectStyle = "glass-input text-foreground rounded-xl";
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <FloatingTooltips isActive={true} />
-      
-      {/* Header */}
-      <header className="sticky top-0 z-40 glass border-b border-white/10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3 animate-fade-in-up">
-              <VideoIcon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-              <h1 className="font-heading text-lg md:text-2xl lg:text-3xl font-bold text-foreground">
-                Veo Prompt Builder
-              </h1>
+  const renderSection = (section: Section) => {
+    switch (section) {
+      case 'intro':
+        return (
+          <div 
+            ref={el => { if (el) sectionRefs.current.intro = el; }}
+            data-section="intro"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <div className="max-w-2xl text-center space-y-8 animate-fade-in-up">
+              <div className="space-y-4">
+                <VideoIcon className="w-16 h-16 mx-auto text-primary opacity-80" />
+                <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+                  Veo Prompt Builder
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                  Create stunning AI video prompts with ease
+                </p>
+              </div>
+              
+              <Card className="glass-card rounded-2xl">
+                <CardContent className="p-8 space-y-8">
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium text-muted-foreground">How would you like to start?</Label>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button 
+                        onClick={() => scrollToSection('subject')}
+                        className="flex-1 glass-button rounded-xl h-12 font-medium"
+                        variant="outline"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Build Step by Step
+                      </Button>
+                      <Button 
+                        onClick={generateRandomPrompt}
+                        className="flex-1 h-12 font-medium rounded-xl"
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? (
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Shuffle className="w-4 h-4 mr-2" />
+                        )}
+                        Generate Random
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Prompt Complexity</Label>
+                    <div className="glass rounded-xl p-4">
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs text-muted-foreground">Simple</span>
+                        <Slider
+                          value={complexity}
+                          onValueChange={setComplexity}
+                          min={1}
+                          max={3}
+                          step={1}
+                          className="flex-1"
+                        />
+                        <span className="text-xs text-muted-foreground">Detailed</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground text-center mt-3">
+                        {complexity[0] === 1 && "Basic prompt with essential elements"}
+                        {complexity[0] === 2 && "Balanced prompt with good detail"}
+                        {complexity[0] === 3 && "Comprehensive prompt with all elements"}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Button
+                variant="ghost"
+                onClick={nextSection}
+                className="glass-button rounded-full p-3 animate-bounce"
+              >
+                <ChevronDown className="w-6 h-6" />
+              </Button>
             </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              className="flex items-center gap-2 glass-hover border-white/10 text-foreground animate-fade-in-up"
-            >
-              <Menu className="w-4 h-4" />
-              <span className="hidden sm:inline">Menu</span>
-            </Button>
           </div>
-        </div>
-      </header>
+        );
 
-      <div className="relative">
-        {/* Main Content */}
-        <div className="container mx-auto px-4 py-6 max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-            {/* Prompt Builder Section */}
-            <div className="space-y-6">
-              {/* Subject Section */}
-              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left' : 'opacity-0'}`}>
-                <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                    <User className="w-5 h-5 text-primary opacity-80" />
-                    Subject & Character
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
-                    <SelectTrigger className={selectStyle}>
-                      <SelectValue placeholder="Choose a subject type..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-popover border-border">
-                      {subjectOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Input
-                    placeholder="Or describe your own subject..."
-                    value={elements.customSubject || ""}
-                    onChange={(e) => updateElement('customSubject', e.target.value)}
-                    className={inputStyle}
-                  />
-                  
-                  <div className="grid grid-cols-2 gap-3">
+      case 'subject':
+        return (
+          <div 
+            ref={el => { if (el) sectionRefs.current.subject = el; }}
+            data-section="subject"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
+              <CardHeader className="pb-4 border-b border-white/10">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <User className="w-5 h-5 text-primary opacity-80" />
+                  Subject & Character
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4">
+                <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
+                  <SelectTrigger className={selectStyle}>
+                    <SelectValue placeholder="Choose a subject type..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border">
+                    {subjectOptions.map((option) => (
+                      <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <Input
+                  placeholder="Or describe your own subject..."
+                  value={elements.customSubject || ""}
+                  onChange={(e) => updateElement('customSubject', e.target.value)}
+                  className={inputStyle}
+                />
+                
+                {complexity[0] >= 2 && (
+                  <div className="grid grid-cols-2 gap-3 animate-fade-in-up">
                     <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
                       <SelectTrigger className={selectStyle}>
                         <SelectValue placeholder="Age range..." />
@@ -270,22 +370,26 @@ export default function VeoPromptBuilder() {
                       <SelectTrigger className={selectStyle}>
                         <SelectValue placeholder="Gender..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
+                      <SelectContent className="bg-popover border-border">
                         {subjectGenderOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                          <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                             {option}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
-                    
+                  </div>
+                )}
+                
+                {complexity[0] >= 3 && (
+                  <div className="grid grid-cols-2 gap-3 animate-fade-in-up animation-delay-100">
                     <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
                       <SelectTrigger className={selectStyle}>
                         <SelectValue placeholder="Appearance..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
+                      <SelectContent className="bg-popover border-border">
                         {subjectAppearanceOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                          <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                             {option}
                           </SelectItem>
                         ))}
@@ -296,51 +400,72 @@ export default function VeoPromptBuilder() {
                       <SelectTrigger className={selectStyle}>
                         <SelectValue placeholder="Clothing..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
+                      <SelectContent className="bg-popover border-border">
                         {subjectClothingOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                          <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                             {option}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                
+                <div className="flex justify-between mt-6">
+                  <Button variant="ghost" onClick={prevSection}>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button variant="ghost" onClick={nextSection}>
+                    Next
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
 
-              {/* Action & Setting Section */}
-              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-100' : 'opacity-0'}`}>
-                <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                    <VideoIcon className="w-5 h-5 text-primary opacity-80" />
-                    Action & Setting
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-2 block">What's happening?</Label>
-                    <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
-                      <SelectTrigger className={selectStyle}>
-                        <SelectValue placeholder="Choose an action..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
-                        {actionOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      placeholder="Or describe a custom action..."
-                      value={elements.customAction || ""}
-                      onChange={(e) => updateElement('customAction', e.target.value)}
-                      className={`mt-3 ${inputStyle}`}
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-2 block">Where does it take place?</Label>
+      case 'action':
+        return (
+          <div 
+            ref={el => { if (el) sectionRefs.current.action = el; }}
+            data-section="action"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-right">
+              <CardHeader className="pb-4 border-b border-white/10">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <VideoIcon className="w-5 h-5 text-primary opacity-80" />
+                  Action & Setting
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4">
+                <div>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">What's happening?</Label>
+                  <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
+                    <SelectTrigger className={selectStyle}>
+                      <SelectValue placeholder="Choose an action..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border">
+                      {actionOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="Or describe a custom action..."
+                    value={elements.customAction || ""}
+                    onChange={(e) => updateElement('customAction', e.target.value)}
+                    className={`mt-3 ${inputStyle}`}
+                  />
+                </div>
+                
+                {complexity[0] >= 3 && (
+                  <div className="animate-fade-in-up">
+                    <Label className="text-sm text-muted-foreground font-medium mb-2 block">Where does it take place?</Label>
                     <Textarea
                       placeholder="Describe the setting, location, or environment..."
                       rows={3}
@@ -349,371 +474,492 @@ export default function VeoPromptBuilder() {
                       className={`resize-none ${inputStyle}`}
                     />
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                
+                <div className="flex justify-between mt-6">
+                  <Button variant="ghost" onClick={prevSection}>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button variant="ghost" onClick={nextSection}>
+                    Next
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
 
-              {/* Style & Visual Section */}
-              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-200' : 'opacity-0'}`}>
-                <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                    <Palette className="w-5 h-5 text-primary opacity-80" />
-                    Style & Visual
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-3 block">Visual Style (select multiple)</Label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {styleOptions.map((style) => {
-                        const isSelected = elements.style?.includes(style);
-                        return (
-                          <Button
-                            key={style}
-                            variant={isSelected ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => toggleStyle(style)}
-                            className={`text-xs transition-all duration-300 ${
-                              isSelected 
-                                ? 'bg-primary text-white border-primary' 
-                                : 'bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white'
-                            }`}
-                          >
-                            {style}
-                          </Button>
-                        );
-                      })}
-                    </div>
+      case 'style':
+        return complexity[0] >= 2 ? (
+          <div 
+            ref={el => { if (el) sectionRefs.current.style = el; }}
+            data-section="style"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
+              <CardHeader className="pb-4 border-b border-white/10">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <Palette className="w-5 h-5 text-primary opacity-80" />
+                  Style & Visual
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4">
+                <div>
+                  <Label className="text-sm text-muted-foreground font-medium mb-3 block">Visual Style (select multiple)</Label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {styleOptions.map((style) => {
+                      const isSelected = elements.style?.includes(style);
+                      return (
+                        <Button
+                          key={style}
+                          variant={isSelected ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => toggleStyle(style)}
+                          className={`text-xs transition-all duration-300 ${
+                            isSelected 
+                              ? 'bg-primary text-primary-foreground border-primary' 
+                              : 'glass-hover border-white/10 text-foreground'
+                          }`}
+                        >
+                          {style}
+                        </Button>
+                      );
+                    })}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+                
+                <div className="flex justify-between mt-6">
+                  <Button variant="ghost" onClick={prevSection}>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button variant="ghost" onClick={nextSection}>
+                    Next
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null;
 
-              {/* Camera & Technical Section */}
-              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-300' : 'opacity-0'}`}>
-                <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                    <Camera className="w-5 h-5 text-primary opacity-80" />
-                    Camera & Technical
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-2 block">Camera Movement</Label>
-                    <Select value={elements.cameraMotion || ""} onValueChange={(value) => updateElement('cameraMotion', value)}>
-                      <SelectTrigger className={selectStyle}>
-                        <SelectValue placeholder="Select camera movement..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
-                        {cameraMotionOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+      case 'camera':
+        return complexity[0] >= 2 ? (
+          <div 
+            ref={el => { if (el) sectionRefs.current.camera = el; }}
+            data-section="camera"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-right">
+              <CardHeader className="pb-4 border-b border-white/10">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <Camera className="w-5 h-5 text-primary opacity-80" />
+                  Camera & Technical
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4">
+                <div>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Camera Movement</Label>
+                  <Select value={elements.cameraMotion || ""} onValueChange={(value) => updateElement('cameraMotion', value)}>
+                    <SelectTrigger className={selectStyle}>
+                      <SelectValue placeholder="Select camera movement..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border">
+                      {cameraMotionOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-2 block">Mood & Atmosphere</Label>
+                {complexity[0] >= 3 && (
+                  <div className="animate-fade-in-up">
+                    <Label className="text-sm text-muted-foreground font-medium mb-2 block">Mood & Atmosphere</Label>
                     <Select value={elements.ambiance || ""} onValueChange={(value) => updateElement('ambiance', value)}>
                       <SelectTrigger className={selectStyle}>
                         <SelectValue placeholder="Select mood..." />
                       </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
+                      <SelectContent className="bg-popover border-border">
                         {ambianceOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                          <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                             {option}
                           </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+                
+                <div className="flex justify-between mt-6">
+                  <Button variant="ghost" onClick={prevSection}>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button variant="ghost" onClick={nextSection}>
+                    Next
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null;
 
-              {/* Audio & Finishing Section */}
-              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-left animation-delay-400' : 'opacity-0'}`}>
-                <CardHeader className="pb-4 border-b border-white/10">
-                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
-                    <Volume2 className="w-5 h-5 text-primary" />
-                    Audio & Finishing
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 pt-4">
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-2 block">Audio Style</Label>
-                    <Select value={elements.audio || ""} onValueChange={(value) => updateElement('audio', value)}>
-                      <SelectTrigger className={selectStyle}>
-                        <SelectValue placeholder="Select audio style..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
-                        {audioOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+      case 'audio':
+        return complexity[0] >= 3 ? (
+          <div 
+            ref={el => { if (el) sectionRefs.current.audio = el; }}
+            data-section="audio"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <Card className="glass-card w-full max-w-2xl animate-slide-in-left">
+              <CardHeader className="pb-4 border-b border-white/10">
+                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                  <Volume2 className="w-5 h-5 text-primary opacity-80" />
+                  Audio & Finishing
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 pt-4">
+                <div>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Audio Style</Label>
+                  <Select value={elements.audio || ""} onValueChange={(value) => updateElement('audio', value)}>
+                    <SelectTrigger className={selectStyle}>
+                      <SelectValue placeholder="Select audio style..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border">
+                      {audioOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-                  <div>
-                    <Label className="text-sm text-white/70 font-medium mb-2 block">Ending Style</Label>
-                    <Select value={elements.closing || ""} onValueChange={(value) => updateElement('closing', value)}>
-                      <SelectTrigger className={selectStyle}>
-                        <SelectValue placeholder="Select ending..." />
-                      </SelectTrigger>
-                      <SelectContent className="bg-black border-white/30">
-                        {closingOptions.map((option) => (
-                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
-                            {option}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
+                <div>
+                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Ending Style</Label>
+                  <Select value={elements.closing || ""} onValueChange={(value) => updateElement('closing', value)}>
+                    <SelectTrigger className={selectStyle}>
+                      <SelectValue placeholder="Select ending..." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border">
+                      {closingOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex justify-between mt-6">
+                  <Button variant="ghost" onClick={prevSection}>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button variant="ghost" onClick={nextSection}>
+                    View Result
+                    <Sparkles className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : null;
 
-              {/* Action Buttons */}
-              <div className={`flex flex-col sm:flex-row gap-3 ${isVisible ? 'animate-fade-in-up animation-delay-500' : 'opacity-0'}`}>
-                <Button
-                  variant="outline"
-                  onClick={clearAllFields}
-                  className="flex-1 bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Clear All
-                </Button>
-              </div>
-            </div>
-
-            {/* Generated Prompt Section */}
-            <div className="space-y-6">
-              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-right' : 'opacity-0'}`}>
-                <CardHeader className="border-b border-white/10">
-                  <CardTitle className="font-heading text-xl text-white">Generated Prompt</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-4">
-                  <Textarea
-                    value={generatedPrompt}
-                    onChange={(e) => updateGeneratedPrompt(e.target.value)}
-                    placeholder="Your prompt will appear here as you make selections..."
-                    rows={12}
-                    className={`resize-none font-mono text-sm leading-relaxed ${inputStyle}`}
-                  />
+      case 'result':
+        return (
+          <div 
+            ref={el => { if (el) sectionRefs.current.result = el; }}
+            data-section="result"
+            className="min-h-screen flex items-center justify-center p-4"
+          >
+            <Card className="glass-card w-full max-w-2xl animate-fade-in-up">
+              <CardHeader className="border-b border-white/10">
+                <CardTitle className="font-heading text-xl text-foreground flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                  Generated Prompt
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <Textarea
+                  value={generatedPrompt}
+                  onChange={(e) => updateGeneratedPrompt(e.target.value)}
+                  placeholder="Your prompt will appear here as you make selections..."
+                  rows={12}
+                  className={`resize-none font-mono text-sm leading-relaxed ${inputStyle}`}
+                />
+                
+                <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                  <Button
+                    onClick={handleCopyPrompt}
+                    disabled={!generatedPrompt.trim()}
+                    className={`flex-1 transition-all duration-500 ${
+                      isCopyAnimating ? 'bg-green-500 text-white' : 'bg-primary hover:bg-primary/90'
+                    }`}
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    {isCopyAnimating ? 'Copied!' : 'Copy Prompt'}
+                  </Button>
                   
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                    <Button
-                      onClick={handleCopyPrompt}
-                      disabled={!generatedPrompt.trim()}
-                      className={`flex-1 transition-all duration-500 ${
-                        isCopyAnimating ? 'bg-green-500 text-white' : 'bg-primary hover:bg-primary/90'
-                      }`}
-                    >
-                      <Copy className="w-4 h-4 mr-2" />
-                      {isCopyAnimating ? 'Copied!' : 'Copy Prompt'}
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      onClick={handleSavePrompt}
-                      disabled={!generatedPrompt.trim()}
-                      className="bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300"
-                    >
-                      <Save className="w-4 h-4 mr-2" />
-                      Save
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={handleSavePrompt}
+                    disabled={!generatedPrompt.trim()}
+                    className="glass-hover border-white/10 text-foreground"
+                  >
+                    <Save className="w-4 h-4 mr-2" />
+                    Save
+                  </Button>
+                </div>
 
-                  {/* Google Veo/Flow Links */}
-                  {generatedPrompt.trim() && (
-                    <div className={`mt-6 p-4 bg-white/5 rounded-lg border border-white/10 ${isVisible ? 'animate-fade-in-up animation-delay-600' : 'opacity-0'}`}>
-                      <p className="text-sm text-white/70 mb-3">Ready to create your video? Use your prompt with:</p>
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <a
-                          href="https://deepmind.google/technologies/veo/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <Button variant="outline" className="w-full bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300">
-                            <VideoIcon className="w-4 h-4 mr-2" />
-                            Google Veo
-                          </Button>
-                        </a>
-                        <a
-                          href="https://flow.google/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-1"
-                        >
-                          <Button variant="outline" className="w-full bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300">
-                            <VideoIcon className="w-4 h-4 mr-2" />
-                            Google Flow
-                          </Button>
-                        </a>
-                      </div>
+                {/* Google Veo/Flow Links */}
+                {generatedPrompt.trim() && (
+                  <div className={`mt-6 p-4 glass rounded-lg animate-fade-in-up animation-delay-200`}>
+                    <p className="text-sm text-muted-foreground mb-3">Ready to create your video? Use your prompt with:</p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <a
+                        href="https://deepmind.google/technologies/veo/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                      >
+                        <Button variant="outline" className="w-full glass-hover border-white/10 text-foreground">
+                          <VideoIcon className="w-4 h-4 mr-2" />
+                          Google Veo
+                        </Button>
+                      </a>
+                      <a
+                        href="https://flow.google/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1"
+                      >
+                        <Button variant="outline" className="w-full glass-hover border-white/10 text-foreground">
+                          <VideoIcon className="w-4 h-4 mr-2" />
+                          Google Flow
+                        </Button>
+                      </a>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+                  </div>
+                )}
+                
+                <div className="flex justify-between mt-6">
+                  <Button variant="ghost" onClick={() => scrollToSection('intro')}>
+                    <ChevronUp className="w-4 h-4 mr-2" />
+                    Start Over
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={clearAllFields}
+                    className="glass-hover border-white/10 text-foreground"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Clear All
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <FloatingTooltips isActive={true} />
+      
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 z-40 glass border-b border-white/10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <VideoIcon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+              <h1 className="font-heading text-lg md:text-2xl font-bold text-foreground">
+                Veo Prompt Builder
+              </h1>
             </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
+              className="flex items-center gap-2 glass-hover border-white/10 text-foreground"
+            >
+              <Menu className="w-4 h-4" />
+              <span className="hidden sm:inline">Menu</span>
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content - Scrollable Sections */}
+      <div className="relative">
+        {/* Progress Indicator */}
+        <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 hidden lg:block">
+          <div className="flex flex-col gap-2">
+            {sectionOrder.map((section) => (
+              <button
+                key={section}
+                onClick={() => scrollToSection(section)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  currentSection === section 
+                    ? 'bg-primary w-8' 
+                    : 'bg-white/20 hover:bg-white/40'
+                }`}
+                aria-label={`Go to ${section} section`}
+              />
+            ))}
           </div>
         </div>
 
-        {/* Right Drawer */}
-        <div
-          className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-card border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
-            isSidePanelOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-        >
-          <div className="flex flex-col h-full">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="font-heading text-lg font-semibold text-foreground">Menu</h2>
+        {/* Sections */}
+        <div className="pt-20">
+          {sectionOrder.map((section) => (
+            <div key={section}>
+              {renderSection(section)}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Right Drawer */}
+      <div
+        className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-card border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
+          isSidePanelOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Drawer Header */}
+          <div className="flex items-center justify-between p-4 border-b border-border">
+            <h2 className="font-heading text-lg font-semibold text-foreground">Menu</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsSidePanelOpen(false)}
+              className="text-foreground hover:bg-primary/10"
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Drawer Content */}
+          <div className="flex-1 overflow-y-auto p-4">
+            {/* Navigation */}
+            <div className="space-y-2 mb-6">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
+              <Link href="/">
+                <Button variant="ghost" className="w-full justify-start text-foreground hover:bg-primary/10">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home
+                </Button>
+              </Link>
               <Button
                 variant="ghost"
-                size="sm"
-                onClick={() => setIsSidePanelOpen(false)}
-                className="text-foreground hover:bg-primary/10"
+                className="w-full justify-start text-foreground hover:bg-primary/10"
+                onClick={() => window.location.href = '/api/logout'}
               >
-                <X className="w-4 h-4" />
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
               </Button>
             </div>
 
-            {/* Drawer Content */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {/* Navigation */}
-              <div className="space-y-2 mb-6">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
-                <Link href="/">
-                  <Button variant="ghost" className="w-full justify-start text-foreground hover:bg-primary/10">
-                    <Home className="w-4 h-4 mr-2" />
-                    Home
-                  </Button>
-                </Link>
+            {/* Settings */}
+            <div className="space-y-2 mb-6">
+              <h3 className="text-sm font-medium text-muted-foreground mb-3">Settings</h3>
+              <div className="flex items-center justify-between p-2">
+                <span className="text-sm text-foreground">AI Tips</span>
                 <Button
-                  variant="ghost"
-                  className="w-full justify-start text-foreground hover:bg-primary/10"
-                  onClick={() => window.location.href = '/api/logout'}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const isDisabled = localStorage.getItem('disableTooltips') === 'true';
+                    if (isDisabled) {
+                      localStorage.removeItem('disableTooltips');
+                      window.location.reload();
+                    } else {
+                      localStorage.setItem('disableTooltips', 'true');
+                      window.location.reload();
+                    }
+                  }}
+                  className="border-border text-foreground hover:bg-primary/10"
                 >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Sign Out
+                  {localStorage.getItem('disableTooltips') === 'true' ? 'Enable' : 'Disable'}
                 </Button>
-              </div>
-
-              {/* Settings */}
-              <div className="space-y-2 mb-6">
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Settings</h3>
-                <div className="flex items-center justify-between p-2">
-                  <span className="text-sm text-foreground">AI Tips</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const isDisabled = localStorage.getItem('disableTooltips') === 'true';
-                      if (isDisabled) {
-                        localStorage.removeItem('disableTooltips');
-                        window.location.reload();
-                      } else {
-                        localStorage.setItem('disableTooltips', 'true');
-                        window.location.reload();
-                      }
-                    }}
-                    className="border-border text-foreground hover:bg-primary/10"
-                  >
-                    {localStorage.getItem('disableTooltips') === 'true' ? 'Enable' : 'Disable'}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Saved Prompts */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground">Saved Prompts ({savedPrompts.length})</h3>
-                
-                {savedPrompts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground">No saved prompts yet.</p>
-                ) : (
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {savedPrompts.map((prompt) => (
-                      <Card key={prompt.id} className="p-3 bg-primary/5 border-border">
-                        <div className="space-y-2">
-                          <div className="text-xs text-muted-foreground">
-                            {formatDate(prompt.createdAt)}
-                          </div>
-                          <div className="text-sm line-clamp-3 text-foreground">
-                            {prompt.text.substring(0, 100)}...
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleLoadPrompt(prompt.id)}
-                              className="flex-1 border-border text-foreground hover:bg-primary/10"
-                            >
-                              <Edit className="w-3 h-3 mr-1" />
-                              Load
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDeletePrompt(prompt.id)}
-                              className="border-border text-destructive hover:bg-destructive/10"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-
-                {savedPrompts.length > 0 && (
-                  <Button
-                    variant="outline"
-                    onClick={clearAllSavedPrompts}
-                    className="w-full mt-4 bg-transparent border-white/50 text-destructive hover:bg-white/10 hover:border-white"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Clear All Saved
-                  </Button>
-                )}
               </div>
             </div>
 
-            {/* Drawer Footer */}
-            <div className="p-4 border-t border-white/20">
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleCopyPrompt}
-                  disabled={!generatedPrompt.trim()}
-                  className="flex-1"
-                >
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy
-                </Button>
+            {/* Saved Prompts */}
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium text-muted-foreground">Saved Prompts ({savedPrompts.length})</h3>
+              
+              {savedPrompts.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No saved prompts yet.</p>
+              ) : (
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {savedPrompts.map((prompt) => (
+                    <Card key={prompt.id} className="p-3 bg-primary/5 border-border">
+                      <div className="space-y-2">
+                        <div className="text-xs text-muted-foreground">
+                          {formatDate(prompt.createdAt)}
+                        </div>
+                        <div className="text-sm line-clamp-3 text-foreground">
+                          {prompt.text.substring(0, 100)}...
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleLoadPrompt(prompt.id)}
+                            className="flex-1 border-border text-foreground hover:bg-primary/10"
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            Load
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeletePrompt(prompt.id)}
+                            className="border-border text-destructive hover:bg-destructive/10"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {savedPrompts.length > 0 && (
                 <Button
                   variant="outline"
-                  onClick={handleSavePrompt}
-                  disabled={!generatedPrompt.trim()}
-                  className="bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white"
+                  onClick={clearAllSavedPrompts}
+                  className="w-full mt-4 border-border text-destructive hover:bg-destructive/10"
                 >
-                  <Save className="w-4 h-4 mr-2" />
-                  Save
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Clear All Saved
                 </Button>
-              </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Overlay */}
-        {isSidePanelOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-            onClick={() => setIsSidePanelOpen(false)}
-          />
-        )}
       </div>
+
+      {/* Overlay */}
+      {isSidePanelOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsSidePanelOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,10 +25,8 @@ import {
   Save, 
   Edit, 
   Trash2, 
-  CircleCheck, 
   ChevronLeft, 
   ChevronRight, 
-  Bookmark, 
   User, 
   Camera, 
   Palette, 
@@ -39,7 +37,8 @@ import {
   Menu,
   X,
   RefreshCw,
-  Download
+  Download,
+  Home
 } from "lucide-react";
 import FloatingTooltips from "@/components/FloatingTooltips";
 import { Link } from "wouter";
@@ -61,13 +60,19 @@ export default function VeoPromptBuilder() {
     updateGeneratedPrompt,
   } = usePromptBuilder();
 
-  const [isOnline] = useState(true); // For demo purposes, assuming always online
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isCopyAnimating, setIsCopyAnimating] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   // Create completion sound
   const playCompletionSound = () => {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // First tone
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
     
@@ -79,12 +84,12 @@ export default function VeoPromptBuilder() {
     
     gainNode.gain.setValueAtTime(0, audioContext.currentTime);
     gainNode.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.01);
-    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.3);
+    gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.1);
     
     oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
+    oscillator.stop(audioContext.currentTime + 0.1);
     
-    // Second tone for harmony
+    // Second tone
     setTimeout(() => {
       const oscillator2 = audioContext.createOscillator();
       const gainNode2 = audioContext.createGain();
@@ -114,12 +119,10 @@ export default function VeoPromptBuilder() {
       return;
     }
 
-    // Start copy animation
     setIsCopyAnimating(true);
-
     const success = await copyPromptToClipboard();
+    
     if (success) {
-      // Play completion sound
       try {
         playCompletionSound();
       } catch (error) {
@@ -138,22 +141,10 @@ export default function VeoPromptBuilder() {
       });
     }
 
-    // Reset animation after delay
-    setTimeout(() => {
-      setIsCopyAnimating(false);
-    }, 1000);
+    setTimeout(() => setIsCopyAnimating(false), 1500);
   };
 
   const handleSavePrompt = () => {
-    if (!generatedPrompt.trim()) {
-      toast({
-        title: "No prompt to save",
-        description: "Please create a prompt first",
-        variant: "destructive",
-      });
-      return;
-    }
-
     const saved = savePrompt();
     if (saved) {
       toast({
@@ -194,27 +185,30 @@ export default function VeoPromptBuilder() {
     });
   };
 
+  // Common styles for inputs with glassmorphism
+  const inputStyle = "glass-input text-foreground placeholder:text-foreground/40 transition-all duration-300 focus:border-white/20 focus:ring-1 focus:ring-white/10";
+  const selectStyle = "glass-input text-foreground transition-all duration-300 focus:border-white/20 focus:ring-1 focus:ring-white/10";
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background text-foreground">
       <FloatingTooltips isActive={true} />
       
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <header className="sticky top-0 z-40 glass border-b border-white/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <VideoIcon className="w-8 h-8 text-primary" />
-              <h1 className="font-heading text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
+            <div className="flex items-center space-x-3 animate-fade-in-up">
+              <VideoIcon className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+              <h1 className="font-heading text-lg md:text-2xl lg:text-3xl font-bold text-foreground">
                 Veo Prompt Builder
               </h1>
             </div>
             
-            {/* Menu Button */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 glass-hover border-white/10 text-foreground animate-fade-in-up"
             >
               <Menu className="w-4 h-4" />
               <span className="hidden sm:inline">Menu</span>
@@ -223,596 +217,502 @@ export default function VeoPromptBuilder() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6 max-w-6xl">{/* Content will continue here */}
-
-        <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-          {/* Prompt Builder Section */}
-          <div className="space-y-6">
-            {/* Subject Section */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                  <User className="w-5 h-5 text-primary" />
-                  Subject & Character
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
-                  <SelectTrigger className="bg-white border-border text-foreground">
-                    <SelectValue placeholder="Choose a subject type..." />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-border">
-                    {subjectOptions.map((option) => (
-                      <SelectItem key={option} value={option} className="text-foreground">
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Input
-                  placeholder="Or describe your own subject..."
-                  value={elements.customSubject || ""}
-                  onChange={(e) => updateElement('customSubject', e.target.value)}
-                  className="bg-white border-border text-foreground placeholder:text-muted-foreground"
-                />
-                
-                {/* Character Details Grid */}
-                <div className="grid grid-cols-2 gap-3">
-                  <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Age range..." />
+      <div className="relative">
+        {/* Main Content */}
+        <div className="container mx-auto px-4 py-6 max-w-6xl">
+          <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Prompt Builder Section */}
+            <div className="space-y-6">
+              {/* Subject Section */}
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left' : 'opacity-0'}`}>
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <User className="w-5 h-5 text-primary opacity-80" />
+                    Subject & Character
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <Select value={elements.subject || ""} onValueChange={(value) => updateElement('subject', value)}>
+                    <SelectTrigger className={selectStyle}>
+                      <SelectValue placeholder="Choose a subject type..." />
                     </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {subjectAgeOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
+                    <SelectContent className="bg-popover border-border">
+                      {subjectOptions.map((option) => (
+                        <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
                           {option}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   
-                  <Select value={elements.subjectGender || ""} onValueChange={(value) => updateElement('subjectGender', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Gender..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {subjectGenderOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Appearance..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {subjectAppearanceOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
-                  <Select value={elements.subjectClothing || ""} onValueChange={(value) => updateElement('subjectClothing', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Clothing..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {subjectClothingOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action & Setting Section */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                  <VideoIcon className="w-5 h-5 text-primary" />
-                  Action & Setting
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">What's happening?</Label>
-                  <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Choose an action..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {actionOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <Input
-                    placeholder="Or describe a custom action..."
-                    value={elements.customAction || ""}
-                    onChange={(e) => updateElement('customAction', e.target.value)}
-                    className="mt-3 bg-white border-border text-foreground placeholder:text-muted-foreground"
+                    placeholder="Or describe your own subject..."
+                    value={elements.customSubject || ""}
+                    onChange={(e) => updateElement('customSubject', e.target.value)}
+                    className={inputStyle}
                   />
-                </div>
-                
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Where does it take place?</Label>
-                  <Textarea
-                    placeholder="Describe the setting, location, or environment..."
-                    rows={3}
-                    value={elements.context || ""}
-                    onChange={(e) => updateElement('context', e.target.value)}
-                    className="resize-none bg-white border-border text-foreground placeholder:text-muted-foreground"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Style & Visual Section */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                  <Palette className="w-5 h-5 text-primary" />
-                  Style & Visual
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-3 block">Visual Style (select multiple)</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {styleOptions.map((style) => {
-                      const isSelected = elements.style?.includes(style);
-                      return (
-                        <Button
-                          key={style}
-                          variant={isSelected ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => toggleStyle(style)}
-                          className={`text-xs ${isSelected ? 'bg-primary text-primary-foreground border-primary' : 'bg-white hover:bg-accent hover:text-accent-foreground'} transition-colors`}
-                        >
-                          {style}
-                        </Button>
-                      );
-                    })}
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select value={elements.subjectAge || ""} onValueChange={(value) => updateElement('subjectAge', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Age range..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-border">
+                        {subjectAgeOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-popover-foreground hover:bg-primary/20">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={elements.subjectGender || ""} onValueChange={(value) => updateElement('subjectGender', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Gender..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {subjectGenderOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={elements.subjectAppearance || ""} onValueChange={(value) => updateElement('subjectAppearance', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Appearance..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {subjectAppearanceOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <Select value={elements.subjectClothing || ""} onValueChange={(value) => updateElement('subjectClothing', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Clothing..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {subjectClothingOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
-            {/* Camera & Technical Section */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                  <Camera className="w-5 h-5 text-primary" />
-                  Camera & Technical
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Camera Movement</Label>
-                  <Select value={elements.cameraMotion || ""} onValueChange={(value) => updateElement('cameraMotion', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select camera movement..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {cameraMotionOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Mood & Atmosphere</Label>
-                  <Select value={elements.ambiance || ""} onValueChange={(value) => updateElement('ambiance', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select mood..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {ambianceOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Audio & Finishing Section */}
-            <Card className="bg-card border-border shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
-                  <Volume2 className="w-5 h-5 text-primary" />
-                  Audio & Finishing
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Audio Style</Label>
-                  <Select value={elements.audio || ""} onValueChange={(value) => updateElement('audio', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select audio style..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {audioOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label className="text-sm text-muted-foreground font-medium mb-2 block">Ending Style</Label>
-                  <Select value={elements.closing || ""} onValueChange={(value) => updateElement('closing', value)}>
-                    <SelectTrigger className="bg-white border-border text-foreground">
-                      <SelectValue placeholder="Select ending..." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-border">
-                      {closingOptions.map((option) => (
-                        <SelectItem key={option} value={option} className="text-foreground">
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              <Button
-                variant="outline"
-                onClick={clearAllFields}
-                className="flex-1 bg-white hover:bg-gray-50"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Clear All
-              </Button>
-            </div>
-          </div>
-
-          {/* Preview and Actions Section */}
-          <div className="space-y-6">
-            {/* Generated Prompt Preview */}
-            <Card style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)' }}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle style={{ color: 'var(--text-primary)' }}>Generated Prompt</CardTitle>
-                  <div className="flex items-center space-x-2">
-                    <span 
-                      className="text-xs px-2 py-1 rounded"
-                      style={{ 
-                        backgroundColor: 'var(--background-darker)', 
-                        color: 'var(--text-secondary)' 
-                      }}
-                    >
-                      {generatedPrompt.length} characters
-                    </span>
+              {/* Action & Setting Section */}
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-100' : 'opacity-0'}`}>
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <VideoIcon className="w-5 h-5 text-primary opacity-80" />
+                    Action & Setting
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-2 block">What's happening?</Label>
+                    <Select value={elements.action || ""} onValueChange={(value) => updateElement('action', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Choose an action..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {actionOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Or describe a custom action..."
+                      value={elements.customAction || ""}
+                      onChange={(e) => updateElement('customAction', e.target.value)}
+                      className={`mt-3 ${inputStyle}`}
+                    />
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div 
-                  className="rounded-md p-4 border mb-4"
-                  style={{ 
-                    backgroundColor: 'var(--background-darker)', 
-                    borderColor: 'var(--border-color)' 
-                  }}
-                >
-                  <Textarea
-                    value={generatedPrompt}
-                    onChange={(e) => updateGeneratedPrompt(e.target.value)}
-                    placeholder="Your generated prompt will appear here as you fill out the form..."
-                    className="w-full bg-transparent resize-none focus:outline-none min-h-[120px] border-none p-0"
-                    style={{ color: 'var(--text-primary)' }}
-                  />
-                </div>
+                  
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-2 block">Where does it take place?</Label>
+                    <Textarea
+                      placeholder="Describe the setting, location, or environment..."
+                      rows={3}
+                      value={elements.context || ""}
+                      onChange={(e) => updateElement('context', e.target.value)}
+                      className={`resize-none ${inputStyle}`}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
 
-                <div className="flex space-x-3">
-                  <Button
-                    onClick={handleCopyPrompt}
-                    className={`flex-1 shine-button relative overflow-hidden ${isCopyAnimating ? 'copy-animate' : ''}`}
-                  >
-                    {isCopyAnimating ? (
-                      <>
-                        <CircleCheck className="w-4 h-4 mr-2 copy-checkmark" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy
-                      </>
-                    )}
-                    {isCopyAnimating && (
-                      <div className="absolute inset-0 bg-green-500/20 animate-pulse"></div>
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleSavePrompt}
-                    style={{ 
-                      backgroundColor: 'var(--surface-light)', 
-                      borderColor: 'var(--border-color)', 
-                      color: 'var(--text-primary)' 
-                    }}
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    Save
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Saved Prompts */}
-            <Card style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)' }}>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle style={{ color: 'var(--text-primary)' }}>Saved Prompts</CardTitle>
-                  <span 
-                    className="text-xs px-2 py-1 rounded"
-                    style={{ 
-                      backgroundColor: 'var(--background-darker)', 
-                      color: 'var(--text-secondary)' 
-                    }}
-                  >
-                    {savedPrompts.length} saved
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {savedPrompts.length === 0 ? (
-                    <div className="text-center py-8" style={{ color: 'var(--text-secondary)' }}>
-                      <div className="w-12 h-12 mx-auto mb-3 opacity-50">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
-                      </div>
-                      <p className="text-sm">No saved prompts yet</p>
-                      <p className="text-xs mt-1">Create and save your first prompt to see it here</p>
+              {/* Style & Visual Section */}
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-200' : 'opacity-0'}`}>
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <Palette className="w-5 h-5 text-primary opacity-80" />
+                    Style & Visual
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-3 block">Visual Style (select multiple)</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {styleOptions.map((style) => {
+                        const isSelected = elements.style?.includes(style);
+                        return (
+                          <Button
+                            key={style}
+                            variant={isSelected ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => toggleStyle(style)}
+                            className={`text-xs transition-all duration-300 ${
+                              isSelected 
+                                ? 'bg-primary text-white border-primary' 
+                                : 'bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white'
+                            }`}
+                          >
+                            {style}
+                          </Button>
+                        );
+                      })}
                     </div>
-                  ) : (
-                    savedPrompts.map((prompt) => (
-                      <div
-                        key={prompt.id}
-                        className="rounded-md p-4 border group hover:border-opacity-80 transition-all"
-                        style={{ 
-                          backgroundColor: 'var(--background-darker)', 
-                          borderColor: 'var(--border-color)' 
-                        }}
-                      >
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <div className="text-xs mb-1" style={{ color: 'var(--text-secondary)' }}>
-                              {formatDate(prompt.createdAt)}
-                            </div>
-                            <p 
-                              className="text-sm line-clamp-3"
-                              style={{ color: 'var(--text-primary)' }}
-                            >
-                              {prompt.text}
-                            </p>
-                          </div>
-                          <div className="flex items-center space-x-1 ml-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleLoadPrompt(prompt.id)}
-                              className="p-1 h-auto"
-                              style={{ color: 'var(--text-secondary)' }}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeletePrompt(prompt.id)}
-                              className="p-1 h-auto hover:text-red-400"
-                              style={{ color: 'var(--text-secondary)' }}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                {savedPrompts.length > 0 && (
-                  <Button
-                    variant="outline"
-                    onClick={clearAllSavedPrompts}
-                    className="w-full mt-4"
-                    style={{ 
-                      backgroundColor: 'var(--background-darker)', 
-                      borderColor: 'var(--border-color)', 
-                      color: 'var(--text-secondary)' 
-                    }}
-                  >
-                    Clear All Saved Prompts
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              {/* Camera & Technical Section */}
+              <Card className={`glass-card ${isVisible ? 'animate-slide-in-left animation-delay-300' : 'opacity-0'}`}>
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-foreground">
+                    <Camera className="w-5 h-5 text-primary opacity-80" />
+                    Camera & Technical
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-2 block">Camera Movement</Label>
+                    <Select value={elements.cameraMotion || ""} onValueChange={(value) => updateElement('cameraMotion', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Select camera movement..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {cameraMotionOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-        {/* Sliding Side Panel for Saved Prompts */}
-        <div 
-          className={`fixed top-0 right-0 h-full w-96 z-40 transform transition-transform duration-300 ease-in-out ${
-            isSidePanelOpen ? 'translate-x-0' : 'translate-x-full'
-          }`}
-          style={{ backgroundColor: 'var(--surface)', borderLeft: '1px solid var(--border-color)' }}
-        >
-          <div className="h-full flex flex-col">
-            {/* Side Panel Header */}
-            <div className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
-                  Saved Prompts ({savedPrompts.length})
-                </h2>
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-2 block">Mood & Atmosphere</Label>
+                    <Select value={elements.ambiance || ""} onValueChange={(value) => updateElement('ambiance', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Select mood..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {ambianceOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Audio & Finishing Section */}
+              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-left animation-delay-400' : 'opacity-0'}`}>
+                <CardHeader className="pb-4 border-b border-white/10">
+                  <CardTitle className="flex items-center gap-2 font-heading text-lg text-white">
+                    <Volume2 className="w-5 h-5 text-primary" />
+                    Audio & Finishing
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 pt-4">
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-2 block">Audio Style</Label>
+                    <Select value={elements.audio || ""} onValueChange={(value) => updateElement('audio', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Select audio style..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {audioOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <Label className="text-sm text-white/70 font-medium mb-2 block">Ending Style</Label>
+                    <Select value={elements.closing || ""} onValueChange={(value) => updateElement('closing', value)}>
+                      <SelectTrigger className={selectStyle}>
+                        <SelectValue placeholder="Select ending..." />
+                      </SelectTrigger>
+                      <SelectContent className="bg-black border-white/30">
+                        {closingOptions.map((option) => (
+                          <SelectItem key={option} value={option} className="text-white hover:bg-white/10">
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Action Buttons */}
+              <div className={`flex flex-col sm:flex-row gap-3 ${isVisible ? 'animate-fade-in-up animation-delay-500' : 'opacity-0'}`}>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsSidePanelOpen(false)}
-                  style={{ color: 'var(--text-secondary)' }}
+                  variant="outline"
+                  onClick={clearAllFields}
+                  className="flex-1 bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Clear All
                 </Button>
               </div>
             </div>
 
-            {/* Saved Prompts List */}
-            <div className="flex-1 overflow-y-auto p-4">
-              {savedPrompts.length === 0 ? (
-                <div className="text-center py-8">
-                  <Bookmark className="w-12 h-12 mx-auto mb-4 opacity-50" style={{ color: 'var(--text-secondary)' }} />
-                  <p style={{ color: 'var(--text-secondary)' }}>
-                    No saved prompts yet. Save your first prompt to see it here!
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {savedPrompts.map((prompt: any) => (
-                    <Card 
-                      key={prompt.id} 
-                      className="cursor-pointer hover:opacity-80 transition-opacity"
-                      style={{ backgroundColor: 'var(--background-darker)', borderColor: 'var(--border-color)' }}
+            {/* Generated Prompt Section */}
+            <div className="space-y-6">
+              <Card className={`bg-black/50 border-white/20 shadow-xl ${isVisible ? 'animate-slide-in-right' : 'opacity-0'}`}>
+                <CardHeader className="border-b border-white/10">
+                  <CardTitle className="font-heading text-xl text-white">Generated Prompt</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4">
+                  <Textarea
+                    value={generatedPrompt}
+                    onChange={(e) => updateGeneratedPrompt(e.target.value)}
+                    placeholder="Your prompt will appear here as you make selections..."
+                    rows={12}
+                    className={`resize-none font-mono text-sm leading-relaxed ${inputStyle}`}
+                  />
+                  
+                  <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                    <Button
+                      onClick={handleCopyPrompt}
+                      disabled={!generatedPrompt.trim()}
+                      className={`flex-1 transition-all duration-500 ${
+                        isCopyAnimating ? 'bg-green-500 text-white' : 'bg-primary hover:bg-primary/90'
+                      }`}
                     >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <span className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                      <Copy className="w-4 h-4 mr-2" />
+                      {isCopyAnimating ? 'Copied!' : 'Copy Prompt'}
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      onClick={handleSavePrompt}
+                      disabled={!generatedPrompt.trim()}
+                      className="bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300"
+                    >
+                      <Save className="w-4 h-4 mr-2" />
+                      Save
+                    </Button>
+                  </div>
+
+                  {/* Google Veo/Flow Links */}
+                  {generatedPrompt.trim() && (
+                    <div className={`mt-6 p-4 bg-white/5 rounded-lg border border-white/10 ${isVisible ? 'animate-fade-in-up animation-delay-600' : 'opacity-0'}`}>
+                      <p className="text-sm text-white/70 mb-3">Ready to create your video? Use your prompt with:</p>
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <a
+                          href="https://deepmind.google/technologies/veo/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1"
+                        >
+                          <Button variant="outline" className="w-full bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300">
+                            <VideoIcon className="w-4 h-4 mr-2" />
+                            Google Veo
+                          </Button>
+                        </a>
+                        <a
+                          href="https://flow.google/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1"
+                        >
+                          <Button variant="outline" className="w-full bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300">
+                            <VideoIcon className="w-4 h-4 mr-2" />
+                            Google Flow
+                          </Button>
+                        </a>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Drawer */}
+        <div
+          className={`fixed top-0 right-0 h-full w-80 md:w-96 bg-card border-l border-border shadow-xl transform transition-transform duration-300 ease-in-out z-50 ${
+            isSidePanelOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="flex flex-col h-full">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="font-heading text-lg font-semibold text-foreground">Menu</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsSidePanelOpen(false)}
+                className="text-foreground hover:bg-primary/10"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Drawer Content */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {/* Navigation */}
+              <div className="space-y-2 mb-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Navigation</h3>
+                <Link href="/">
+                  <Button variant="ghost" className="w-full justify-start text-foreground hover:bg-primary/10">
+                    <Home className="w-4 h-4 mr-2" />
+                    Home
+                  </Button>
+                </Link>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-foreground hover:bg-primary/10"
+                  onClick={() => window.location.href = '/api/logout'}
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+
+              {/* Settings */}
+              <div className="space-y-2 mb-6">
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">Settings</h3>
+                <div className="flex items-center justify-between p-2">
+                  <span className="text-sm text-foreground">AI Tips</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const isDisabled = localStorage.getItem('disableTooltips') === 'true';
+                      if (isDisabled) {
+                        localStorage.removeItem('disableTooltips');
+                        window.location.reload();
+                      } else {
+                        localStorage.setItem('disableTooltips', 'true');
+                        window.location.reload();
+                      }
+                    }}
+                    className="border-border text-foreground hover:bg-primary/10"
+                  >
+                    {localStorage.getItem('disableTooltips') === 'true' ? 'Enable' : 'Disable'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Saved Prompts */}
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground">Saved Prompts ({savedPrompts.length})</h3>
+                
+                {savedPrompts.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No saved prompts yet.</p>
+                ) : (
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {savedPrompts.map((prompt) => (
+                      <Card key={prompt.id} className="p-3 bg-primary/5 border-border">
+                        <div className="space-y-2">
+                          <div className="text-xs text-muted-foreground">
                             {formatDate(prompt.createdAt)}
-                          </span>
-                          <div className="flex items-center space-x-1">
+                          </div>
+                          <div className="text-sm line-clamp-3 text-foreground">
+                            {prompt.text.substring(0, 100)}...
+                          </div>
+                          <div className="flex gap-2">
                             <Button
-                              variant="ghost"
                               size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleLoadPrompt(prompt.id);
-                              }}
-                              className="h-6 w-6 p-0"
-                              style={{ color: 'var(--text-secondary)' }}
+                              variant="outline"
+                              onClick={() => handleLoadPrompt(prompt.id)}
+                              className="flex-1 border-border text-foreground hover:bg-primary/10"
                             >
-                              <Edit className="w-3 h-3" />
+                              <Edit className="w-3 h-3 mr-1" />
+                              Load
                             </Button>
                             <Button
-                              variant="ghost"
                               size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleDeletePrompt(prompt.id);
-                              }}
-                              className="h-6 w-6 p-0"
-                              style={{ color: 'var(--text-secondary)' }}
+                              variant="outline"
+                              onClick={() => handleDeletePrompt(prompt.id)}
+                              className="border-border text-destructive hover:bg-destructive/10"
                             >
                               <Trash2 className="w-3 h-3" />
                             </Button>
                           </div>
                         </div>
-                        <p 
-                          className="text-sm line-clamp-3 cursor-pointer"
-                          style={{ color: 'var(--text-primary)' }}
-                          onClick={() => handleLoadPrompt(prompt.id)}
-                        >
-                          {prompt.text}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+                      </Card>
+                    ))}
+                  </div>
+                )}
+
+                {savedPrompts.length > 0 && (
+                  <Button
+                    variant="outline"
+                    onClick={clearAllSavedPrompts}
+                    className="w-full mt-4 bg-transparent border-white/50 text-destructive hover:bg-white/10 hover:border-white"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Clear All Saved
+                  </Button>
+                )}
+              </div>
             </div>
 
-            {/* Side Panel Actions */}
-            {savedPrompts.length > 0 && (
-              <div className="p-4 border-t" style={{ borderColor: 'var(--border-color)' }}>
+            {/* Drawer Footer */}
+            <div className="p-4 border-t border-white/20">
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleCopyPrompt}
+                  disabled={!generatedPrompt.trim()}
+                  className="flex-1"
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy
+                </Button>
                 <Button
                   variant="outline"
-                  onClick={clearAllSavedPrompts}
-                  className="w-full"
-                  style={{ 
-                    backgroundColor: 'var(--background-darker)', 
-                    borderColor: 'var(--border-color)', 
-                    color: 'var(--text-secondary)' 
-                  }}
+                  onClick={handleSavePrompt}
+                  disabled={!generatedPrompt.trim()}
+                  className="bg-transparent border-white/50 text-white hover:bg-white/10 hover:border-white"
                 >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Clear All Prompts
+                  <Save className="w-4 h-4 mr-2" />
+                  Save
                 </Button>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
         {/* Overlay */}
         {isSidePanelOpen && (
-          <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setIsSidePanelOpen(false)}
           />
         )}
-
-        {/* Mobile Bottom Actions */}
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 p-4" style={{ backgroundColor: 'var(--surface)', borderColor: 'var(--border-color)' }}>
-          <div className="flex space-x-3">
-            <Button
-              onClick={handleCopyPrompt}
-              className="flex-1 shine-button"
-            >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Prompt
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleSavePrompt}
-              style={{ 
-                backgroundColor: 'var(--surface-light)', 
-                borderColor: 'var(--border-color)', 
-                color: 'var(--text-primary)' 
-              }}
-            >
-              <Save className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <footer className="mt-16 pt-8 border-t border-border">
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
-            <div className="text-sm text-muted-foreground">
-              <p>Veo and Flow are trademarks of Google Inc. This is an independent tool.</p>
-            </div>
-            <div className="flex space-x-6 text-sm">
-              <Link href="/terms" className="text-muted-foreground hover:text-foreground transition-colors">
-                Terms of Service
-              </Link>
-              <Link href="/privacy" className="text-muted-foreground hover:text-foreground transition-colors">
-                Privacy Policy
-              </Link>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   );
