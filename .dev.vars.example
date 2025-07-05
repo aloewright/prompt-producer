@@ -1,0 +1,19 @@
+# Development environment variables for Cloudflare Workers
+# Copy this to .dev.vars for local development
+
+# Database connection
+DATABASE_URL="postgresql://username:password@localhost:5432/prompt_producer"
+
+# Session secret (generate a strong random string)
+SESSION_SECRET="your-session-secret-here"
+
+# News API key (optional)
+NEWS_API_KEY="your-news-api-key-here"
+
+# Replit OIDC configuration (if using Replit auth)
+ISSUER_URL="https://replit.com/oidc"
+REPL_ID="your-repl-id"
+REPLIT_DOMAINS="your-replit-domains"
+
+# Node environment
+NODE_ENV="development"

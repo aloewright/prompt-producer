@@ -90,17 +90,28 @@ This is a full-stack web application designed to help users create AI video prom
 - **Port Configuration**: Application runs on port 5000
 - **Hot Reload**: Full development experience with Vite HMR
 
-### Production Deployment
+### Production Deployment Options
+
+#### Replit Autoscale (Primary)
 - **Build Process**: Vite builds frontend assets, esbuild bundles backend
 - **Deployment Target**: Replit Autoscale for automatic scaling
 - **Static Assets**: Served from Express with Vite-built frontend
 - **Database**: PostgreSQL connection ready for production use
 
+#### Cloudflare Workers (Alternative)
+- **Build Process**: `npm run build:worker` creates Cloudflare Workers bundle
+- **Deployment Target**: Cloudflare Workers for global edge distribution
+- **Static Assets**: Served from Cloudflare Workers runtime
+- **Database**: PostgreSQL connection via Cloudflare Workers
+- **Configuration**: See `wrangler.toml` and `CLOUDFLARE_DEPLOYMENT.md`
+
 ### Build Commands
 - **Development**: `npm run dev` - Starts development server with hot reload
-- **Production Build**: `npm run build` - Builds both frontend and backend
+- **Production Build (Replit)**: `npm run build` - Builds both frontend and backend
+- **Production Build (Cloudflare)**: `npm run build:worker` - Builds for Cloudflare Workers
 - **Production Start**: `npm run start` - Runs production server
 - **Database Migration**: `npm run db:push` - Pushes schema changes to database
+- **Cloudflare Deploy**: `npm run deploy` - Deploys to Cloudflare Workers
 
 ## Changelog
 
