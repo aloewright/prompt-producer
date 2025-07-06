@@ -1,5 +1,11 @@
+/// <reference types="@cloudflare/workers-types" />
+
 // Simplified Cloudflare Workers implementation
 // This approach avoids bundling the entire Express server
+import { getAssetFromKV, NotFoundError, MethodNotAllowedError } from '@cloudflare/kv-asset-handler';
+import manifestJSON from '__STATIC_CONTENT_MANIFEST';
+const assetManifest = JSON.parse(manifestJSON);
+
 import { createStorage } from "./server/storage";
 import { getUserFromRequest, requireAuth } from "./server/cloudflareAuth";
 
@@ -7,6 +13,7 @@ import { getUserFromRequest, requireAuth } from "./server/cloudflareAuth";
 interface Env {
   DB: D1Database;
   NEWS_API_KEY?: string;
+  __STATIC_CONTENT: KVNamespace;
 }
 
 declare global {
@@ -17,7 +24,58 @@ declare global {
 }
 
 // Simple request router
-async function handleRequest(request: Request, env: any): Promise<Response> {
+async function handleRequest(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
+  const url = new URL(request.url);
+  const pathname = url.pathname;
+
+  // Serve API routes
+  if (pathname.startsWith('/api/')) {
+    return handleApiRequest(request, env);
+  }
+
+  // Serve static assets
+  try {
+    return await getAssetFromKV(
+      {
+        request,
+        waitUntil: (promise) => ctx.waitUntil(promise),
+      },
+      {
+        ASSET_NAMESPACE: env.__STATIC_CONTENT,
+        ASSET_MANIFEST: assetManifest,
+        mapRequestToAsset: (req) => {
+            const url = new URL(req.url);
+            // for SPA, we want to serve index.html for non-file paths
+            if (!url.pathname.includes('.')) {
+                return new Request(`${url.origin}/index.html`, req);
+            }
+            return new Request(req.url, req);
+        }
+      },
+    );
+  } catch (e) {
+    if (e instanceof NotFoundError) {
+        // serve index.html for not found assets
+        return getAssetFromKV(
+            {
+                request: new Request(new URL('/index.html', request.url).toString(), request),
+                waitUntil: (promise) => ctx.waitUntil(promise),
+            },
+            {
+                ASSET_NAMESPACE: env.__STATIC_CONTENT,
+                ASSET_MANIFEST: assetManifest,
+            },
+        );
+    } else if (e instanceof MethodNotAllowedError) {
+        return new Response('Method not allowed', { status: 405 });
+    } else {
+        return new Response('An unexpected error occurred', { status: 500 });
+    }
+  }
+}
+
+// API request handler
+async function handleApiRequest(request: Request, env: any): Promise<Response> {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const method = request.method;
@@ -25,13 +83,10 @@ async function handleRequest(request: Request, env: any): Promise<Response> {
   // Initialize D1 storage
   const storage = createStorage(env);
 
-  // Set environment variables
+  // Set environment variables from bindings
   if (env.DATABASE_URL) process.env.DATABASE_URL = env.DATABASE_URL;
   if (env.SESSION_SECRET) process.env.SESSION_SECRET = env.SESSION_SECRET;
   if (env.NEWS_API_KEY) process.env.NEWS_API_KEY = env.NEWS_API_KEY;
-  if (env.ISSUER_URL) process.env.ISSUER_URL = env.ISSUER_URL;
-  if (env.REPL_ID) process.env.REPL_ID = env.REPL_ID;
-  if (env.REPLIT_DOMAINS) process.env.REPLIT_DOMAINS = env.REPLIT_DOMAINS;
 
   // CORS headers
   const corsHeaders = {
@@ -40,62 +95,37 @@ async function handleRequest(request: Request, env: any): Promise<Response> {
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };
 
-  // Handle preflight requests
   if (method === 'OPTIONS') {
-    return new Response(null, { status: 200, headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
-  // API routes
-  if (pathname.startsWith('/api/')) {
-    try {
-      let response: Response;
-
-      switch (pathname) {
-        case '/api/prompts':
-          if (method === 'GET') {
-            response = await requireAuth(handleGetPrompts)(request, env);
-          } else if (method === 'POST') {
-            response = await requireAuth(handleSavePrompt)(request, env);
-          } else {
-            response = new Response('Method not allowed', { status: 405 });
-          }
-          break;
-        
-        case '/api/news':
-          if (method === 'GET') {
-            response = await handleGetNews(request, env);
-          } else {
-            response = new Response('Method not allowed', { status: 405 });
-          }
-          break;
-        
-        default:
-          if (pathname.startsWith('/api/prompts/') && method === 'DELETE') {
-            response = await requireAuth(handleDeletePrompt)(request, env);
-          } else if (pathname === '/api/auth/user' && method === 'GET') {
-            response = await requireAuth(handleGetUser)(request, env);
-          } else {
-            response = new Response('Not found', { status: 404 });
-          }
-      }
-
-      // Add CORS headers to API responses
-      Object.entries(corsHeaders).forEach(([key, value]) => {
-        response.headers.set(key, value);
-      });
-
-      return response;
-    } catch (error) {
-      console.error('API Error:', error);
-      return new Response(JSON.stringify({ error: 'Internal server error' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json', ...corsHeaders }
-      });
+  // API routing
+  if (pathname === '/api/auth/user') {
+    const user = getUserFromRequest(request);
+    if (user) {
+      return new Response(JSON.stringify(user), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
+    return new Response(JSON.stringify({ error: 'Not authenticated' }), { status: 401, headers: corsHeaders });
   }
 
-  // Serve static files
-  return handleStaticFiles(request, env);
+  if (pathname.startsWith('/api/prompts')) {
+    // This is a protected route
+    return requireAuth(async (req, user) => {
+      if (pathname === '/api/prompts' && req.method === 'GET') {
+        const prompts = await storage.getSavedPrompts(user.email);
+        return new Response(JSON.stringify(prompts), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      if (pathname === '/api/prompts' && req.method === 'POST') {
+        const newPrompt = await req.json() as { text: string, elements: any };
+        const created = await storage.savePrompt(user.email, newPrompt.text, newPrompt.elements);
+        return new Response(JSON.stringify(created), { status: 201, headers: corsHeaders });
+      }
+      // Add other prompt routes (DELETE, PUT) here
+      return new Response('Not found', { status: 404, headers: corsHeaders });
+    })(request, env);
+  }
+
+  return new Response(JSON.stringify({ error: 'Not Found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 }
 
 // API handlers
@@ -423,7 +453,5 @@ async function handleStaticFiles(request: Request, env: any): Promise<Response> 
 
 // Export the worker
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    return handleRequest(request, env);
-  }
+  fetch: handleRequest,
 };

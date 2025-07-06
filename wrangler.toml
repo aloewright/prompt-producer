@@ -1,7 +1,10 @@
 name = "prompt-producer"
 main = "dist/worker-simple.js"
-compatibility_date = "2024-09-23"
+compatibility_date = "2024-07-25"
 compatibility_flags = ["nodejs_compat"]
+
+[site]
+bucket = "./dist/public"
 
 [build]
 command = "npm run build:worker"
@@ -13,6 +16,12 @@ NODE_ENV = "production"
 # DATABASE_URL will be set as a secret
 # SESSION_SECRET will be set as a secret
 # NEWS_API_KEY will be set as a secret
+
+# Custom domain routes are now handled by the [site] config and Cloudflare dashboard
+# routes = [
+#   { pattern = "promptproducer.me/*", zone_name = "promptproducer.me" },
+#   { pattern = "www.promptproducer.me/*", zone_name = "promptproducer.me" }
+# ]
 
 [[d1_databases]]
 binding = "DB"
@@ -43,6 +52,12 @@ preview_id = "386404046e2548ff8d7208062c14fa5a"
 [env.production]
 name = "prompt-producer-prod"
 vars = { NODE_ENV = "production" }
+
+# Production domain routes are now handled by the [site] config and Cloudflare dashboard
+# routes = [
+#   { pattern = "promptproducer.me/*", zone_name = "promptproducer.me" },
+#   { pattern = "www.promptproducer.me/*", zone_name = "promptproducer.me" }
+# ]
 
 [[env.production.d1_databases]]
 binding = "DB"
