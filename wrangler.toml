@@ -14,17 +14,42 @@ NODE_ENV = "production"
 # SESSION_SECRET will be set as a secret
 # NEWS_API_KEY will be set as a secret
 
+[[d1_databases]]
+binding = "DB"
+database_name = "prompt-producer-db"
+database_id = "25529814-a997-41b9-95d3-ecb453f49fbf"
+
 [[kv_namespaces]]
 binding = "PROMPT_PRODUCER_KV"
-id = "your-kv-namespace-id"
-preview_id = "your-preview-kv-namespace-id"
+id = "563c2211b8144bf29c2367309174dbe6"
+preview_id = "386404046e2548ff8d7208062c14fa5a"
 
 # For local development
 [env.dev]
 name = "prompt-producer-dev"
 vars = { NODE_ENV = "development" }
 
+[[env.dev.d1_databases]]
+binding = "DB"
+database_name = "prompt-producer-db"
+database_id = "25529814-a997-41b9-95d3-ecb453f49fbf"
+
+[[env.dev.kv_namespaces]]
+binding = "PROMPT_PRODUCER_KV"
+id = "563c2211b8144bf29c2367309174dbe6"
+preview_id = "386404046e2548ff8d7208062c14fa5a"
+
 # For production
 [env.production]
 name = "prompt-producer-prod"
 vars = { NODE_ENV = "production" }
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "prompt-producer-db"
+database_id = "25529814-a997-41b9-95d3-ecb453f49fbf"
+
+[[env.production.kv_namespaces]]
+binding = "PROMPT_PRODUCER_KV"
+id = "563c2211b8144bf29c2367309174dbe6"
+preview_id = "386404046e2548ff8d7208062c14fa5a"

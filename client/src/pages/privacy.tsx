@@ -43,8 +43,8 @@ export default function Privacy() {
             <CardContent className="space-y-4">
               <h4 className="font-semibold">Account Information</h4>
               <p>
-                When you sign in through Replit authentication, we collect basic profile information including 
-                your email address, name, and profile picture as provided by Replit.
+                When you access our application through Cloudflare Access, we collect basic profile information including 
+                your email address, name, and profile picture as provided by your organization's authentication provider.
               </p>
               
               <h4 className="font-semibold">Content Information</h4>

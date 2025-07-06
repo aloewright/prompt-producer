@@ -1,13 +1,29 @@
 // Simplified Cloudflare Workers implementation
 // This approach avoids bundling the entire Express server
-import { storage } from "./server/storage";
-import { isAuthenticated } from "./server/replitAuth";
+import { createStorage } from "./server/storage";
+import { getUserFromRequest, requireAuth } from "./server/cloudflareAuth";
+
+// Cloudflare Workers types
+interface Env {
+  DB: D1Database;
+  NEWS_API_KEY?: string;
+}
+
+declare global {
+  interface ExecutionContext {
+    waitUntil(promise: Promise<any>): void;
+    passThroughOnException(): void;
+  }
+}
 
 // Simple request router
 async function handleRequest(request: Request, env: any): Promise<Response> {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const method = request.method;
+
+  // Initialize D1 storage
+  const storage = createStorage(env);
 
   // Set environment variables
   if (env.DATABASE_URL) process.env.DATABASE_URL = env.DATABASE_URL;
@@ -37,9 +53,9 @@ async function handleRequest(request: Request, env: any): Promise<Response> {
       switch (pathname) {
         case '/api/prompts':
           if (method === 'GET') {
-            response = await handleGetPrompts(request);
+            response = await requireAuth(handleGetPrompts)(request, env);
           } else if (method === 'POST') {
-            response = await handleSavePrompt(request);
+            response = await requireAuth(handleSavePrompt)(request, env);
           } else {
             response = new Response('Method not allowed', { status: 405 });
           }
@@ -47,7 +63,7 @@ async function handleRequest(request: Request, env: any): Promise<Response> {
         
         case '/api/news':
           if (method === 'GET') {
-            response = await handleGetNews(request);
+            response = await handleGetNews(request, env);
           } else {
             response = new Response('Method not allowed', { status: 405 });
           }
@@ -55,7 +71,9 @@ async function handleRequest(request: Request, env: any): Promise<Response> {
         
         default:
           if (pathname.startsWith('/api/prompts/') && method === 'DELETE') {
-            response = await handleDeletePrompt(request);
+            response = await requireAuth(handleDeletePrompt)(request, env);
+          } else if (pathname === '/api/auth/user' && method === 'GET') {
+            response = await requireAuth(handleGetUser)(request, env);
           } else {
             response = new Response('Not found', { status: 404 });
           }
@@ -81,64 +99,143 @@ async function handleRequest(request: Request, env: any): Promise<Response> {
 }
 
 // API handlers
-async function handleGetPrompts(request: Request): Promise<Response> {
-  // For now, return mock data since auth is complex
-  const mockPrompts = [
-    {
-      id: "1",
-      text: "Create a professional email about project updates",
+async function handleGetUser(request: Request, user: any, env: any): Promise<Response> {
+  try {
+    const storage = createStorage(env);
+    
+    // Upsert user in database (create or update)
+    const dbUser = await storage.upsertUser({
+      id: user.sub,
+      email: user.email,
+      firstName: user.given_name || user.name?.split(' ')[0],
+      lastName: user.family_name || user.name?.split(' ').slice(1).join(' '),
+      profileImageUrl: user.picture,
+    });
+
+    return new Response(JSON.stringify(dbUser), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error getting user:', error);
+    return new Response(JSON.stringify({ error: 'Failed to get user' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function handleGetPrompts(request: Request, user: any, env: any): Promise<Response> {
+  try {
+    const storage = createStorage(env);
+    const prompts = await storage.getSavedPrompts(user.sub);
+    
+    // Transform database prompts to frontend format
+    const transformedPrompts = prompts.map((prompt: any) => ({
+      id: prompt.id.toString(),
+      text: prompt.text,
       elements: {
-        subject: "business",
-        customSubject: "",
-        subjectAge: "",
-        style: "formal",
-        mood: "professional",
-        structure: "structured",
-        length: "medium",
-        perspective: "second-person",
-        includeNews: false,
-        includeEmojis: false,
-        includeBulletPoints: true,
-        includeCallToAction: true
+        subject: prompt.subject,
+        customSubject: prompt.customSubject,
+        subjectAge: prompt.subjectAge,
+        subjectGender: prompt.subjectGender,
+        subjectAppearance: prompt.subjectAppearance,
+        subjectClothing: prompt.subjectClothing,
+        context: prompt.context,
+        action: prompt.action,
+        customAction: prompt.customAction,
+        style: prompt.style,
+        cameraMotion: prompt.cameraMotion,
+        ambiance: prompt.ambiance,
+        audio: prompt.audio,
+        closing: prompt.closing,
       },
-      createdAt: new Date().toISOString()
+      createdAt: prompt.createdAt.toISOString ? prompt.createdAt.toISOString() : new Date(prompt.createdAt).toISOString(),
+    }));
+
+    return new Response(JSON.stringify(transformedPrompts), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error getting prompts:', error);
+    return new Response(JSON.stringify({ error: 'Failed to get prompts' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function handleSavePrompt(request: Request, user: any, env: any): Promise<Response> {
+  try {
+    const body = await request.json();
+    const storage = createStorage(env);
+    
+    const savedPrompt = await storage.savePrompt(user.sub, body.text, body.elements);
+    
+    // Transform to frontend format
+    const transformedPrompt = {
+      id: savedPrompt.id.toString(),
+      text: savedPrompt.text,
+      elements: {
+        subject: savedPrompt.subject,
+        customSubject: savedPrompt.customSubject,
+        subjectAge: savedPrompt.subjectAge,
+        subjectGender: savedPrompt.subjectGender,
+        subjectAppearance: savedPrompt.subjectAppearance,
+        subjectClothing: savedPrompt.subjectClothing,
+        context: savedPrompt.context,
+        action: savedPrompt.action,
+        customAction: savedPrompt.customAction,
+        style: savedPrompt.style,
+        cameraMotion: savedPrompt.cameraMotion,
+        ambiance: savedPrompt.ambiance,
+        audio: savedPrompt.audio,
+        closing: savedPrompt.closing,
+      },
+      createdAt: savedPrompt.createdAt.toISOString ? savedPrompt.createdAt.toISOString() : new Date(savedPrompt.createdAt).toISOString(),
+    };
+
+    return new Response(JSON.stringify(transformedPrompt), {
+      status: 201,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error saving prompt:', error);
+    return new Response(JSON.stringify({ error: 'Failed to save prompt' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+}
+
+async function handleDeletePrompt(request: Request, user: any, env: any): Promise<Response> {
+  try {
+    const url = new URL(request.url);
+    const promptId = url.pathname.split('/').pop();
+    const storage = createStorage(env);
+    
+    if (!promptId) {
+      return new Response(JSON.stringify({ error: 'Invalid prompt ID' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
-  ];
 
-  return new Response(JSON.stringify(mockPrompts), {
-    headers: { 'Content-Type': 'application/json' }
-  });
+    const success = await storage.deletePrompt(user.sub, parseInt(promptId, 10));
+    
+    return new Response(JSON.stringify({ success }), {
+      headers: { 'Content-Type': 'application/json' }
+    });
+  } catch (error) {
+    console.error('Error deleting prompt:', error);
+    return new Response(JSON.stringify({ error: 'Failed to delete prompt' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
 }
 
-async function handleSavePrompt(request: Request): Promise<Response> {
-  const body = await request.json();
-  
-  // Mock save response
-  const savedPrompt = {
-    id: Math.random().toString(36).substr(2, 9),
-    text: body.text,
-    elements: body.elements,
-    createdAt: new Date().toISOString()
-  };
-
-  return new Response(JSON.stringify(savedPrompt), {
-    status: 201,
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
-
-async function handleDeletePrompt(request: Request): Promise<Response> {
-  const url = new URL(request.url);
-  const promptId = url.pathname.split('/').pop();
-  
-  // Mock delete response
-  return new Response(JSON.stringify({ success: true }), {
-    headers: { 'Content-Type': 'application/json' }
-  });
-}
-
-async function handleGetNews(request: Request): Promise<Response> {
-  const newsApiKey = process.env.NEWS_API_KEY;
+async function handleGetNews(request: Request, env: any): Promise<Response> {
+  const newsApiKey = env.NEWS_API_KEY;
   
   if (!newsApiKey) {
     return new Response(JSON.stringify({ message: "News API key not configured" }), {
@@ -326,7 +423,7 @@ async function handleStaticFiles(request: Request, env: any): Promise<Response> 
 
 // Export the worker
 export default {
-  async fetch(request: Request, env: any, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     return handleRequest(request, env);
   }
 };

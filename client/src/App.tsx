@@ -18,21 +18,42 @@ import AppHeader from "@/components/app-header";
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
 
+  // For Cloudflare Access, we don't show a landing page
+  // Users are either authenticated (can access the app) or not (blocked by Cloudflare Access)
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4 max-w-md px-4">
+          <h1 className="text-2xl font-bold text-foreground">Access Required</h1>
+          <p className="text-muted-foreground">
+            This application requires authentication through Cloudflare Access. 
+            Please contact your administrator if you believe you should have access.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
-      {isAuthenticated && <AppHeader />}
+      <AppHeader />
       <Switch>
-        {isLoading || !isAuthenticated ? (
-          <Route path="/" component={Landing} />
-        ) : (
-          <>
-            <Route path="/" component={Home} />
-            <Route path="/veo-prompt-builder" component={VeoPromptBuilder} />
-            <Route path="/prompts" component={Prompts} />
-            <Route path="/testing" component={Testing} />
-            <Route path="/settings" component={Settings} />
-          </>
-        )}
+        <Route path="/" component={Home} />
+        <Route path="/veo-prompt-builder" component={VeoPromptBuilder} />
+        <Route path="/prompts" component={Prompts} />
+        <Route path="/testing" component={Testing} />
+        <Route path="/settings" component={Settings} />
         <Route path="/terms" component={Terms} />
         <Route path="/privacy" component={Privacy} />
         <Route component={NotFound} />
@@ -45,8 +66,8 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
         <Router />
+        <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
   );

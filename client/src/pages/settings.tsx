@@ -2,16 +2,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, User, Mail, Calendar } from 'lucide-react';
+import { User, Mail, Calendar, Shield, ExternalLink } from 'lucide-react';
 import type { User as UserType } from '@shared/schema';
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, canManageAuth } = useAuth();
   const typedUser = user as UserType;
-
-  const handleLogout = () => {
-    window.location.href = '/api/logout';
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground pt-16">
@@ -44,7 +40,7 @@ export default function Settings() {
                 Profile Information
               </CardTitle>
               <CardDescription>
-                Your account details from Replit
+                Your account details from Cloudflare Access
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -84,23 +80,58 @@ export default function Settings() {
             </CardContent>
           </Card>
 
-          {/* Account Actions */}
+          {/* Authentication Info */}
           <Card className="glass-card parallax-card">
             <CardHeader>
-              <CardTitle>Account Actions</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Authentication
+              </CardTitle>
               <CardDescription>
-                Manage your account and session
+                Your account is secured by Cloudflare Access
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                variant="destructive" 
-                onClick={handleLogout}
-                className="w-full"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                <Shield className="h-4 w-4 text-green-600" />
+                <div className="flex-1">
+                  <div className="text-sm font-medium">Authentication Provider</div>
+                  <div className="text-sm text-muted-foreground">
+                    Cloudflare Access - Enterprise-grade security
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-sm text-muted-foreground bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg border border-blue-200 dark:border-blue-800">
+                <p>
+                  <strong>Note:</strong> Authentication is managed by your organization's Cloudflare Access policies. 
+                  To modify your profile or access settings, contact your administrator.
+                </p>
+              </div>
+
+              {canManageAuth && (
+                <Button variant="outline" className="w-full" asChild>
+                  <a href="/logout" className="flex items-center gap-2">
+                    <ExternalLink className="h-4 w-4" />
+                    Manage Access Settings
+                  </a>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Application Settings */}
+          <Card className="glass-card parallax-card">
+            <CardHeader>
+              <CardTitle>Application Settings</CardTitle>
+              <CardDescription>
+                Customize your Prompt Producer experience
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Application-specific settings and preferences will be available here in future updates.
+              </p>
             </CardContent>
           </Card>
         </div>

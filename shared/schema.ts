@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pgTable, serial, text, timestamp, varchar, jsonb, index } from "drizzle-orm/pg-core";
+import { sqliteTable, integer, text, blob } from "drizzle-orm/sqlite-core";
 import { createInsertSchema } from "drizzle-zod";
 
 export const promptElementsSchema = z.object({
@@ -20,32 +20,28 @@ export const promptElementsSchema = z.object({
 });
 
 // Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const sessions = pgTable(
-  "sessions",
-  {
-    sid: varchar("sid").primaryKey(),
-    sess: jsonb("sess").notNull(),
-    expire: timestamp("expire").notNull(),
-  },
-  (table) => [index("IDX_session_expire").on(table.expire)],
-);
-
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
-export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
-  firstName: varchar("first_name"),
-  lastName: varchar("last_name"),
-  profileImageUrl: varchar("profile_image_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+// (IMPORTANT) This table is mandatory for session management.
+export const sessions = sqliteTable("sessions", {
+  sid: text("sid").primaryKey(),
+  sess: text("sess", { mode: "json" }).notNull(),
+  expire: integer("expire", { mode: "timestamp" }).notNull(),
 });
 
-export const savedPrompts = pgTable("saved_prompts", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id),
+// User storage table.
+// (IMPORTANT) This table is used for user management.
+export const users = sqliteTable("users", {
+  id: text("id").primaryKey().notNull(),
+  email: text("email").unique(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  profileImageUrl: text("profile_image_url"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});
+
+export const savedPrompts = sqliteTable("saved_prompts", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  userId: text("user_id").references(() => users.id),
   text: text("text").notNull(),
   subject: text("subject"),
   customSubject: text("custom_subject"),
@@ -56,12 +52,12 @@ export const savedPrompts = pgTable("saved_prompts", {
   context: text("context"),
   action: text("action"),
   customAction: text("custom_action"),
-  style: text("style").array(),
+  style: text("style", { mode: "json" }), // Store array as JSON
   cameraMotion: text("camera_motion"),
   ambiance: text("ambiance"),
   audio: text("audio"),
   closing: text("closing"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
 
 // Zod schemas
