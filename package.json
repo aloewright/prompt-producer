@@ -110,7 +110,7 @@
     "tsx": "^4.19.1",
     "typescript": "^5.5.4",
     "vite": "^5.3.5",
-    "wrangler": "^3.67.1"
+    "wrangler": "^4.23.0"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
