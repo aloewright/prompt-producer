@@ -1,5 +1,5 @@
 name = "prompt-producer"
-main = "dist/worker-simple.js"
+main = "dist/spa-worker.js"
 compatibility_date = "2024-07-25"
 compatibility_flags = ["nodejs_compat"]
 
@@ -7,10 +7,13 @@ compatibility_flags = ["nodejs_compat"]
 bucket = "./dist/public"
 
 [build]
-command = "npm run build:worker"
+command = "npm run build:client && npm run build:spa-worker"
 
 [vars]
 NODE_ENV = "production"
+
+[observability.logs]
+enabled = true
 
 # Add environment variables here
 # DATABASE_URL will be set as a secret

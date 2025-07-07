@@ -109,20 +109,28 @@ async function handleApiRequest(request: Request, env: any): Promise<Response> {
   }
 
   if (pathname.startsWith('/api/prompts')) {
-    // This is a protected route
-    return requireAuth(async (req, user) => {
-      if (pathname === '/api/prompts' && req.method === 'GET') {
-        const prompts = await storage.getSavedPrompts(user.email);
-        return new Response(JSON.stringify(prompts), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      }
-      if (pathname === '/api/prompts' && req.method === 'POST') {
-        const newPrompt = await req.json() as { text: string, elements: any };
-        const created = await storage.savePrompt(user.email, newPrompt.text, newPrompt.elements);
-        return new Response(JSON.stringify(created), { status: 201, headers: corsHeaders });
-      }
-      // Add other prompt routes (DELETE, PUT) here
-      return new Response('Not found', { status: 404, headers: corsHeaders });
-    })(request, env);
+    const PUBLIC_USER_ID = 'public'; // Use a fixed public user ID
+    // This is now a public route
+    if (pathname === '/api/prompts' && request.method === 'GET') {
+      const prompts = await storage.getSavedPrompts(PUBLIC_USER_ID);
+      return new Response(JSON.stringify(prompts), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (pathname === '/api/prompts' && request.method === 'POST') {
+      const newPrompt = await request.json() as { text: string, elements: any };
+      const created = await storage.savePrompt(PUBLIC_USER_ID, newPrompt.text, newPrompt.elements);
+      return new Response(JSON.stringify(created), { status: 201, headers: corsHeaders });
+    }
+    const promptIdMatch = pathname.match(/^\/api\/prompts\/(\d+)$/);
+    if (promptIdMatch && request.method === 'DELETE') {
+        const promptId = parseInt(promptIdMatch[1], 10);
+        const success = await storage.deletePrompt(PUBLIC_USER_ID, promptId);
+        if (success) {
+            return new Response(JSON.stringify({ success: true }), { headers: corsHeaders });
+        } else {
+            return new Response(JSON.stringify({ error: 'Prompt not found' }), { status: 404, headers: corsHeaders });
+        }
+    }
+    return new Response('Not found', { status: 404, headers: corsHeaders });
   }
 
   return new Response(JSON.stringify({ error: 'Not Found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -196,7 +204,7 @@ async function handleGetPrompts(request: Request, user: any, env: any): Promise<
 
 async function handleSavePrompt(request: Request, user: any, env: any): Promise<Response> {
   try {
-    const body = await request.json();
+    const body: { text: string, elements: any } = await request.json();
     const storage = createStorage(env);
     
     const savedPrompt = await storage.savePrompt(user.sub, body.text, body.elements);
@@ -281,10 +289,10 @@ async function handleGetNews(request: Request, env: any): Promise<Response> {
       throw new Error(`News API error: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: any = await response.json();
     
     if (data.status !== 'ok') {
-      throw new Error(`News API error: ${data.message}`);
+      throw new Error(`News API error: ${data.message || 'Unknown error'}`);
     }
 
     // Filter out articles with null titles and format the response

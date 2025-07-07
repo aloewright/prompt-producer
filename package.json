@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
-    "build:worker": "vite build && esbuild worker-simple.ts --platform=browser --packages=external --bundle --format=esm --outdir=dist",
+    "build:client": "vite build",
+    "build:worker": "esbuild worker-simple.ts --platform=browser --packages=external --bundle --format=esm --outdir=dist",
+    "build:spa-worker": "esbuild spa-worker.ts --platform=browser --bundle --format=esm --outfile=dist/spa-worker.js --external:__STATIC_CONTENT_MANIFEST",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
@@ -14,7 +16,8 @@
     "deploy:dev": "wrangler deploy --env dev",
     "deploy:prod": "wrangler deploy --env production",
     "cf:dev": "wrangler dev",
-    "cf:preview": "wrangler preview"
+    "cf:preview": "wrangler preview",
+    "db:migrate": "drizzle-kit generate"
   },
   "dependencies": {
     "@cloudflare/kv-asset-handler": "^0.4.0",
@@ -85,7 +88,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250704.0",
+    "@cloudflare/workers-types": "^4.20240722.0",
     "@replit/vite-plugin-cartographer": "^0.2.7",
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
@@ -99,15 +102,15 @@
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.2",
-    "autoprefixer": "^10.4.20",
+    "autoprefixer": "^10.4.19",
     "drizzle-kit": "^0.30.4",
-    "esbuild": "^0.25.0",
-    "postcss": "^8.4.47",
-    "tailwindcss": "^3.4.17",
+    "esbuild": "^0.23.0",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.7",
     "tsx": "^4.19.1",
-    "typescript": "5.6.3",
-    "vite": "^7.0.2",
-    "wrangler": "^4.23.0"
+    "typescript": "^5.5.4",
+    "vite": "^5.3.5",
+    "wrangler": "^3.67.1"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
