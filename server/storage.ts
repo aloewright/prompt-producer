@@ -106,10 +106,11 @@ export class D1Storage implements IStorage {
   }
 
   async deletePrompt(userId: string, promptId: number): Promise<boolean> {
-    const result = await this.db
+    const deleted = await this.db
       .delete(savedPrompts)
-      .where(and(eq(savedPrompts.id, promptId), eq(savedPrompts.userId, userId)));
-    return (result.changes || 0) > 0;
+      .where(and(eq(savedPrompts.id, promptId), eq(savedPrompts.userId, userId)))
+      .returning();
+    return deleted.length > 0;
   }
 }
 
@@ -119,11 +120,13 @@ export function createStorage(env: { DB: D1Database }): IStorage {
 }
 
 // Legacy export for compatibility (will be removed later)
-export const storage = {
-  getUser: () => { throw new Error("Storage must be initialized with D1 database"); },
-  upsertUser: () => { throw new Error("Storage must be initialized with D1 database"); },
-  savePrompt: () => { throw new Error("Storage must be initialized with D1 database"); },
-  getSavedPrompts: () => { throw new Error("Storage must be initialized with D1 database"); },
-  deletePrompt: () => { throw new Error("Storage must be initialized with D1 database"); },
-};
+// Provide a dummy D1Storage instance for type compatibility
+class DummyD1Storage implements IStorage {
+  async getUser(_id: string) { throw new Error("Storage must be initialized with D1 database"); return undefined as any; }
+  async upsertUser(_user: UpsertUser) { throw new Error("Storage must be initialized with D1 database"); return undefined as any; }
+  async savePrompt(_userId: string, _promptText: string, _elements: PromptElements) { throw new Error("Storage must be initialized with D1 database"); return undefined as any; }
+  async getSavedPrompts(_userId: string) { throw new Error("Storage must be initialized with D1 database"); return [] as any; }
+  async deletePrompt(_userId: string, _promptId: number) { throw new Error("Storage must be initialized with D1 database"); return false as any; }
+}
+export const storage: IStorage = new DummyD1Storage();
 

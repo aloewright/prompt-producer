@@ -1,33 +1,18 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertSavedPromptSchema, promptElementsSchema } from "@shared/schema";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { insertSavedPromptSchema, promptElementsSchema, type DbSavedPrompt } from "@shared/schema";
+
+const PUBLIC_USER_ID = "public";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
-  await setupAuth(app);
-
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
-
   // Get saved prompts
-  app.get("/api/prompts", isAuthenticated, async (req: any, res: Response) => {
+  app.get("/api/prompts", async (_req: any, res: Response) => {
     try {
-      const userId = req.user.claims.sub;
-      const prompts = await storage.getSavedPrompts(userId);
+      const prompts: DbSavedPrompt[] = await storage.getSavedPrompts(PUBLIC_USER_ID);
       
       // Transform database prompts to frontend format
-      const transformedPrompts = prompts.map(prompt => ({
+      const transformedPrompts = prompts.map((prompt) => ({
         id: prompt.id.toString(),
         text: prompt.text,
         elements: {
@@ -46,7 +31,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           audio: prompt.audio,
           closing: prompt.closing,
         },
-        createdAt: prompt.createdAt.toISOString(),
+        createdAt: prompt.createdAt instanceof Date ? prompt.createdAt.toISOString() : new Date(prompt.createdAt).toISOString(),
       }));
 
       res.json(transformedPrompts);
@@ -57,10 +42,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Save a new prompt
-  app.post("/api/prompts", isAuthenticated, async (req: any, res: Response) => {
+  app.post("/api/prompts", async (req: any, res: Response) => {
     try {
       const { text, elements } = req.body;
-      const userId = req.user.claims.sub;
       
       if (!text || !elements) {
         return res.status(400).json({ error: "Text and elements are required" });
@@ -69,14 +53,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Validate elements
       const validatedElements = promptElementsSchema.parse(elements);
       
-      const savedPrompt = await storage.savePrompt(userId, text, validatedElements);
+      const savedPrompt: DbSavedPrompt = await storage.savePrompt(PUBLIC_USER_ID, text, validatedElements);
       
       // Transform to frontend format
       const transformedPrompt = {
         id: savedPrompt.id.toString(),
         text: savedPrompt.text,
         elements: validatedElements,
-        createdAt: savedPrompt.createdAt.toISOString(),
+        createdAt: savedPrompt.createdAt instanceof Date ? savedPrompt.createdAt.toISOString() : new Date(savedPrompt.createdAt).toISOString(),
       };
 
       res.json(transformedPrompt);
@@ -87,16 +71,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Delete a prompt
-  app.delete("/api/prompts/:id", isAuthenticated, async (req: any, res: Response) => {
+  app.delete("/api/prompts/:id", async (req: any, res: Response) => {
     try {
       const promptId = parseInt(req.params.id);
-      const userId = req.user.claims.sub;
       
       if (isNaN(promptId)) {
         return res.status(400).json({ error: "Invalid prompt ID" });
       }
 
-      const success = await storage.deletePrompt(userId, promptId);
+      const success = await storage.deletePrompt(PUBLIC_USER_ID, promptId);
       
       if (success) {
         res.json({ success: true });
@@ -110,7 +93,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // News API endpoint
-  app.get("/api/news", async (req: Request, res: Response) => {
+  app.get("/api/news", async (_req: Request, res: Response) => {
     try {
       const newsApiKey = process.env.NEWS_API_KEY;
       
@@ -124,7 +107,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         throw new Error(`News API error: ${response.status}`);
       }
 
-      const data = await response.json();
+      const data: any = await response.json();
       
       if (data.status !== 'ok') {
         throw new Error(`News API error: ${data.message}`);
