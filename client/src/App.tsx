@@ -14,6 +14,7 @@ import NotFound from "@/pages/not-found";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import AppHeader from "@/components/app-header";
+import SandCanvas from "@/components/SandCanvas";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -66,6 +67,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <SandCanvas />
         <Router />
         <Toaster />
       </TooltipProvider>
