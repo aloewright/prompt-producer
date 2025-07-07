@@ -1,6 +1,9 @@
 import { getAssetFromKV } from '@cloudflare/kv-asset-handler';
-import manifestJSON from '__STATIC_CONTENT_MANIFEST';
-const assetManifest = JSON.parse(manifestJSON);
+
+// Declare the Cloudflare Workers global that's injected at runtime
+declare const __STATIC_CONTENT_MANIFEST: string;
+
+const assetManifest = __STATIC_CONTENT_MANIFEST ? JSON.parse(__STATIC_CONTENT_MANIFEST) : {};
 
 export default {
   async fetch(request, env, ctx) {

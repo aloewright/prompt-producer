@@ -31,7 +31,20 @@ jobs:
       run: npm run check
       
     - name: Build application
-      run: npm run build:worker
+      run: npm run build:all
+      
+    - name: Verify dist folder structure
+      run: |
+        echo "Verifying dist folder structure..."
+        ls -la dist/
+        echo "\nClient assets:"
+        find dist/ -name "*.html" -o -name "*.css" -o -name "*.js" -o -name "*.json" | head -10
+        echo "\nWorker files:"
+        find dist/ -name "*.worker.*" -o -name "worker.*" -o -name "*worker*" | head -10
+        echo "\nTotal files in dist:"
+        find dist/ -type f | wc -l
+        echo "\nDist folder size:"
+        du -sh dist/
       
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

@@ -117,4 +117,4 @@ export function getUserFromRequest(request: Request): CloudflareAccessUser | nul
   }
   
   return extractUserFromHeaders(request);
-} 
+}
