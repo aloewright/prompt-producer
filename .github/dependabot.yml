@@ -1,7 +1,18 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm" # See documentation for possible values
-    directory: "/" # Location of package manifests
-    schedule: 
+  # Enable version updates for npm
+  - package-ecosystem: "npm"
+    # Look for `package.json` and `lock` files in the `root` directory
+    directory: "/"
+    # Check the npm registry for updates every day (weekdays)
+    schedule:
+      interval: "daily"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    # Look for `.github/workflows` in the `root` directory
+    directory: "/"
+    # Check for updates every day (weekdays)
+    schedule:
       interval: "daily"
